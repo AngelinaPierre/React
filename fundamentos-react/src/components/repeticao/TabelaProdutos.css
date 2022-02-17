@@ -1,0 +1,52 @@
+/**
+ * AULA 28 - DESAFIO REPETIÇÃO
+ * 
+ * 1) Dentro da pasta de /data temos que criar um arquivo chamado produtos.js
+ * 2) produtos.js tera 3 atributos: id, nome e preço
+ * 3) Dentro da pasta /repeticao vamos criar uma arquvo chamado tabelaProdutos.jsx
+ * 4) Dentro do tabela produtos temos que criar uma tabela com esses produtos.
+ * 
+ * FORMA PROFESSOR 2
+ * 
+ * 1) outra forma de fazer eh criando uma função fazendo uma interpolação depois.. função dentro de função.
+ *          function getLinhas(){
+        return produtos.map(produto => {
+            return (
+                <tr>
+                    <td>{produto.id}</td>
+                    <td>{produto.nome}</td>
+                    <td>{produto.preco}</td>
+                </tr>
+            )
+        })
+    }
+ * 2) Podemos tbm fazer alterações nos valores, exemplo quantidade de casas decimais... 
+//                     <td>R$ {produto.preco.toFixed(2)}</td> 
+ *          
+ * FORMA PROFESSOR 3
+ * 1) substituindo virgula por ponto.
+ * 
+ * STYLE
+ * 1) Criar arquivo css chamado TabelaProdutos.css
+ * 2) importa ele no TabelaProdutos.jsx
+ * 3) aplicando classe de forma condicional
+ * 
+ */
+
+.TabelaProdutos table{
+    width: 100%;
+}
+.TabelaProdutos th{
+    background-color: #283cae;
+    color: white;
+}
+
+/* aplicando estilo zebrado */
+
+/* (3) */
+.TabelaProdutos .Par {
+    background-color: #ddd;
+}
+.TabelaProdutos .Impar {
+    background-color: #ccc;
+}

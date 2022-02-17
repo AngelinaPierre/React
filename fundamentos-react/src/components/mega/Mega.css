@@ -1,0 +1,14 @@
+.Mega input {
+    font-size: 1.4rem;
+    width: 50px;
+    /* text-align: center; */
+}
+.Mega label {
+    margin-right: 10px;
+}
+
+.Mega .ball-style {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}

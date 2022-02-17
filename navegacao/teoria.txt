@@ -1,0 +1,475 @@
+SEÇÃO 4 - NAVEGAÇÃO COM REACT ROUTER
+
+================================ [AULA 51 - CRIAÇÃO DO PROJETO] ================================
+
+1) Criar app navegação
+    npx create-react-app navegacao
+2) Instalar o o pacote react-router-dom dentro da pasta do projeto.
+    npm i react-router-dom
+3) Apos intalar o pacote, abrir o vscode na pasta.
+4) Vamos fazer alguns ajustes no projeto
+    4.1) Apagar tudo em /src
+    4.2) Criar /src/index.js
+    4.3) Reconstruir a pagina do index.js, vamos fazer o import do REACT e do REACTDOM para usar o renderizador DOM.
+    4.4) Vamos colocar um simples <h1> par teste.
+    4.5) [document.getElementById('root')] podemos ver a ID entrando no [index.html] e vendo que a id da <div>='root'
+        4.5.1) É exatamente nessa <div> que a aplicação será injetada.
+5) npm start para rodar a aplicação.
+
+================================ [AULA 52 - ESTRUTURA DO PROJETO] ================================
+
+- Vamos criar um conjunto de pastas para trazer uma certa organização para a nossa aplicação.
+1) /src/views -> telas
+    1.1) /views/app.jsx -> Nossa aplicação principal.
+    1.2) /views/example -> Outras views relacionadas a exemplos [telas: home, about..]
+2)/components/layout -> componentes e layout
+
+- Apos a criação dos directories and files, we're going to make some definitions in the files
+
+[APP.JSX]
+1) Vamos criar uma constante chamando ela de (app) irá receber propriedades, e depois vamos exporta-las.
+2) Criamos o componente [app] dando a ele um className.
+
+[index.js]
+1) Vamos importar o componente app criado dentro do index.js no lugar do <h1> que criamos. Ao salvar vemos que funcionou.
+
+[/layout]
+
+- Na pasta de layout vamos definir dois componentes, alem do css que iremos utilizar
+
+1) [menu.jsx e menu.css] - vamos criar a estrutura baseada no componente app.
+2) Vamos criar tbm o [app.css] e importar dentro do [app.jsx]
+3) Como ja temos o nome da class, dentro do [App.css] podemos configurar alguns estilos.
+4) Dentro do [menu.css] vamos criar uma classe para o menu.
+5) Dentro de /LAYOUT vamos criar outro componente chamado [content.jsx] e usaremos tbm a estrutura do menu.
+    5.1) Em [Menu.jsx] no lugar da <div> vamos usar o <aside>
+    5.2) Em [COntent.jsx] no lugar do <aside> vamos usar a tag <main>
+6) Criar arquivo [Content.css]
+
+- Parte do que vamos fazer ja foi estruturada:
+    [menu]
+    [conteudo]
+    [App]
+
+- Podemos criar inicialmente, ja para criarmos a questão da estrutura os arquivos [Home.jsx && About.jsx]/examples vamos utilizar a mesma estrutura de componentes do Menu.jsx.
+
+[Home.jsx e About.jsx]
+
+1) Usar a mesma estrutura do Menu, trocando o nome 'menu' por 'about'
+2) Vamos tbm colcoar um <h1> e uma tag <p>, tudo isso dentro de uma <div>
+3) Vamos copiar essa estrutura e joga-la no [About.jsx]
+
+- Nos temos ja todos os componentes, o unico que esta realmente sendo acessado seria o [App.jsx], logo ele que esta sendo referenciado pelo [index.js]
+- No mais, todos os outros componentes so fizemos criar a estrutura.
+- Na proxima aula vamos começar a trabalhar com o css para estilizar nossa estrutura, e tambem vamos usar dentro do componente [App.jsx] tanto o componente [Menu && Content] para podermos referenciar esses dois componentes e começarmos a trabalhar a questão do nosso [menu] e a [navegação]
+
+================================ [AULA 53 - APLICANDO ESTILO] ================================
+
+- Vamos começar alterando o componente App.jsx para que possamos fazer uma referencia para os componentes [menu.jsx && COntent.jsx]
+
+[App.jsx]
+
+1) Vamos Referenciar o componente <Menu />. Temos um plugin chamado auto-import, que consegue importar automaticamente, se nao conseguir, eh so baixar o plugin.
+2) Apos a importação agora iremos trabalhar com o layout
+
+[index.css]
+- Podemos criar fora de /views e fora de /components um [css] associado ao index.
+- Podemos por exemplo trabalhar com [body] ou algum estilo que não esteja associado a algum componente.
+- Temos que referencia-lo no index.jsx
+
+[App.css]
+
+- Vamos alterar o display para flex, altura.
+- Flex padrão eh o flex row -> ficara um do lado do outro.
+- Queremos que ele ocupe a tela inteira. altura=100vh 
+    - vh = unidade de altura dividida em 100 partes(tela inteira), 50 eh metade da tela, 80...
+- Logo, nesse momento o componente [App.jsx] esta ocupando a tela inteira.
+- Do ponto de vista do componente [app] por enquanto eh somente essas configurações.
+
+[Menu.jsx]
+
+- Criar tag <nav> de navegação e uma lista não ordenada <ul>
+1) Dentro da <li> vamos colocar um link (depois iremos alterar)
+
+[Menu.css]
+- Agora temos a lista que será utilizada para navegação.
+- Vamos estiliza-la
+
+1) Display:flex -> Como so temos um componente não fará muita diferença colocar o flex direction para ser linha ou coluna ja que dentro do menu temos um unico componente chamado <nav>
+2) flex-basis:250px -> outro modo de add largura no estilo.
+3) Backgroun-color: #1e90ff;
+4) Vamos alterar a <ul> do menu.
+    list-style:none; -> sem bolinhas.
+    padding:0; -> para nao ter padding dentro da lista.
+5) Alguns frameworks tem o que chamamos de [css escopado (scoup dentro do css)], não eh o caso do react.
+    - Se colocarmos a classe App dentro de [menu.css] irá colocar a formatação dentro da pagina, mesmo estando no arquivo css errado.
+6) Vamos alterar o <li> do [Menu.css]
+    display:flex;
+7) Vamos alterar tbm o link que esta dentro do <li> <a>
+    obs1: se colocarmos [.Menu li > a] -> significa que a tag <a> precisa esta diretamente dentro do <li>
+    obs2: Se so colocarmos o espaço, significa que o <a> tem q ta dentro de <li> e o <li> dentro de <menu>
+8)Tag <a>
+    text-decoration:none;
+    color: #fff;
+    font-size:1.5rem;
+    margin-bottom:10px;
+    padding:10px; -> todas as direções.
+    flex:1; 
+9) Se pedirmos para inspecionar podemos verificar/confirmar todas essas alterações.
+10) Dentro de <nav> vamos aumentar um pouco o tamanho colocando o [flex:1;] -> assim o link irá ocupar a linha inteira. em toda a extesão, nao somente na palavra.
+    10.1) Vamos alterar o cmportamento do link <a> com o hoover.
+        - Podemos usar tanto o backgroun-color quanto somente background que irá funcionar.
+        - Vamos colocar a cor preta com uma transparencia de 030 -> #00000030
+        - Quando fizermos isso vamos perceber que ao passar o cursor ele irá colcoar uma transparencia preta. se quiser mais suave coloca 020.
+
+[Content.jsx e Content.css]
+
+1) Vamos colocar um <h1> so para ficar um pouco maior o conteudo escrito do component [Content.jsx].
+2)[Content.css]
+    display:flex;
+    flex:1; ou flex-grow:1; ---> flex recebe 2 propriedades | flex-grow apenas 1. (ele alterou o flex do <nav> para flex-grow)
+    background-color:#ddd;
+    padding:30px; -> todas as direções.
+
+
+- Fizems uma parte importante do estilo da nossa aplicação.
+- Proxima aula vamos mostrar como fazer o processo de navegação.
+- Vamos precisar importar o React-router-dom para começar a configurar o processo de navvegação e fazer o primeiro exemplo que eh navegar entre o componente [home] e [about]
+
+
+================================ [AULA 54 - NAVEGAÇÃO SIMPLES] ================================
+
+- Vamos começar agora a configuração para usar o REACT ROUTER
+- Se entrarmos no google, teremos a parte da documentação mostrando o REACT ROUTER.
+
+[App.jsx]
+1) A primeira coisa que vamos fazer é em [App.jsx] envolver as tags <Menu> e <Content> na tag <router>
+    - Na Documentação toda a aplicação é envolvida com o <router>
+    - Envolve a parte que será o conteudo que estaremos substituindo cada uma das telas, como tbm esta envolvendo a parte de navegação <menu>
+    - import(
+        BrowserRouter as Router,  -> as Router (alias) uma vez colocado o alias, podemos referencia-lo como <Router>
+        Switch,
+        Route,
+        link
+    ) from "react-router-dom";
+    - Vamos fazer exatamente isso em [App.jsx]  
+
+[Content.jsx]
+1) Vamos usar o <Switch> e o <Route> da documentação do REACT ROUTER;
+    OBS: FOI ATUALIZADO O SWITCH PARA ROUTES, E A DECLARAÇÃO FICOU: <Route path='/welcome' element={<Home/>} />
+                const Content = props => (
+                    <main className="Content">
+                        <Routes>
+                            <Route path="/about" element={
+                                <About />
+                            }/>
+                        </Routes>
+                    </main>
+                )
+    - No import, se colocarmos o lugar primeiro 'react-router-dom' para depois colocarmos o que queremos importar, a IDE irá nos auxiliar.
+    - No <Route> ele usa o atributo[path] para colocar a rota que queremos que ele faça para o determinado componente.
+    - Dentro dessa rota<Route> ele irá colocar de fato o componente que será renderizado quando a URL for chamada.
+2) Vamos importar o {about.jsx} para o [content.jsx] e colocar <About> dentro de <Route> 
+3) Vamos duplicar essa linha de codigo para o path=/ (raiz) chamar o componente [Home.jsx]
+4) Se clicarmos no home do menu, ele ira navegar para o componente de inicio [home.jsx], se clicarmos no About do menu, não ira navegar pois estamos usando a tag <a> vamos ter que alterar isso para a tag<link> --- manualmente o About funciona.
+
+- Ja colocamos o componente que irá escolher qual tela será exibida quando clicarmos no menu.
+- Colocamos o Home.jsx e o About.jsx para representar uma tela da aplicação, tanto que esses arquivos foram criado dentro de /views.
+- Dentro de views, temos um componente que representa uma tela inteira, e dentro de /components, temos componentes que representam partes de uma tela.
+
+[Menu.jsx]
+
+1) Vamos importar o react dom e importar o {Link} para usarmos no lugar da tag <a>.
+    - A tag <link> utiliza o atributo [to] para referenciar o path que iremos quando o path for selecionado. Uma vez que isso acontece ele ira carregar o componente que esta dentro do <Switch/Routes>
+    - Não vamos precisar meer no .CSS pq a tag <link> tecnicamnete tbm eh uma tag <a>
+    - O problema da tag <a> pode ter sido tbm pq não usamos o atributo [href="/about"] para referenciar.
+    - O ideal eh usar a tag <LInk> pois no decorrer do desenvolvimento pode ser utilizado com algum tratamento a mais.
+obs: duvida criada sobre o path do link .....
+
+2) Vamos ver mais um exemplo simples relacionado a passar parametros:
+    - Se inspecionarmos, vemos que mesmo usando a tag <link> foi criado a tag<a> no html
+    - Ou seja, o componente <link> internamente referencia a tag <a> do html.
+
+- O REACT ROUTER eh uma forma muito mais simples de organizarmos uma aplicação com multiplos componentes.
+- Vamos supor que o px capitulo ira falar de HOOKS, entao podemos criar um exercicio dentro de um componente isolado.
+
+- Proxima aula vamos ver como passar parametros a partir da url e como referencia-los dentro do react router.
+
+
+================================ [AULA 54 - NAVEGAÇÃO COM PARAMETROS] ================================
+
+
+- Vamos agora criar um outro exemplo [/example], ou seja, vamos criar mais uma nova TELA.
+- Vamos aprender como passar parametros a partir da URL(), se olharmos na documentação (url parameters) veremos um exemplo de utilização.
+- Vamos criar um novo arquivo chamado [Param.jsx] e copiar a estrutura da tela/pagina Home.jsx para ele.
+
+[Param.jsx]
+1)Vamos exibir o valor na tag <p>
+2) Apos criarmos o componente vamos referencia-lo na aplicarção -> [App.jsx]. Vamos Mexer em dois locais [Menu.jsx & Content.jsx].
+                - MENU -> TRIPLICAR A LI | OS DOIS LINKS CRIADOS APONTARAM PARA O MESMO COMPONENTE
+                - CONTENT -> DUPLICAR A ROTA E REFERENCIAR O COMPONENTE 
+
+
+[Menu.jsx]
+
+const Menu = props => (
+    <aside className="Menu">
+        <nav>
+            <ul>
+                <li>
+                    <Link to="/">Home</Link>
+                </li>
+                ============== [Alterações] ==============
+                <li>
+                    <Link to="/param">Param #01</Link>
+                </li>
+                <li>
+                    <Link to="/params">Param #02</Link>
+                </li>
+                ============== [Alterações] ==============
+                <li>
+                    <Link to="/about">About</Link>
+                    {/* <a href="/about">About</a> */}
+                </li>
+            </ul>
+        </nav>
+    </aside>
+)
+
+[Content.jsx]
+
+const Menu = props => (
+    <aside className="Menu">
+        <nav>
+            <ul>
+                <li>
+                    <Link to="/">Home</Link>
+                </li>
+                ============== [Alterações] ==============
+                <li>
+                    <Link to="/param">Param #01</Link>
+                </li>
+                <li>
+                    <Link to="/params">Param #02</Link>
+                </li>
+                ============== [Alterações] ==============
+                <li>
+                    <Link to="/about">About</Link>
+                    {/* <a href="/about">About</a> */}
+                </li>
+            </ul>
+        </nav>
+    </aside>
+)
+
+- Nos temos agora os componentes [About.jsx Param.jsx e Home.jsx], ao clicarmos no browser, ele irá navegar entre esses locais
+
+[Content.jsx]
+
+- Vamos agora adicionar parametros para a navegação:
+    <Route path="/param/:id" element={
+        <Param />
+    }/>
+1) [/param/:id] -> O fato de termos colocado os [:] nos indica que o [id] não é um valor literal. Seria literal se tivessemos colocado [/param/id]
+2) Os dois pontos, mostra que isso será uma variavel, um parametro que será passado a aprtir da URL.
+3) Se clicarmos no browser nos {Param #01 || Param #02} não havera navegação pois a URL ainda não foi mapeada. Ele espera que seja um parametro mais um valor.
+
+[Menu.jsx]
+
+1) No Menu, onde temos os parametros, podemos colcoar a barra e qualquer coisa que represente uma ID:
+    <Link to="/param/123"> Param #01 </Link>
+2) Agora o Param #01 esta apontando correntamente para a URL, quando licarmos nele no browser, será navegado para a pagina do Param #01
+3) O [Param #02] não ira funcionar e entrará na tela de inicio.
+
+- Agora, como fazemos para pegar o parametro e mostrar no browser:
+- Existe dentro do componente [Param.jsx] la no import do (react-router-dom) foi definido um HOOK que será explicado depois... mas podemos usar ele. 
+    import { useParams } from 'react-router-dom'
+- No corpo do componente, em vez de ter os [()], temos que trocar {chaves} - corpo da função, e retornar().
+        const Param = props => {
+            <div className="Param">
+                <h1>Navegação Com Parametros</h1>
+                <p>Valor : ???!</p>
+            </div>
+        }
+- Vamos usar a função (useParams()) para obter o id. OU seja, vai retornar um bojeto que dentro dele tem o ID.
+        const Param = props =. {
+            const { id } = useParams()
+            <div className="Param">
+                <h1>Navegação Com Parametros</h1>
+                <p>Valor : ???!</p>
+            </div>
+        }
+- Esse [id] é exatamente o mesmo nome que colcoamos no [Content.jsx] quando definimos que o nome do parametro era dois ponto id  (:id).
+- Logo podemso interpolar o valor dentro da tag<p> para ser mostrado no browser.
+        const Param = props => {
+            const { id } = useParams()
+            return(
+                <div className="Param">
+                    <h1>Navegação Com Parametros</h1>
+                    <p>Valor : {id}!</p>
+                </div>
+            )
+        }
+- Vamos alterar de <p> para <h2> para ficar um pouco maior.
+
+# PASSANDO VALOR TEXTUAL
+
+[Menu.jsx]
+
+1) Passamos -> [/param/legal]
+
+# AGORA ESTAMOS NAVEGANDO NAS 3 TELAS DA NOSSA APLICAÇÃO.
+
+- Para ficar padronizado vamos alterar onde tem a tag <p> para ser <h2> [Home.jsx & About.jsx]
+
+================================ [AULA 55 - ENTENDO O PARAMETRO EXACT] ================================
+
+- Vamos supor que no [Menu.jsx] tenhamos um link que não existe. 
+        const Menu = props => (
+            <aside className="Menu">
+                <nav>
+                    <ul>
+                        <li>
+                            <Link to="/">Home</Link>
+                        </li>
+                        <li>
+                            <Link to="/param/123">Param #01</Link>
+                        </li>
+                        <li>
+                            <Link to="/param/legal">Param #02</Link>
+                        </li>
+                        <li>
+                            <Link to="/about">About</Link>
+                            {/* <a href="/about">About</a> */}
+                        </li>
+                        <li>
+                            <Link to="/noExiste">Não Existe</Link>
+                        </li>
+                    </ul>
+                </nav>
+            </aside>
+        )
+
+- Quando vamos no browser e clicamos no [Não Existe] no [Menu] ele irá voltar para a pagina de [inicio].
+- Se formos la no [Content.jsx] que foi onde definimos as rotas usando [casoP=switch | casoRealUpdated= Routes], colocarmos o [home=/] para ser o ultimo, de proposito.
+        const Content = props => (
+            <main className="Content">
+                <Routes>
+                    <Route path="/about" element={
+                        <About />
+                    }/>
+                    <Route path="/param/:id" element={
+                        <Param />
+                    }/>
+                    <Route path="/" element={
+                        <Home />
+                    } />
+                </Routes>
+            </main>
+        )
+- O que irá acontecer se colocarmos o home para cima? Ou seja, sendo a primeira rota?
+    const Content = props => (
+        <main className="Content">
+            <Routes>
+============== [Alterações] ==============
+
+                <Route path="/" element={
+                    <Home />
+                } />
+
+============== [Alterações] ==============
+                <Route path="/about" element={
+                    <About />
+                }/>
+                <Route path="/param/:id" element={
+                    <Param />
+                }/>
+            </Routes>
+        </main>
+    )
+- Se fizermos isso, no browser, qualquer rota que andarmos irá permanencer na home, apesar de estar mudando a url.
+- Isso acontence pq todas as url's começam com [/]. Mas existe a possibilidade de colocarmos a rota EXATA [exact].
+
+[EXACT] -> UMA PROPRIEDADE OPCIONAL,SIGNIFICA QUE SO VAI ENTRAR NO HOME SE EXATAMENTE TIVER O [/]
+
+- Agora ira voltar a funcionar, mas o componente que criamos [não existe], não ira mais para a tela de inicio, irá mostrar uma pagina sem conteudo.
+    const Content = props => (
+        <main className="Content">
+            <Routes>
+============== [Alterações] ==============
+                <Route exact path="/" element={
+                    <Home />
+                } />
+============== [Alterações] ==============
+                <Route path="/about" element={
+                    <About />
+                }/>
+                <Route path="/param/:id" element={
+                    <Param />
+                }/>
+            </Routes>
+        </main>
+    )
+
+- Uma das vantagens de colocar o home[/] para ser a ultima rota, e não usar a propriedade exact, é qe quando entrar numa url errada, ira cair no home e nã irá mostrar uma tela vazia.
+- Outra coisa que podemos fazer é configurar uma tela de [#ERRO404], se olharmos na documentação fala exatamente sobre isso.
+
+
+================================ [AULA 56 - PAGINA NÃO ENCONTRADA] ================================
+
+- Vamos criar o ultimo exemplo /examples/NotFoud.jsx
+
+[NotFoud.jsx]
+
+- Vamos pegar o componente [About.jsx] como estrutura inicial, e fazer algumas alterações.
+    [
+        const NotFound = props => (
+            <main className="NotFound">
+                <h1>Componente NotFound[sobre] - 404</h1>
+                <h2>Oppss... Página não encontrada!</h2>
+            </main>
+        )
+    ]
+
+1) Apos criar o componente, temos que adicionar a rota dele ao nosso [Content.jsx] onde adicionamos as rotas.
+2)No PATH vamos colocar um asterisco(*) que irá indicar que, qualquer outra url que não sejam as que foram declaradas, irá cair no caso do NotFoud.
+        <Route path="*" element={
+            <NotFound />
+        }>
+        </Route>
+- Agora quando clicarmos na pagina criada como exemplo de url não existente irá mostrar o componente notfound(erro404.)
+
+================================ [AULA 58 - CONCLUSÃO] ================================
+
+Conclusão do capitulo.
+
+================================ [AULA 59 - PROXIMO CAPITULO(HOOKS)] ================================
+
+- Hooks é uma adção que foi feita a partir do react 16.8 que faz com que a gente consiga trabalhar com funções, ou seja, ele acrescentou uma serie de funcionalidades aos componentes funcionais.
+
+- Dentro do react temos componentes baseados em classes e funções.
+
+[VANTAGENS COMPONENTES FUNCIONAIS]
+
+1) Sintaxe mais enxuta, podemos criar um componente funcional com praticamente zero sintaxe, basicamente criar uma função e vc ja esta pronto para utilizar jsx.
+2) OUtra vantagem é, quer queira voce ou não o javascript eh uma linguagem muito focada em funções. Existe classes, sim, mas internamente, classes são outras formas de escrever uma função. 
+
+- Dentro do javascript, funções é a forma que temos para desenvolver orientação a objeto, progamar de formar funcional, forma de progamar procedural...
+- Logo o REACT, como um FRAMEWORK, que se basea em javascript nada mais natural que voltarmos o maximo possivel para trabalahr com funções.
+- Os HOOKS nos ajudam a ter uma serie de funcionalidades interessantes para utilizar as funções de maneiras mais abranjentes.
+
+================================ [AULA 60 - CONFIGURAÇÕES DO PROJETO] ================================
+
+- Existe um codigo associado a essa aula, um .zip que podemos baixar e ter a estrutura inicial do projeto montada.
+- A estrutura inicial, não tem nada haver com HOOKS, eh basicamente para fazermos a navegação, mas ou menos como fizemos na seção passada.
+
+1) vamos criar outro projeto 
+        [npx create-react-app hooks]
+2) Apos criar o projeto, entramos nele e instalamos a dependencia do react-router-dom
+        [npm install react-router-dom@5.2.0] -> ao usar o @ estamos especificando a versão que queremos usar.
+        - Como o foco não será o react-router-dom e sim os hooks, vamos usar uma versão especifica.
+
+- A seção passada gerou uma pagina de navegação, vamos utilizar essa mesma estrutura fazendo algumas melhorias.
+3) Ao concluir a criação do projeto [hooks] vamos abrir o mesmo no vscode.
+4) Vamos apagar a pasta /src do projeto criado e substituir pelo .zip ou criar o projeto do zero.
+5) Apos fazer essas alterações rodamos o npm start.

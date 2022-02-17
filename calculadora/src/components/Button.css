@@ -1,0 +1,101 @@
+/**
+ * AULA 47 - COMPONENTE DISPLAY #2
+ * 
+ * Agora para fazermos o acabamento nos botões, cor e dizer que certos botões ocupam uma determinada quantidade de espaços na grid (3 ou 2).
+ * 
+ * FORMA 1 - BUTTON.CSS
+ * 1) Quando clicamos no botão ele fica mais escuro, vamos colocar esse efeito.
+ * 2) Vamos criar uma classe chamada [button.double] quando o botão ocupa 2 posições, o que fazemos?
+ * 2.1) Iremos fazer o mesmo para 3.
+ * 3) Vamos criar tbm uma outra classe chamada [button.operation] , ou seja, quando o botão representar uma operação, vamos ter um background diferente.
+ * 3.1)Vamos tbm alterar o modo ativo de [button.operation]
+ * 
+ * FORMA 2
+ * 
+ * Agora iremos fazer com que as propriedades que aplicamos (classes que criamos) sejam aplicadas no botão.
+ * 
+ * 1) Em Button.jsx, onde temos [className='button'] vamos colocar uma expressão que será delimitada por aspas ivnertidas (backtic) ou seja, tem uma template string.
+ * 1.1) Sempre que tivermos uma expressão {chaves} detro do .JSX PODEMOS COLOCAR CODIGO JAVASCRIPT.
+ * 1.2) Logo podemos colocar uma template string para que possamos compor as classes do botão de acordo com a necessida.
+ * 
+ */
+ :root {
+    --bg-button:#f0f0f0;
+    --border-button: solid 1px #888;
+}
+
+.button {
+    font-size: 1.4em;
+    background-color: var(--bg-button);
+    border: none;
+    border-right: var(--border-button);
+    border-bottom: var(--border-button);
+    outline: none;
+}
+
+.button:active{
+    background-color: #ccc;
+}
+
+.button.double{
+    grid-column: span 2;
+}
+.button.triple{
+    grid-column: span 3;
+}
+.button.operation{
+    background-color: #Fa8231;
+    color: #fff;
+}
+.button.operation:active{
+    background-color: #Fa8231cc;
+}
+
+/**
+ * AULA 45 - COMPONENTE BUTTON 01
+ * 
+ * Agora que criamos a estrutura basica da nossa calculadora, vamos agora focar em criar os botões, o display e depois a logica para fazer os calculos.
+ * 
+ * Dentro da pasta /src vamos criar um novo diretorio chamado /components e dentro do mesmo vamos criar alguns arquivos jsx e css.
+ * 
+ * FORMA 1 
+ * 
+ * 1)Fazer imports react + css
+ * 2) Apos a criação vamos agra criar um componente funcional, sem estado
+ * 2.1) Quanto mais componentes sem estado criarmos melhor será para a nossa aplicação. Que sã componentes que recebem parametros e de acordo com os mesmo conseguimos renderiar o componente mais facilmente.
+ * 3) apos a criação do <button> vamos precisar fazer o import do mesmo em Calculator.jsx.
+ * 4) Agora iremos estilizar o button.css, onde vamos usar um recurso, sobre como usar variaveis dentro do css.
+ * 4.1) A declaração de variaveis dentro do css é feita ao declarar elas dentro da psude-classe [:root], vamos criar a variavel e o browser irá interpreta-la tranquilamente.
+ *      :root{
+ *      --bg-button:#f0f0f0;
+ * }
+ * 4.2) para criar uma variavel é preciso colocar o [--] no começo. [--bg-button] = background do butao.
+ * 4.3) Podemos usar essas variaveis a partir da função [var()] usada para referenciar uma variavel.
+ * 4.3) Apos algumas alterações vemos que quando o usuario clicar no botão á um outline, vamos remover isso
+ * 5) No [Button.jsx]vamos usar uma propriedade [props.label] que será inserida no botão.
+ * 6) E na [Calculator.jsx] vamos passar o [label]
+ * 
+ * FORMA 2
+ * 1) Usamos o [flexbox] para organizar, mas agora vamos uasr o [css grid] para organizar a parte de fora. 
+ * 2) Vamos usar o [display:grid] e imediatamente vemos alterações.
+ * 3) Como colocamos o [overflow:hidden] acabou escondendo os outros numeros para caber nos parametros definidos do tamanho da calculadora.
+ * 4)Vamos agora começar a definir os templates de LINHAS E COLUNAS para que possamos renderizar corretamente esses elementos.
+ * 5) No inicio da calculadora teremos o display, e cada uma desass linhas (5) ira ter uma tamanho fixo.
+ * 6) Por enquanto vamos ignorar o display e fazer as definições da linha
+ * 
+ */
+
+/* :root {
+    --bg-button:#f0f0f0;
+    --border-button: solid 1px #888;
+}
+
+.button {
+    font-size: 1.4em;
+    background-color: var(--bg-button);
+    border: none;
+    border-right: var(--border-button);
+    border-bottom: var(--border-button);
+    outline: none;
+} */
+

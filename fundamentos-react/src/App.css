@@ -1,0 +1,9 @@
+.App .Cards {
+    display:flex;
+
+    /* os cards estaso na mesma linha */
+    flex-wrap: wrap;
+
+    /* Centralizando elementos */
+    justify-content: center;
+}

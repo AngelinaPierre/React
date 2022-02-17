@@ -1,0 +1,107 @@
+/**
+ * AULA 47 - COMPONENTE DISPLAY #2
+
+ */
+
+ .calculator {
+    height: 320px;
+    width: 235px;
+    border-radius: 5px;
+    overflow: hidden;
+
+    display: grid;
+     grid-template-columns: repeat(4, 25%);
+     grid-template-rows: 1fr 48px 48px 48px 48px 48px;
+}
+
+/**
+ * AULA 46 - COMPONENTE DISPLAY
+ * 
+ * Agora vamos criar o componente que será responsavel por ser o display da calculadora
+ * 
+ * Podemos observar que quando vamos organizando nossa APLICAÇÃO de uma forma muito mais sustentavel. Em vez de ficar fazendo um monte de script ou nativo em java script ou mesmo em Jquery.
+ * 
+ * Criamos COMPONENTES e cada componente tem suas responsabilidades. Logo fica muito mais facil a reutilização (ex: componente Button.jsx esta sendo utilizado varias vezes.)
+ * 
+ * Fica mais facil de manter o codigo, se der um problema no componente saberemos qual é e temos como resolver o problema de uma forma muito mais localizada e toda sua aplicação será beneficiada por conta disso.
+ * 
+ * FORMA 1
+ * 
+ * 1) Dentro de /componentes vamos criar 2 novos arquivos, o [Display.jsx | Display.css]
+ * 2) Vamos tbm fazer o DISPLAY como um COMPONENTE FUNCIONAL.
+ * 3) o {props.value} será exatamente o que será exibido no dispaly.
+ * 4) Vamos em [Calculator.jsx] importar o componente do DISPLAY e colocar um valor inicial de 100, depois iremos mudar para representar o ESTADO da calculadora atual.
+ * 5) Em [Calculator.css] temos 5 linhas dos botões, mas na calculadora temos 6 linhas, que seria a do display e as outras 5 dos botões. 
+ * 5.1) Então antes das 5 linhas fixas que são os botões, vamos usar uma linha que irá representar o display.
+ * 5.2) podemos usar o fragment, uma propriedade do [css] que ira pegar exatamente o restante do tamanho disponivel na tela.
+ * 6) Agora iremos melhorar a visualização do display diretamente no [DIsplay.css].
+ * 6.1) Vamos criar a classe display, e existe uma propriedade chamada [grid-column] onde podemos dar um span e dizer quantas linhas da grid iremos ocupar. No caso estará ocupando 4 linhas  
+ * 6.2) Embora o display seja um elemento da grid, podemos tbm aplicar a ele a propriedade [flex-box]
+* 7) Como a propria calculadora esta dando um [overflow:hidden] se inserirmos um numero com varias casas decimais irá passar do tamanho da dela. Para garantir que o display não herde essa propriedade do parent, usamos o [overflow:hidden]
+ */
+ /* FORMA 1 */
+ /* .calculator {
+    height: 320px;
+    width: 235px;
+    border-radius: 5px;
+    overflow: hidden;
+
+    display: grid;
+     grid-template-columns: repeat(4, 25%);
+     grid-template-rows: 1fr 48px 48px 48px 48px 48px;
+} */
+
+/**
+ * AULA 45 - COMPONENTE BUTTON 01
+ * 
+ * Agora que criamos a estrutura basica da nossa calculadora, vamos agora focar em criar os botões, o display e depois a logica para fazer os calculos.
+ * 
+ * Dentro da pasta /src vamos criar um novo diretorio chamado /components e dentro do mesmo vamos criar alguns arquivos jsx e css.
+ * 
+ * FORMA 1 
+ * 
+ * 1)Fazer imports react + css
+ * 2) Apos a criação vamos agra criar um componente funcional, sem estado
+ * 2.1) Quanto mais componentes sem estado criarmos melhor será para a nossa aplicação. Que sã componentes que recebem parametros e de acordo com os mesmo conseguimos renderiar o componente mais facilmente.
+ * 3) apos a criação do <button> vamos precisar fazer o import do mesmo em Calculator.jsx.
+ * 4) Agora iremos estilizar o button.css, onde vamos usar um recurso, sobre como usar variaveis dentro do css.
+ * 4.1) A declaração de variaveis dentro do css é feita ao declarar elas dentro da psude-classe [:root], vamos criar a variavel e o browser irá interpreta-la tranquilamente.
+ *      :root{
+ *      --bg-button:#f0f0f0;
+ * }
+ * 4.2) para criar uma variavel é preciso colocar o [--] no começo. [--bg-button] = background do butao.
+ * 4.3) Podemos usar essas variaveis a partir da função [var()] usada para referenciar uma variavel.
+ * 4.3) Apos algumas alterações vemos que quando o usuario clicar no botão á um outline, vamos remover isso
+ * 5) No [Button.jsx]vamos usar uma propriedade [props.label] que será inserida no botão.
+ * 6) E na [Calculator.jsx] vamos passar o [label]
+ * 
+ * FORMA 2
+ * 1) Usamos o [flexbox] para organizar, mas agora vamos uasr o [css grid] para organizar a parte de fora. 
+ * 2) Vamos usar o [display:grid] e imediatamente vemos alterações.
+ * 3) Como colocamos o [overflow:hidden] acabou escondendo os outros numeros para caber nos parametros definidos do tamanho da calculadora.
+ * 4)Vamos agora começar a definir os templates de LINHAS E COLUNAS para que possamos renderizar corretamente esses elementos.
+ * 5) No inicio da calculadora teremos o display, e cada uma desass linhas (5) ira ter uma tamanho fixo.
+ * 6) Por enquanto vamos ignorar o display e fazer as definições da linha
+ * 
+ * Vamos ter 4 colunas cada uma ocupando 25%, usamos o repeat 4 * 25% 
+ * 
+ */
+/*FORMA2*/
+/* .calculator {
+    height: 320px;
+    width: 235px;
+    border-radius: 5px;
+    overflow: hidden;
+
+    display: grid;
+     grid-template-columns: repeat(4, 25%);
+     grid-template-rows: 48px 48px 48px 48px 48px;
+} */
+/*FORMA 1*/
+/* .calculator {
+     height: 320px;
+     width: 235px;
+     border-radius: 5px;
+     overflow: hidden;
+     background-color: red; 
+} */

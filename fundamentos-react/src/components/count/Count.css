@@ -1,0 +1,15 @@
+
+.Count input {
+    font-size: 1.4rem;
+    width: 60px;
+}
+
+.Count button{
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    background-color: #532303;
+    font-size: 1.4rem;
+    color:white;
+    margin: 15px;
+}
