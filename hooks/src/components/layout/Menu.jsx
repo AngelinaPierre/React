@@ -4,6 +4,9 @@ import React from 'react'
 // import [link] router dom
 import { Link } from 'react-router-dom'
 
+//import style
+import './Menu.css'
+
 const Menu = props => (
         <aside className='Menu'>
             <nav>
