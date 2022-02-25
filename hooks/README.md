@@ -423,6 +423,267 @@ Utilizado quando temos objetos mais complexos, pois tras ferramentas para melhor
 
 
 
+Permite executar efeitos colaterais em COMPONENTES FUNCIONAIS. Vamos fazer um exemplo para verificar esses efeitos colaterais.
+
+[UseEffect.jsx] -> Forma inicial
+
+~~~javascript
+import React from 'react'
+
+import PageTitle from '../../components/layout/PageTitle'
+
+const UseEffect = props => {
+    return (
+        <div className='UseEffect'>
+            <PageTitle
+                title="Hook UseEffect"
+                subtitle="Permite executar efeitos colaterais em componentes funcionais"
+            />
+        </div>
+    )
+}
+export default UseEffect
+~~~
+
+Temos uma função arrow (=>) com o nome do componente (useEffect) indicando que ele irá receber propriedades (props.).
+
+Temos uma (div) com uma classe de CSS, dentro dela temos o componente PageTitle.jsx que recebe duas propriedades (title & subtitle).
+
+    1) A primeira coisa que iremos fazer será criar um (input) do tipo number para que possamos vincular o (input) ao ESTADO DO COMPONENTE.
+       1.1) Foi mostrado na aula passada como usar o useState() para vincular com o (input)
+       1.2) O valor_inicial do useState(-1)
+       1.3) Vamos criar uma variavel de estado chamada (number).
+
+[student]
+
+~~~javascript
+const UseEffect = props => {
+    const [number, setNumber] = useState(-1)
+    return (
+        <div className='UseEffect'>
+            <PageTitle
+                title="Hook UseEffect"
+                subtitle="Permite executar efeitos colaterais em componentes funcionais"
+            />
+            <SectionTitle title="Exercicio #01 - useEffect()"/>
+            <span className="text">{number}</span>
+            <input 
+                type="text" 
+                className="input" 
+                value={number}
+                onChange={
+                    e => setNumber(e.target.value)
+                }
+            />
+        </div>
+    )
+}
+~~~
+
+[professor]
+
+
+~~~javascript
+<div className="center">
+    <input 
+        type="number" 
+        className="input"
+        value={number}
+        onChange={
+            e => seetNumber(e.target.value)
+        }
+    />
+</div>
+~~~
+
+[SP]
+
+~~~javascript
+const UseEffect = props => {
+    const [number, setNumber] = useState(-1)
+    return (
+        <div className='UseEffect'>
+            <PageTitle
+                title="Hook UseEffect"
+                subtitle="Permite executar efeitos colaterais em componentes funcionais"
+            />
+            <SectionTitle title="Exercicio #01 - useEffect()"/>
+            <div className="center">
+                <span className="text">{number}</span>
+                <input 
+                    type="number" 
+                    className="input" 
+                    value={number}
+                    onChange={
+                        e => setNumber(e.target.value)
+                    }
+                />
+            </div>
+        </div>
+    )
+}
+~~~
+
+Para vermos os efeitos do useEffect() vamos utilizar duas classes criadas no CSS chamadas (text & text red), dentro de uma tag (span).
+
+Dentro da classe (text red) vamos querer mostrar o resultado do fatorial na cor vermelha.
+
+~~~javascript
+<div className="Center">
+    <span className="text">Fatorial: </span>
+    <span classname="text red">{number}</span>
+    ...
+</div>
+~~~~
+
+>Renderização horizontal.
+
+
+~~~javascript
+<div className="center">
+    <div>
+        <span className="text">Fatorial: </span>
+        <span className="text red">{number}</span>
+    </div>
+</div>
+~~~
+
+>Renderização Vertical.
+
+&nbsp;
+
+A ideia é sempre que colocarmos um valor no (input) seja mostrado o fatorial desse valor em vermelho.
+
+Isso seria um efeito colateral, ou seja, modificar(input) algo dentro da interface, que gerou um efeito colateral para outro tipo de informação que pertence a um componente, no caso, um outro estado do componente.
+
+Vamos criar um outro estado chamado de (fatorial) e vamos atribuir o valor_inicial para (1). Como o numero (1 em number) é o padrão, o fatorial de (1 = 1) e mostrar esse estado dentro da resposta.
+
+~~~javascript
+
+const [fatorial, setFatorial] = useState(1)
+return(
+...
+<div>
+    <span className="text">Fatorial: </span>
+    <span className="text red">{fatorial}</span>
+</div>
+...
+)
+~~~
+
+
+Imagine que queremos calcular o fatorial diretamente dentro da função (não vai funcionar...)
+
+    1) Vamos criar uma função chamada CalcFatorial() ela ira receber um numero.
+       1.1) Vamos fazer um teste para que ela não calcule o fatorial de um numero negativo, pois não existe.
+       1.2)Poderiamos fazer retornar uma string, mas o ideal é que esse teste retorne um valor numerico (-1 padrão). Se quisermos que mostra o valor, dentro da interface tratamos essa resposta de função e renderizamos o que queremos mostrar como string.
+       1.3)Se o numero for igual a (0) traremos como resposta o numero (1)
+       1.4) Passando por esses 2 testes, podemos fazer o return() do calculo do fatorial.
+    2) O codigo para calculo do fatorial pode ser feito ou utilizando (for || recursividade)
+       2.1) Recursividade : Fat(n-1) * n
+
+~~~javascript
+
+function calcFatorial (n) {
+    if(n < 0 ) return -1
+    if(n === 0) return 1
+    return (
+        calcFatorial(n-1) * n
+    )
+}
+
+~~~
+
+    3) Apos criar a função se tentarmos utiliza-la na função de mudança de estado, ira gerar um problema.
+
+~~~javascript
+const UseEffect = props => {
+    const [number, setNumber] = useState(1)
+    const [fatorial, setFatorial] = useState(1)
+
+    setFatorial(calcFatorial(number))
+    return (
+        <div className='UseEffect'>
+~~~
+
+    4) Não podemos dentro fazer diretamente dentro do corpo da função uma chamada que irá alterar o estado.
+   
+> Geralmente o trecho do corpo da função é responsavel por renderizar o componente, se chamarmos o setFatorial, dentro dele, ele irá renderizar o componente de forma infinita.
+
+    5) Vamos usar o [useEffect] para tratar esse erro. Quando colocamos os () ele irá mostrar os parametros necessarios para utilizar esse HOOOK.
+       5.1) No caso do useState() passamos o valor inicial.
+       5.2) No caso do useEffect() teremos dois parametros
+            -> EffectCallback : função que será chamada quando for gerar esse efeito colateral
+            -> DependencyList(op): 
+   
+~~~javascript
+useEffect(function(){
+
+}, [])
+~~~
+
+    6)Criamos uma função callback que será chamada sempre que algo modificar, esse algo, será o que passaremos como segundo parametro do HOOK ([]), para lista/ array de dependencias.
+    7) Para calcular o fatorial dentro dessa função callback, vamos depender de um valor (number). Ou seja, sempre que o number modificar, queremos chamar a função [calcFatorial] dando o (number) como propriedade para poder setarmos o novo valor do fatorial.
+~~~javascript
+useEffect(function(){
+    setFatorial(calcFatorial(number))
+},[number])
+~~~
+
+Ou seja, toda vez agora que o numero mudar (number), o useEffect será chamado para calcular pela função de callback recebendo o valor de number, o fatorial da função Calcfatorial().
+
+Ao fazer essa declaração, nao temos mais um loop effect do componente.
+
+> Estamos tendo um bug ao calcular o fatorialde 0, estamos recebendo o input como string, temos que converte-lo para um valor numero, basta criar uma constante que ira receber esse valor convertido.
+
+~~~javascript
+function calcFatorial(num){
+    const n = partInt(num)
+    if(n < 0) return -1
+    if(n === 0) return 1
+    return calcFatorial(n-1) * n
+}
+~~~
+
+> Configurando mensagem para quando o fatorial não existir
+
+~~~javascript
+...
+<span className="text red">{fatorial === -1 ? "Fatorial negativo não existe!" : fatorial}
+~~~
+
+O importe no useEffect() é o efeito colateral, mudar um dado da aplicação e ao mudar esse dado, impactamos outro estado da aplicação.
+
+Podemos utilizar o useEffect() para alterar o titulo da pagina, sempre que o [fatorial] mudar, vamos alterar o titulo da pagina, visivel somente no console pelo HTML ou na aba.
+
+~~~~javascript
+
+useEffect(
+    function () {
+        if(fatorial > 1000000){
+            document.title = "EIITAA!!!"
+        }
+    },[fatorial]
+)
+~~~
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

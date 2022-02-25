@@ -18,9 +18,16 @@ const UseState = (props) => {
             <SectionTitle title="Exercício #01" />
                 <div className="center">
                     <span className="text">{count}</span>
+                    <div>
+                        <button className="btn" onClick={() => setCount(count-1)}>-1</button>
+                        <button className="btn" onClick={() => setCount(count+1)}>+1</button>
+                        <button className="btn" onClick={() => setCount(current => current + 1000)}>+1000</button>
+                        <button className="btn" onClick={() => setCount(1000)}>R=1000</button>
+                        <button className="btn" onClick={() => setCount(0)}>R=0</button>
+                    </div>
+
                 </div>
             <SectionTitle title="Exercício #02" />
-            <span className="text">{name}</span>
             <input 
                 type="" 
                 className="input" 
@@ -29,6 +36,7 @@ const UseState = (props) => {
                     e => setName(e.target.value)
                 }
             />
+            <span className="text">{name}</span>
         </div>
     )
 }
