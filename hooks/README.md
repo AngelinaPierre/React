@@ -656,8 +656,7 @@ O importe no useEffect() é o efeito colateral, mudar um dado da aplicação e a
 
 Podemos utilizar o useEffect() para alterar o titulo da pagina, sempre que o [fatorial] mudar, vamos alterar o titulo da pagina, visivel somente no console pelo HTML ou na aba.
 
-~~~~javascript
-
+~~~javascript
 useEffect(
     function () {
         if(fatorial > 1000000){
@@ -667,27 +666,169 @@ useEffect(
 )
 ~~~
 
+&nbsp;
+
+***
+---
+## [Aula 64] - useEffect() DESAFIO
+
+&nbsp;
+
+Na area do exercicio dois coloque um texto e um status(par ou impar) que irá depender do numero colocado no [input].
+
+Ou seja, sempre que formos evoluindo o estado do [input], irá ser indicado se o numero é par ou impar.
+
+Vamos precisar utilizar tanto o useState() quanto o useEffect(), ja que a mudança no input irá gerar mais de um SIDE-EFFECT (fatorial + status).
 
 
+>                           [CODIGOS ATUAIS]
+>**[FUNÇÃO CALCULO DO FATORIAL]**
+>
+> ~~~javascript
+> function calcFatorial(num){
+>   const n = parseInt(num)
+>   if(n < 0) return -1
+>   if(n === 0) return 1
+>   return(
+>       CalcFatorial(n - 1) * n
+>   )
+> }
+> ~~~
+>**[AF => UseEffect() - RENDERIZAÇÃO]**
+>
+> ~~~javascript
+> const [number, setNumber] = useState(1)
+> const [fatorial, setFatorial] = useState(1)
+> 
+> useEffect(function(){
+>       setFatorial(CalcFatorial(number))
+>   },[number]
+> )
+> useEffect(function(){
+>   if(fatorial > 1000000){
+>       document.title = "EIIIITAAAA!!!"
+>   }
+> },[fatorial])
+> ~~~
+>
+>**[UseEffect() RETORNO]**
+>
+> ~~~html
+> return (
+>   <div className="UseEffect">
+>       <PageTitle
+>           title="Hook UseEffect"
+>           subtitle="Permite executar efeitos colaterais em componentes funcionais"
+>       />
+>       <SectionTitle title="Exercicio #01"/>
+>       <div className="center">
+>           <div>
+>               <span className="text">Fatorial: </span>
+>               <span className="text red">{fatorial === -1 ? "ERROR" : fatorial}</span>
+>           </div>
+>           <input 
+>               type="number"
+>               className="input"
+>               value={number}
+>               onchange={
+>                   e => setNumber(e.target.value)
+>               }
+>           />
+>       </div>
+>       <SectionTitle title="Exercicio #02 - DESAFIO>
+>       <div className="center>
+>           Area do desafio.
+>       </div>
+>   </div>
+> )
+>
+>~~~
 
+>**[STUDENT]**
 
+    1) Criando variavel de estado (status).
+   ~~~javascript
+   const [status, setStatus] = useState("Impar");
+   ~~~
+    2) Criando função para calcular par ou impar:
+   ~~~javascript
+    function calcPar(num) {
+        cont n = parseInt(num)
+        if(n < 0 ) return -1
+        if(n %2 ===0){
+            return 1
+        }else{
+            return 0
+        }
+    }
+   ~~~
+    3) Usando o useEffect para gerar o status atual.
+   ~~~javascript
+    useEffect(
+        function(){
+            setStatus(CalcPar(number))
+        },[number]
+    )
+   ~~~
+    4) Refletindo o status quando o input é alterado...
+   ~~~javascript
+    <div>
+        <span className="text">Status: </span>
+        <span className="text red">{
+            status === 1 ? "Par": (status === -1 ? "ERROR": "Impar")
+        }</span>
+    </div>
+   ~~~
+ Agora todas vez que tivermos o input alterado será mostrado se o numero é par ou impar, menor que zero, temos error igual ao fatorial.
+ 
 
+&nbsp;
 
+***
+---
+## [Aula 65] - useEffect() RESPOSTA
 
+&nbsp;
 
+>**[PROFESSOR]**
 
+~~~javascript
+// exercicio 1
+const [number,setNumber] = useState(1)
+const [fatorial,setFatorial] = useState(1)
+useEffect(function(){
+    setFatorial(calcFatorial(number))
+},[number])
+useEffect(function(){
+    if(fatorial > 1000000){
+        document.title="EITAAA!!!"
+    }
+},[fatorial])
+//exercicios 2
+const [status, setStatus] = useState("Impar")
 
+useEffect(function(){
+    setStatus(number % 2 === 0 ? "Par" : "impar")
+},[number])
+return(
+    <div className="center">
+        <span className="text">Status: </span>
+        <span className="text red">{status}</span>
+        <div>
+            <span className="text">Status: </span>
+            <span className="text red">{status}</span>
+        </div>
+    </div>
+)
+~~~
 
+&nbsp;
 
+***
+---
+## [Aula 66] - useRef() #01 
 
-
-
-
-
-
-
-
-
+&nbsp;
 
 
 
