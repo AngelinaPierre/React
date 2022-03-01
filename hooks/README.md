@@ -830,6 +830,591 @@ return(
 
 &nbsp;
 
+Iremos fazer um exercicio relacionado ao useRef(), falamos sobre o useState(), useEffect() que basicamente são efeitos colaterais dentro de uma função CALLBACK que passamos, e temos um array de dependencias que irá dizer quais denpendencias precisam ser ativadas para disparar a CALLBACK e gerar o efeito colateral.
+
+Vamos agora trabalhar com o HOOK useRef() a qual RETORNA um ONJETO MUTAVEL com uma PROPRIEDADE (.CURRENT). Ou seja, temos um objeto que dentro dele à uma propriedade chamada (current/atual) e dentro do valor da propriedade current teremos o ESTADO.
+
+O nome useRef() foi determinado pois tem haver com REFERENCIA, voce tem a referencia de um objeto e esse objeto possui um atributo/propriedade chjamado (curernt) e dentro desse atributo podemos ter dentro valor (numerico/string/referencia para elemento HTML...)
+
+    [useRef() - Estrutura Inicial]
+
+~~~javascript
+import React from 'react'
+import PageTitle from '../../components/layout/PageTitle'
+
+const UseRef = props => {
+    return (
+        <div className='UseRef'>
+            <PageTitle
+                title="Hook UseRef"
+                subtitle="Retorna um objeto mutável com a propriedade .current!"
+            />
+        </div>
+    )
+}
+export default UseRef
+~~~
+
+    1 - Vamos colcoar o SectioTitle para separar os exercicios e uma [div.center] para manter a padronização. 
+    2 - Dentro da [div.center] vamos utilizar um [input.input] para utilizar o estilo que criamos, e dentro desse [input] iremos vincular o [value] com um estado que iremos criar.
+        2.1 - State = [value1,setvalue1] = useState("")
+        2.2 - onChange = criar evento (e) para alterar o conteudo (setValue1) pela chamada [e.target.value] - com isso temos um input vinculado ao estado de um componente.
+
+~~~javascript
+const UseRef = props => {
+    const [value1, setValue1] = useState("")
+    return (
+        <div className='UseRef'>
+            <PageTitle
+                title="Hook UseRef"
+                subtitle="Retorna um objeto mutável com a propriedade .current!"
+            />
+            <SectionTitle title ="Exercicio #01" />
+            <div className="center">
+                <input type="text" className="input" value={value1} onChange={e => setValue1(e.target.value)} />
+            </div>
+        </div>
+    )
+}
+~~~
+
+    3 - Queremos controlar a quantidade de vezes que o componente é renderizado. para mostrar isso, vamos usar o [span.text]. 
+
+~~~html
+<SectionTitle title ="Exercicio #01" />
+<div className="center">
+    <div>
+        <span className="text">Valor:</span>
+        <span className="text">{value1} [</span>
+        <span className="text red">contador</span>
+        <span className="text">]</span>
+    </div>
+    <input type="text" className="input" value={value1} onChange={e => setValue1(e.target.value)} />
+</div>
+~~~
+
+&nbsp;
+
+ Ate agora, se olharmos, teremos o valor, oq ue digitarmos ira aparecer ao lado do contador, e o mesmo irá mostrar a quantidade de vezes que o componente foi renderizado(algo foi alterado).
+
+Até agora temos um contador fixo, agora vamos utilizar o useref() para obter a quantidade de vezes que o componentes foi renderizado.
+
+    1 - Vamos criar uma constante de estado [count] chamando o hook useRef(), que irá retornar um objeto que terá o valor inicial passado no atributo .current. Como temos um contador, o valor inicial será 0.
+        [useState] -> Retorna o proprio elemento passado (string), e uma função para alterar essa string
+        [useRef] -> Retornar um objeto e sempre irá retornar a mesma REFERENCIA. Ou seja, quando temos um objeto em javascript, e atribuimos o valor de um objeto para essa variavel e essa variavel atribui o valor para outra, isso é chamado de PASSAGEM POR REFERENCIA.
+    2 - Basicamente, [count] é um objeto, para termos acesso a ele, no [span = contador] vamos INTERPOLAR chamando {count.current}, acessando assim o valor armazenado dentro do objeto, ja que count é a referencia para esse objeto.
+        2.1 - Sempre que o COMPONENTE for renderizado novamente teremos acesso ao mesmo objeto/mesma referencia.
+        [Ref VS State] -> Uma das diferenças é que quando o REF é alterado não ha a necessidade de renderizar o componente novamente, ou seja, podemos mudar o valor do atributo (.current), não o ref() que terá a propriedade sendo a inicial sempre. Quando modificamos somente o (.current) o componente não é renderizado novamente.
+        2.2 - Por essa razão podemos criar uma logica antres do return do tipo (count.current = count.current + 1), pois não irá causar uma nova renderização (não entrando no loop infinito.)
+
+~~~javascript
+const UseRef = props => {
+    const [value1, setValue1] = useState("")
+    const count = useRef(0)
+
+    count.current = count.current + 1
+
+    return (
+        <div className='UseRef'>
+            <PageTitle
+                title="Hook UseRef"
+                subtitle="Retorna um objeto mutável com a propriedade .current!"
+            />
+            <SectionTitle title ="Exercicio #01" />
+            <div className="center">
+                <div>
+                    <span className="text">Valor:</span>
+                    <span className="text">{value1} [</span>
+                    <span className="text red">{count.current}</span>
+                    <span className="text">]</span>
+                </div>
+                <input type="text" className="input" value={value1} onChange={e => setValue1(e.target.value)} />
+            </div>
+        </div>
+    )
+}
+~~~
+
+> Outra forma, seria colocar o contador dentro de um useEffect() e configurar para que sempre que tivermos uma mudança no (value1) ele chamar o contador.
+>~~~javascript
+>useEffect(function(){
+>    count.current = count.current + 1   
+>},[value1])
+> ~~~
+> Para controlar todas as renderizações do componente, colocamos a logica do **count** do lado de fora. 
+> Para controlar somente quando um certo valor for modificado usa o para vincular com esse valor.
+> ~~~javascript
+> useEffect(function(){
+>       logica
+> },[valor_modificado]) 
+> ~~~
+> 
+
+    [useRef() #01 - Estrutura Final]
+
+~~~javascript
+const UseRef = props => {
+    const [value1, setValue1] = useState("")
+    const count = useRef(0)
+
+    useEffect(function(){
+        count.current = count.current + 1
+    },[value1])
+    
+    // count.current = count.current + 1
+
+    return (
+        <div className='UseRef'>
+            <PageTitle
+                title="Hook UseRef"
+                subtitle="Retorna um objeto mutável com a propriedade .current!"
+            />
+            <SectionTitle title ="Exercicio #01" />
+            <div className="center">
+                <div>
+                    <span className="text">Valor:</span>
+                    <span className="text">{value1} [</span>
+                    <span className="text red">{count.current}</span>
+                    <span className="text">]</span>
+                </div>
+                <input type="text" className="input" value={value1} onChange={e => setValue1(e.target.value)} />
+            </div>
+        </div>
+    )
+}
+export default UseRef
+~~~
+
+Nessa aula vimos que o useRef() irá criar um objeto, retorna um objeto mutavel (atributos internos podem ser alterados) propriedade [.current] exatamente onde tem o valor.
+Enquanto esse componente existir ele terá o valor da renderização (ex:54) se sairmos da tela (F5 | mudar pagina), o componente será resetado (recebe um novo objeto), mas enquanto estivermos renderizando o mesmo objeto varias vezes sempre irá ser retornado a mesma referencia, ou seja, temos um objeto, irá retornar a referencia e podemos mexer no atributo **current**.
+
+[REF vs State] = Não renderiza toda vez que é modificado.
+
+
+&nbsp;
+
+***
+---
+## [Aula 67] - useRef() #02
+
+&nbsp;
+
+
+    1 - Vamos criar o segundo exercicio obedecendo as estruturas anteriores.
+        1.1 - Criar constante de estado [value2,setValue2]
+        1.2 - Vamos criar um outro [input.input] com o value apontando para (value2) e no onChange vamos ativar a função de alteração do value2.
+    2 - O monitoramento da renderização pelo contador não esta acontecendo no exercicio #02, para resolvermos isso, MAIS DE UMA DEPENDENCIA, no useEffect usamos a estrutura:
+        useEffect(function(){},[value1,value2])
+        2.1 - Fazendo isso, o contador irá contar a renderização dos 2 inputs.
+
+~~~javascript
+const UseRef = props => {
+    const [value1, setValue1] = useState("")
+    const [value2, setValue2] = useState("")
+    const count = useRef(0)
+    useEffect(function(){
+        count.current = count.current + 1
+    },[value1, value2])
+    // count.current = count.current + 1
+    return (
+        <div className='UseRef'>
+            <PageTitle
+                title="Hook UseRef"
+                subtitle="Retorna um objeto mutável com a propriedade .current!"
+            />
+            <SectionTitle title ="Exercicio #01" />
+            <div className="center">
+                <div>
+                    <span className="text">Valor:</span>
+                    <span className="text">{value1} [</span>
+                    <span className="text red">{count.current}</span>
+                    <span className="text">]</span>
+                </div>
+                <input type="text" className="input" value={value1} onChange={e => setValue1(e.target.value)} />
+            </div>
+            <SectionTitle title="Exercicio #02" />
+            <div className="center">
+                <input type="text" className="input" value={value2} onChange={e => setValue2(e.target.value)} />
+            </div>
+        </div>
+    )
+}
+~~~
+
+&nbsp;
+
+
+**===================[ UTILIZANDO USEREF() PARA PEGAR ELEMENTO HTML ]===================**
+
+Existe uma forma de usar o UseRef() para pegar um elemento HTML. Para isso se usa a propriedade chamada [ref={}], que irá apontar para dentro de um objeto que representa uma referencia.
+
+    1 - Vamos criar +2 useRef() [myInput1 , myinput2] ambos com o valor_inicial de [null]
+    2 - Vamos aplicar essa referencia que acabamos de criar dentro do atributo do input [ref={}]. Agora uma vez que temos um atributo [ref={}] dentro do elemento (jsx) e aplicamos dentro do par de chaves {} o que será interpolado pelo react (no caso myInput1 - uma referencia/useRef() - objeto que possui um atributo current) automaticamente o react irá colocar uma referencia para esse input dentro do atributo current desse objeto que é retornado pelo useRef().
+        2.1 - Isso acontece de tal forma que se pedirmos para imprimir no console poderemos observar a referencia para o input.
+    3 - Aplicamos o mesmo principio para o input2 no exercicio 2.
+
+
+~~~javascript
+const UseRef = props => {
+    const [value1, setValue1] = useState("")
+    const [value2, setValue2] = useState("")
+    const count = useRef(0)
+    const myInput1 = useRef(null)
+    const myInput2 = useRef(null)
+
+    useEffect(function(){
+        count.current = count.current + 1
+    },[value1, value2])
+    
+    // count.current = count.current + 1
+
+    return (
+        <div className='UseRef'>
+            <PageTitle
+                title="Hook UseRef"
+                subtitle="Retorna um objeto mutável com a propriedade .current!"
+            />
+            <SectionTitle title ="Exercicio #01" />
+            <div className="center">
+                <div>
+                    <span className="text">Valor:</span>
+                    <span className="text">{value1} [</span>
+                    <span className="text red">{count.current}</span>
+                    <span className="text">]</span>
+                </div>
+                <input 
+                    type="text" 
+                    className="input" 
+                    value={value1} 
+                    onChange={e => 
+                    setValue1(e.target.value)} 
+                    ref={myInput1}
+                />
+            </div>
+            <SectionTitle title="Exercicio #02" />
+            <div className="center">
+                <input 
+                    type="text" 
+                    className="input" 
+                    value={value2} 
+                    onChange={e => setValue2(e.target.value)} 
+                    ref={myInput2}
+                />
+            </div>
+        </div>
+    )
+}
+~~~
+
+> Agora o contador esta vinculado ao input do exercicio #02.
+
+    1 - Vamos separar o useEffect() em duas partes, vamos querer ter um valor especifico para o value1 e value2, ambos tendo por enquanto a mesma funcionalidade.
+
+~~~javascript
+useEffect(function(){
+    count.current = count.current + 1
+},[value1])
+useEffect(function(){
+    count.current++
+},[value2])
+~~~
+
+    2 - Agora vamos fazer com que, sempre que tivermos o (value1) alterado, pegaremos o input2 e gerar um foco nesse input (.focus()). Significa que agora  quando digitarmos o valor no input1 a seta de foco para digitar ( | ) irápara o input2
+
+~~~javascript
+useEffect(function(){
+    count.current = count.current + 1
+    myInput2.current.focus()
+},[value1])
+useEffect(function(){
+    count.current++
+},[value2])
+~~~
+
+    3 - Se aplicarmos a mesma tecnica para o input2, o que teremos eh a mudança de foco entre os input, logo ao digitar os valores irá alterar entre input1 e input2.
+
+~~~javascript
+useEffect(function(){
+    count.current++
+    myInput2.current.focus()
+},[value1])
+useEffect(function(){
+    count.current++
+    myInput1.current.focus()
+},[value2])
+~~~
+
+
+**===================[ DESAFIO JAVASCRIPT ]===================**
+
+Criar uma função chamada (merge) - pode ser colocada dentro ou fora do componente. Ela irá receber duas strings (s1,s2), e terá que retornar a uniao dessas duas strings de maneira que faça sentido no que foi digitado (input1 + input2 + input1 + input2 ...)
+
+
+
+Na saida do valor, do exercicio #01, coloque o "merge" entre o {value1 & value2}, entre as duas strings:
+
+    ex: 
+        input 1 = 13579 {value1}
+        input 2 = 2468 {value2}
+        saida = 123456789
+
+Dica: No [span] iremos fazer a interpolação chamando a função e passando os valores 1 e 2.
+
+
+
+
+
+**===================[ RECAPITULANDO ]===================**
+
+&nbsp;
+
+    1 - Vimos o UseRed() de duas formas diferentes:
+        1.1 - Com Valor Numerico, onde retornou para gente um objeto, ou mais especificamente a referencia para um objeto que podemos modificar via o atributo .current
+        1.2 - Pegando elemento HTML, alteramos o foco do componente pela referencia apontando para um elemento jsx dentro do componente.
+
+&nbsp;
+
+***
+---
+## [Aula 68] - DESAFIO FUNÇÃO MERGE
+
+&nbsp;
+
+    [useRef.jsx - ESTRUTURA ATUAL]
+
+~~~javascript
+const merge = function(s1,s2){
+    return s1+s2
+}
+
+const UseRef = props => {
+    const [value1, setValue1] = useState("")
+    const [value2, setValue2] = useState("")
+    const count = useRef(0)
+    const myInput1 = useRef(null)
+    // console.log(myInput1)
+    const myInput2 = useRef(null)
+
+    useEffect(function(){
+        count.current = count.current + 1
+        myInput2.current.focus()
+    },[value1])
+    useEffect(function(){
+        count.current++
+    },[value2])
+    
+    // count.current = count.current + 1
+
+    return (
+        <div className='UseRef'>
+            <PageTitle
+                title="Hook UseRef"
+                subtitle="Retorna um objeto mutável com a propriedade .current!"
+            />
+            <SectionTitle title ="Exercicio #01" />
+            <div className="center">
+                <div>
+                    <span className="text">Valor:</span>
+                    <span className="text">{merge(value1, value2)} [</span>
+                    <span className="text red">{count.current}</span>
+                    <span className="text">]</span>
+                </div>
+                <input 
+                    type="text" 
+                    className="input" 
+                    value={value1} 
+                    onChange={e => 
+                    setValue1(e.target.value)} 
+                    ref={myInput1}
+                />
+            </div>
+            <SectionTitle title="Exercicio #02" />
+            <div className="center">
+                <input 
+                    type="text" 
+                    className="input" 
+                    value={value2} 
+                    onChange={e => setValue2(e.target.value)} 
+                    ref={myInput2}
+                />
+            </div>
+        </div>
+    )
+}
+~~~
+
+
+Vamos ver alguns exemplos para entendermos algumas funcionalidades que iremos utilizar na resposta do exercicio. Não vamos criar uma implementação que irá resolver todos os casos mas sim alguns...
+
+    [EXEMPLO 1 - CONSOLE]
+    
+        1 - Vamos criar uma constante (string) e atribuir o valor de "casa"
+            > const x = "casa"
+        2 - Duas coisas importante sobre string que precisamos saber para entendermos as implementações a seguir:
+            2.1 - Conseguimos acessar as letras da string a partir da anotação dos colchetes[] que parece um array.
+                2.1.1 - Se acessarmos o x[4] iremos ter um valor undefined.
+                2.1.2 - Se pegarmos um letra e concatenar com um valor de indice teremos o resultado de [letra+undefined - ira usar o undefined como texto].
+                -> Para contar isso basta ["b" + ( x[4] || "" )] se o x[4] for undefined irá concatenar com o vazio caso o valor não exista.
+            2.2 - Conseguimos transformar uma string em um array de letras/caracteres usando o simbulo de colchetes {} junto com o operador spreadding. Nos retornando um array com cada letra, ate os espaços em branco.
+                > [...x]
+
+Vamos utilizar esses conceitos na resolução do problema. Iremos fazer uma implementação simples que irá gerar alguns erros para posteriormente a gente colocar mais complexidade nessa implementação.
+
+    1 - Vamos transformar a string(s1) em um ARRAY DE LETRAS, onde iremos usar o [.map()] para mapear essas letras, pois nosso objetivo é concatenar a STRING1 com a STRING2. Para isso iremos criar um passo intermediario.
+        1.1 - Iremos criar criar uma função para ser passada para a função [map()] que irá retornar a letra chamda de (e = elemento) e um segundo valor que será o indice (i).
+~~~javascript
+const merge = function(s1,s2){
+    return [...s1].map(function(e,i){
+    })
+}
+~~~
+
+    2 - Dentro da função chamada pelo map, iremos inicialmente usar uma template string para retornar o proprio elemento (e) mais um traço (-). Ou seja, letras + traço entre cada letra.
+~~~javascript
+const merge = function(s1,s2){
+    return [...s1].map(function(e,i){
+        return `${e}-`
+    })
+}
+~~~
+
+    3 - A função [.map()] irá nos retornar um array, para transformar novamente numa string, basta usar o [.join("")] JOIN com uma string vazia.
+        3.1 - Observe que ainda não estamos utilizando o parametro 2 (s2).
+~~~javascript
+const merge = function(s1,s2){
+    return [...s1].map(function(e,i){
+        return `${e}-`
+    }).join("")
+}
+~~~
+
+    4 - Podemos observar que no input2 o map esta funcionando e as letras estao sendo alternadas juntamente com um traço. Mas não queremos alternar com traços e sim com a letra da outra string (input2).
+    4.1 - Na teoria acima foi mostrado que poderiamos pegar a letra a partir do indice, logo, ja que temos o indice mapeado pela função, podemos usar uma template string para a string2 e colocar o indice i para que ela acompanhe a string1.
+~~~javascript
+const merge = function(s1,s2){
+    return [...s1].map(function(e,i){
+        return `${e}${s2[i]}`
+    }).join("")
+}
+~~~
+
+    5 - Foi gerado um problema de undefined pois não fizemos um tratamento de verificação nas strings. Para isso colocamos uma condicional de string vazia.
+
+~~~javascript
+const merge = function(s1,s2){
+    return [...s1].map(function(e,i){
+        return `${e}${s2[i]} || ""`
+    }).join("")
+}
+~~~
+
+    6 - Ainda irá dar alguns BUGS pois so estamos mapeando a string1. O que podemos fazer é que quando for o ultimo elemento da string1, pegamos o resto da string2 e concatenamos no final.
+    7 - Uma forma de simplificar a função seria transformando numa ARROW FUNCTION.
+
+~~~javascript
+const merge = function(s1,s2){
+    return [...s1].map( (e, i) => `${e}${s2[i] || ""}`).join("")
+}
+~~~
+
+
+    [USEREF() - ESTADO FINAL]
+
+~~~javascript
+
+//função simplificada
+const merge = function(s1,s2){
+    return [...s1].map((e,i) => `${e}${s2[i] || ""}`).join("")
+}
+
+const UseRef = props => {
+    const [value1, setValue1] = useState("")
+    const [value2, setValue2] = useState("")
+    
+    const count = useRef(0)
+    const myInput1 = useRef(null)
+    console.log(myInput1)
+    const myInput2 = useRef(null)
+
+    useEffect(function(){
+        count.current = count.current + 1
+        myInput2.current.focus()
+    },[value1])
+    useEffect(function(){
+        count.current++
+        myInput1.current.focus()
+    },[value2])
+    
+    // count.current = count.current + 1
+
+    return (
+        <div className='UseRef'>
+            <PageTitle
+                title="Hook UseRef"
+                subtitle="Retorna um objeto mutável com a propriedade .current!"
+            />
+            <SectionTitle title ="Exercicio #01" />
+            <div className="center">
+                <div>
+                    <span className="text">Valor:</span>
+                    <span className="text">{merge(value1, value2)} [</span>
+                    <span className="text red">{count.current}</span>
+                    <span className="text">]</span>
+                </div>
+                <input 
+                    type="text" 
+                    className="input" 
+                    value={value1} 
+                    onChange={e => 
+                    setValue1(e.target.value)} 
+                    ref={myInput1}
+                />
+            </div>
+            <SectionTitle title="Exercicio #02" />
+            <div className="center">
+                <input 
+                    type="text" 
+                    className="input" 
+                    value={value2} 
+                    onChange={e => setValue2(e.target.value)} 
+                    ref={myInput2}
+                />
+            </div>
+        </div>
+    )
+}
+export default UseRef
+~~~
+
+&nbsp;
+
+***
+---
+## [Aula 69] - useMemo() 
+
+&nbsp;
+
+Agora vamos falar do useMemo() , um HOOK que retornar um valor memorizado. Um valor que foi calculado, armazenado e retornado como se fosse um **CACHE**.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
