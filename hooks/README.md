@@ -1394,29 +1394,1148 @@ export default UseRef
 
 &nbsp;
 
-Agora vamos falar do useMemo() , um HOOK que retornar um valor memorizado. Um valor que foi calculado, armazenado e retornado como se fosse um **CACHE**.
+Agora vamos falar do useMemo() , um HOOK que retornar um valor memorizado. Um valor que foi calculado, armazenado e retornado como se fosse um **CACHE**. Vamos ver quando poderemos usar esse tipo de recurso e uma alternativa para o useMemo(), que seria a utilização do useState() juntamente com o useEffect() para resolver esse mesmo problema.
+
+    [usememo() - ESTRUTURA INICIAL]
+~~~javascript
+const UseMemo = props => {
+    return (
+        <div className="UseMemo">
+            <PageTitle
+                title="Hook UseMemo"
+                subtitle="Retorna um valor memorizado!"
+            />
+        </div>
+    )
+}
+export default UseMemo
+~~~
+
+    1 - Vamos criar 3 constantes de estados [n1,n2,n3]
+    2 - Vamos criar um [input] vinculado para o valor [n1] usando o [parseInt] no [onChange] para retornar um valor inteiro. Iremos fazer o mesmo para os 3 estados (n1,n2,n3).
+
+~~~javascript
+const UseMemo = props => {
+    const [n1,setN1] = useState(0)
+    const [n2,setN2] = useState(0)
+    const [n3,setN3] = useState(0)
+    return (
+        <div className="UseMemo">
+            <PageTitle
+                title="Hook UseMemo"
+                subtitle="Retorna um valor memorizado!"
+            />
+            <SectionTitle title="Exercicio #01" />
+            <div className="center">
+                <input 
+                    type="text" 
+                    className="input" 
+                    value={n1}
+                    onChange={e => setN1(parseInt(e.target.value))}
+                />
+                <input 
+                    type="text" 
+                    className="input" 
+                    value={n2}
+                    onChange={e => setN2(parseInt(e.target.value))}
+                />
+                <input 
+                    type="text" 
+                    className="input"
+                    value={n3}
+                    onChange={e=>setN3(parseInt(e.target.value))}
+                />
+            </div>
+        </div>
+    )
+}
+~~~
+
+    3 - Vamos agora supor que criamos uma função fora do componente que fará a soma de dois valores retornando inicialmente o valor de (a+b)
+
+~~~javascript
+function sum(a + b){
+    return a + b
+}
+~~~
+
+    4 - Queremos criar uma resultado dentro do componente que irá receber a resposta dos dois valores que iremos passar como parametro para função [sum()] criada.
+
+~~~javascript
+const result = sum(n1,n2)
+~~~
+
+    5 - Para verificar essas mundaças criamos um [span] e interpolamos o valor de [result]
+
+~~~javascript
+function sum(a,b){
+    return a + b
+}
+
+const UseMemo = props => {
+    const [n1,setN1] = useState(0)
+    const [n2,setN2] = useState(0)
+    const [n3,setN3] = useState(0)
+
+    const result = sum(n1,n2)
+
+    return (
+        <div className="UseMemo">
+            <PageTitle
+                title="Hook UseMemo"
+                subtitle="Retorna um valor memorizado!"
+            />
+            <SectionTitle title="Exercicio #01" />
+            <div className="center">
+                <span className="text">{result}</span>
+                <input 
+                    type="number" 
+                    className="input" 
+                    value={n1}
+                    onChange={e => setN1(parseInt(e.target.value))}
+                />
+                <input 
+                    type="number" 
+                    className="input" 
+                    value={n2}
+                    onChange={e => setN2(parseInt(e.target.value))}
+                />
+                <input 
+                    type="number" 
+                    className="input"
+                    value={n3}
+                    onChange={e=>setN3(parseInt(e.target.value))}
+                />
+            </div>
+        </div>
+    )
+}
+~~~
+
+    6 - Vamos imaginar que a função soma, seja um calculo mais complexo que irá demandar uma certa quantidade de tempo. Para simular isso, iremos criar uma constante (future) e iremos atribuir a ela o [date.now() + 2000] - dois mil milesegundos. Ela irá esperar a partir de um while ate que o [date.now()] seja menor do que a data futura armazenada (future). Basicamente é um codigo de espera.
+
+~~~javascript
+function (a,b){
+    const future = Date.now() + 2000
+    while(Date.now() < future) {} //espera...2s
+    return a + b
+}
+~~~
+
+    7 - Agora nos temos uma função [sum()] que em teoria, esta simulando um processamento mais pesado. Do jeito que implementamos, o input3 esta sendo afetado pela simulação do processo, ou seja, so vai mudar depois de dois segundos. Existe duas formas diferentes de resolvermos esse problema:
+        7.1 - A primeira forma seria utilizando o useEffect() juntamente com o useState().
+        -> Em vez de criar um result criamos um estado dando como valor inicial 0.
+        -> No useEffect() criamos uma função que ira chamar o setResult() que terá a função [sum()] como parametro.
+        -> So irá achar a função sum() quando os valores corretos forem modificados.
+    
+~~~javascript
+const [result, setresult] = useState(0)
+useEffect(function(){
+    setresult(sum(n1,n2))
+},[n1, n2])
+~~~
+
+        7.2 - A segunda forma seria usando o **useMemo()** para resolver esse problema.
+        -> Primeiro parametro : FUNÇÃO (no caso, soma)
+        -> Segundo parametro : arrays das dependencias (semelhante ao useEffect())
+        -> Criamos a variavel result e passamos o useMemo() chamando uma arrow function, dentro dessa função irá ser feita a soma do (n1) com (n2).
+        
+~~~javascript
+function sum(a,b){
+   const future = Date.now() + 2000
+   while(Date.now() < future) {} // //espera...2s
+   return a + b
+}
+
+const UseMemo = props => {
+    const [n1,setN1] = useState(0)
+    const [n2,setN2] = useState(0)
+    const [n3,setN3] = useState(0)
+
+    const result = useMemo(() => sum(n1,n2), [n1,n2])
+
+    return (
+        <div className="UseMemo">
+            <PageTitle
+                title="Hook UseMemo"
+                subtitle="Retorna um valor memorizado!"
+            />
+            <SectionTitle title="Exercicio #01" />
+            <div className="center">
+                <span className="text">{result}</span>
+                <input 
+                    type="number" 
+                    className="input" 
+                    value={n1}
+                    onChange={e => setN1(parseInt(e.target.value))}
+                />
+                <input 
+                    type="number" 
+                    className="input" 
+                    value={n2}
+                    onChange={e => setN2(parseInt(e.target.value))}
+                />
+                <input 
+                    type="number" 
+                    className="input"
+                    value={n3}
+                    onChange={e=>setN3(parseInt(e.target.value))}
+                />
+            </div>
+        </div>
+    )
+}
+~~~
+
+Agora nos temos um resultado similar somente com a utilização do **useMemo()**, ou seja, sem usar a uniao do **useState()** com o **useEffect()**. Agora temos um resultado memorizado, resultado calculado anteriormente, armazenado numa variavel e so será chamado novamente caso os valores que dependem desse resultado sejam alterados.
+
+Lembrar que é armazenado como se fosse em CACHE.
+
+&nbsp;
+
+***
+---
+## [Aula 70] - useCallback() 
+
+&nbsp;
+
+    [useCallback.jsx - ESTADO INICIAL]
+~~~javascript
+const UseCallback = props => {
+    return (
+        <div className="UseCallback">
+            <PageTitle
+                title="Hooke UseCallback"
+                subtitle="Retorna uma função memorizada!"
+            />
+        </div>
+    )
+}
+~~~
 
 
+O **useCallbac()** é semelhante ao **useMemo()**, so que o **useMemo()** irá retornar um valor memorizado em cache, e so irá calcular esse valor caso as dependencias forem modificadas. No caso do **useCallback() ele irá retornar uma função CHACHEADA para que voce possa usar a mesma função e não precise retorna-la novamente.
+
+    1 - Vamos criar um contador e coloca-lo para ser mostrado pela interpolação dentro de um [span].
+    2 - Tambem iremos criar um botão para somar (6,12,18).
+    3 - Vamos criar uma função (inc) que recebera um parametro para ser somado ao contador.
+        3.1 - Colocamos essa função nos botões usando uma arrow function e passando os valores.
+~~~javascript
+const UseCallback = props => {
+    const [count,setCount] = useState(0)
+
+    function increment(delta){ // criação extra do botão reset.
+        if(delta === 0) return setCount(0)
+        setCount(count + delta)
+
+        // outra forma
+        if(delta === 0) {
+            setCount(0)
+        }else{
+            setCount(count + delta)
+        }
+    }
+    return (
+        <div className="UseCallback">
+            <PageTitle
+                title="Hooke UseCallback"
+                subtitle="Retorna uma função memorizada!"
+            />
+            <SectionTitle title="Exercicio #01" />
+            <div className="center">
+                <span className="text">{count}</span>
+                <div>
+                    <button className="btn" onClick={() => increment(0)}>Reset</button>
+                    <button className="btn" onClick={() => increment(6)}>+6</button>
+                    <button className="btn" onClick={() => increment(12)}>+12</button>
+                    <button className="btn" onClick={() => increment(18)}>+18</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+~~~
+
+    4 - vamos supor que queremos pegar o a parte do codigo dos botões e colocar em outro componente (padronização/organização).
+    -> Criar componente (mesma pasta) chamado [UseCallbackButtons.jsx].
+    -> Criar uma estrutura basica para ele.
+~~~javascript
+const UseCallbackButtons = props => {
+    return (
+        <div>
+            <button className="btn" onClick={
+                () => props.compInc(6)
+            }>+6</button>
+            <button className="btn" onClick={
+                () => props.compInc(12)
+            }>+12</button>
+            <button className="btn" onClick={
+                () => props.compInc(18)
+            }>+18</button>
+            <button className="btn" onClick={
+                () props.compInc(0)
+            }>Reset</button>
+        </div>
+    )
+}
+
+export default UseCallbackButtons
+~~~
+
+    5 - Agora vamos em [UseCallback.jsx] e importamos o componente dos botões que acabamos de criar passando para ele o a função increment(delta) como atributo de [comInc={}]
+~~~javascript
+const UseCallback = props => {
+    const [count,setCount] = useState(0)
+
+    function increment(delta){ // criação extra do botão reset.
+        if(delta === 0) return setCount(0)
+        setCount(count + delta)
+
+        // outra forma
+        if(delta === 0) {
+            setCount(0)
+        }else{
+            setCount(count + delta)
+        }
+    }
+    return (
+        <div className="UseCallback">
+            <PageTitle
+                title="Hooke UseCallback"
+                subtitle="Retorna uma função memorizada!"
+            />
+            <SectionTitle title="Exercicio #01" />
+            <div className="center">
+                <span className="text">{count}</span>
+                <UseCallbackButton 
+                    compInc={increment}
+                />
+            </div>
+        </div>
+    )
+}
+~~~
+
+    6 - Existe a possibilidade dentro do React de usarmos o [React.memo(parametro)]. Ele irá criar um componente CACHEADO. E conseguiremos ver essa funcionalidade colocando um console.log("render...") no componente button para sabermos quantas vezes ele foi renderizado.
+    -> Antes de mostrar o react.memo() vamos ver quando o componente dos botões é renderizado, e note que esse componente é um componente estatico, não estamos mudando os [laybel, classe, função que é chamada...], esse botão so depende das propriedades.
+    -> Se as propriedades não mudarem o componente não precisa ser renderizado novamente.
+    -> Assim podemos observar que tanto o componente PAI, como o FILHO tambem. O componente PAI, precisa ser renderizado, mas o componente FILHO que são os botões, não tem por que ser renderizado pois eh um componente estatico, não possui necessidade de renderização.
+
+    7 - Assim no [UseCallbackButton.jsx] usamos o react.memo() no export para que se crie um CACHE desse componente, so o renderizando novamente caso tenha uma alteração no mesmo, ou seja, passando um novo numero e/ou nova função (quando iremos usar o useCallback()).
+
+~~~javascript
+const UseCallbackButtons = props => {
+    console.log("Render...")
+    return (
+        <div>
+            <button className="btn" onClick={
+                () => props.compInc(6)
+            }>+6</button>
+            <button className="btn" onClick={
+                () => props.compInc(12)
+            }>+12</button>
+            <button className="btn" onClick={
+                () => props.compInc(18)
+            }>+18</button>
+            <button className="btn" onClick={
+                () => props.compInc(0)
+            }>Reset</button>
+        </div>
+    )
+}
+
+export default React.memo(UseCallbackButtons)
+~~~
+
+    8 - Agora nos possuimos um componente sujeito a ser CACHEADO, ou seja, ele so será renderizado caso as propriedades modifiquem. Ele continuaram renderizado pelo fato de que estamos passando uma função (inc) novamente, ou seja, todas as vezes que renderiza é criada essa função.
+    -> Como não podemos colocar a função inc() fora do componente, temos que utilizar o HOOK useCallback(), para tratar essa renderização.
+    -> No usecallback() basicamente passamos uma função que recebe um parametro e faz uma determinada operação. Precisamo garantir a dependencia (o que irá mudar para ativar) para que essa função seja chamada novamente.
+    -> Essa função, será um função callback que irá receber o valor de current(curr) e somar ao delta, em vez de dependermos do count para ativar as modificações.
+
+~~~javascript
+const increment = useCallback(function(delta){
+    if(delta === 0) return setCount(0)
+    setCount(curr => curr + delta)
+},[setCount])
+~~~
+
+    9 - Agora temos a criação unica de dependencias. Não causando a renderização dos botões toda vez que for clicado.
+
+~~~javascript
+const UseCallback = props => {
+    const [count,setCount] = useState(0)
+
+    // function increment(delta){ // criação extra do botão reset.
+    //     if(delta === 0) return setCount(0)
+    //     setCount(count + delta)
+
+    //     // outra forma
+    //     if(delta === 0) {
+    //         setCount(0)
+    //     }else{
+    //         setCount(count + delta)
+    //     }
+    // }
+
+    const increment = useCallback(function(delta){
+        if(delta === 0) return setCount(0)
+        setCount(curr => curr + delta)
+    },[setCount])
+
+    return (
+        <div className="UseCallback">
+            <PageTitle
+                title="Hooke UseCallback"
+                subtitle="Retorna uma função memorizada!"
+            />
+            <SectionTitle title="Exercicio #01" />
+            <div className="center">
+                <span className="text">{count}</span>
+                <UseCallbackButtons 
+                    compInc={increment}
+                />
+            </div>
+        </div>
+    )
+}
+export default UseCallback
+~~~
+
+~~~javascript
+import React from 'react'
+
+const UseCallbackButtons = props => {
+    console.log("Render...")
+    return (
+        <div>
+            <button className="btn" onClick={
+                () => props.compInc(6)
+            }>+6</button>
+            <button className="btn" onClick={
+                () => props.compInc(12)
+            }>+12</button>
+            <button className="btn" onClick={
+                () => props.compInc(18)
+            }>+18</button>
+            <button className="btn" onClick={
+                () => props.compInc(0)
+            }>Reset</button>
+        </div>
+    )
+}
+
+export default React.memo(UseCallbackButtons)
+~~~
 
 
+&nbsp;
+
+***
+---
+## [Aula 71] - PORQUE USAR O CONTEXT API 
+
+&nbsp;
+
+Porque precisamos de algo como o CONTEXT API? Quando temos uma aplicação baseada em React seja (React, angular ,view, react native, flutter) todos esses frameworks e bibliotecas baseadas em componentes, temos um aplicação mais ou menos assim:
+
+    1 - Imagine um componente chamado [APP]
+    2 - [App] possui outros componentes em segundo plano.
+                                [APP] 
+
+        [HEADER]-----------[CONTENT]---------------[MENU]---------[FOOTER]
+        [body]        [PAGEHEADER]    [PAGEBODY]
+                                      [TABLE]
+                                      [ROW]
+    3 - Isso é para mostrar que temos uma grande arvore de componentes.
+    4 - Imagine que voce tenha a necessidade de trocar informações entre os componentes em extremos diferentes da arvore. Como poderiamos fazer para haver comunicação entre esses dois componentes?
+    -> Existe um processo de comunicação direta e um processo de comunicação indireta.
+    
+    [EXEMPLO]
+        1 - Vamos supor que o [HEADER] seja a origem e o [ROW] o destino.
+        2 - Então o componente [HEADER] precisa ter uma comunicação indireta com o [APP]. Ou seja, em [APP] vamos criar uma função e passa-la para [HEADER] que irá dar uma resposta e passa-la para o [APP] novamente.
+        3 - O [APP] que agora possui o retorno do componente [HEADER] pode passar as informações para os componentes do outro extremo ate chegar no componente desejado, no caso: [CONTENT]->[PAGEBODY]->[TABLE]->[ROW].
+        -> Ou seja, os componentes [CONTENT]->[PAGEBODY]->[TABLE]->[ROW] foram envolvidos na comunicação sem que haja a necessidade. A ideia seria fazer uma comunicação direta entre [HEADER]->[ROW]
+    
+    5 - Para estabelecer a comunicação entre esses dois componentes, nos teriamos que criar uma estrutura para armazenar informações que esteja fora/envolvendo toda a sua aplicação.
+    -> Eventualmente voce terá um componente antes do componente raiz da sua aplicação, e dentro desse componente voce terá CONTEXTO, ou seja, dados para que seja possivel compartilhar entre componentes.
+    -> Ou seja, se esse CONTEXTO de alguma forma for acessivel dentro do dos dois componentes [HEADER] E [ROW], consequimos alterar o dado do contexto no [HEADER] por exemplo, e esse valor ser refletido no [ROW].
+    
+TEMOS ASSIM UMA ESTRUTURA, UM CONTEXTO QUE SERÁ PASSADO PARA TODOS OS COMPONENTES NA ARVORE SEM QUE TENHAMOS A COMUNICAÇÃO DIRETA (PAI -> FILHO) E NEM A COMUNICAÇÃO INDIRETA (PAI_FUNÇÃO -> FILHO -> CHAMA FUNÇÃO DEVOLVENDO INFORMAÇÕES.)
+
+Essa é a ideia do **context API** , ter algo externo a arvore de componentes, com um contexto para alterar as informações.
+
+                                     [RESULTADO]
+    Comunicação Direita e Indireta não é suficiente para trocar informações entre componentes. Caso tenha muitos componentes, o nivel de complexidade irá aumentar.
+
+    Estabelecer troca de informações entre componentes sem que haja necessidade de usar comunicação Direta e/ou Indireta.
+    
+
+&nbsp;
+
+***
+---
+## [Aula 72] - useContext #01 
+
+&nbsp;
+
+Vamos agora fazer um exercicio para que possamos entender melhor o CONTEXT API. Dentro de /src vamos criar outra pasta chamada de /data, que irá receber alguns dados para o CONTEXTO.
+
+Esses dados estarão fora dos componentes para que possamos passar esses dados por meio de um PROVEDOR/PROVIDER e assim conseguirmos acessar esses dados de qualquer componente da aplicação.
+
+Dentro de /data vamos criar por enquanto um arquivo chamado [DataContext.js] - não terá codigo jsx - depois iremos criar um componente que dentro dele iremos colocar um CONTEXTO. Logo, primeiro iremos criar um CONTEXTO solto, e depois iremos ver uma outra forma de organizar o codigo.
+
+É muito comum a utilização do CONTEXT API juntamente com o useReducer(), alternativa do useState() quando temos ESTADOS MAIS COMPLEXOS.
 
 
+```text
+.
+|--- src
+|    |--- components
+|    |--- data
+|--- |--- |--- [ DataContext.js ] 
+|    |--- views
+|    |--- index.css
+|    |--- index.js
+```
+
+    1 - Vamos criar uma constante chamada data (poderia ser state).
+    -> Ela irá receber um numero e um texto.
+    -> Quando formos exporta-la (export) vamos criar uma constante chamada [dataContext] e vamos criar um CONTEXTO a apartir de [React.createContext()] passando os dados para o CONTEXTO INICIAL (DataContext).
+
+&nbsp;
+
+    [DataContext.js - ESTADO INICIAL]
+~~~javascript
+import React from 'react'
+
+export const data = {
+    number: 123,
+    text: 'Context API...'
+}
+const DataContext = React.createContext(data)
+export default DataContext
+~~~
+
+    2 - Tando expostamos os dados [React.createContext(data) -> number & text] quando exportamos a constante criada chamada [DataContext].
+
+    3 - Para usar esse DataContext, no componente [APP.jsx] estamos preparando o ambiente para que possamos usar o HOOK [useContext()], um hook que aceita um objeto de CONTEXTO (no caso, DataContext, criado a partir do .createContext).
+    -> Logo a resposta do [.createContext] é o OBJETO DE CONTEXTO = DataContext.
+    -> Irá retornar o CONTEXTO ATUAL.
+
+    4 - Apos a criação do contexto iremos utiliza-lo em um ponto que nos deixe utiliza-lo em toda a nossa aplicação.
+    -> Qual o componente de mais alto nivel / RAIZ de toda nossa aplicação? [APP.jsx], estamos usando esse COMPONENTE dentro do [INDEX.JS -> Primeiro componente carregado na aplicação]. A partir do momento que esse componente carrega, todos os outros componentes serão carregados tambem.
+    -> Poderiamos colocar o [dataContext] tanto dentro do [APP.JSX] quanto dentro do [INDEX.JS].
+    
+    5 - Dentro do [INDEX.JS] vamos importar o [DataContext] e envolver toda a aplicação [APP.jsx] dentro do DataContext.
 
 
+~~~javascript
+[INDEX.JS]
+//IMPORT REACTS
+import React from 'react'
+import ReactDom from 'react-dom'
+
+// import style
+import './index.css'
+
+// import componente para contexto
+import DataContext from './data/DataContext'
+// import componente para renderização APP.jsx
+import App from './views/App'
+
+// renderização com DOM
+ReactDom.render(
+    <DataContext.Provider>
+        <App />
+    </DataContext.Provider>,
+    document.getElementById('root')
+)
+~~~
+
+    6 - Existe um parametro do .Provider chamado [value] que precisa ser incializado com os dados que queremos passar para todos os componentes.
+    -> Logo em DataContext.js vamos pegar o [data] que estamos exportando sem o default, e importar no [INDES.JS] junto do DataContext.
+
+~~~javascript
+import DataContext, {data} from './data/DataContext'
+
+ReactDom.render(
+    <DataContext.Provider value={data}>
+        <App />
+    </DataContext.Provider>
+    document.getElementById('root')
+)
+~~~
+
+    7 - Passando o atributo {data} para dentro de [valu={}], temos os objetos {number & text} sendo passados para todos os componentes a partir do [.provider].
+
+**[REVISÃO - INICIO]**
+
+Criamos um CONTEXTO a partir do [React.createContext(contexto)], a partir de um conjuto de dados e colocamos numa variavel chamada DataContext (exportada por padrão) e importamos ele no mais alto nivel da aplicação, envolvendo o componente raiz.
+
+Logo, temos o componente [APP] envolvido pelo nosso CONTEXT a partir do [DataContext.provider].
+
+Todos os componentes terão a possibilidade de acessar os dados do CONTEXTO.
+
+**[REVISÃO - FIM]**
 
 
+Vamos agora criar um exemplo para verificarmos o acesso a esse contexto.
+
+    [UseContext() - ESTADO INICIAL]
+
+~~~javascript
+const UseContext = props => {
+    return (
+        <div className="UseContext">
+            <PageTitle
+                title="Hooke UseContext"
+                subtitle="Aceita um objeto de contexto e retorna o valor atual do contexto!"
+            />
+            <SectionTitle title="Exercicio #01" />
+            <div className="center">
+                
+            </div>
+        </div>
+    )
+}
+~~~
+
+    1 - Precisamos importar o OBJETO DE CONTEXTO que criamos [DataContext].
+    2 - Passando ele como propriedade para o useContext() significa que iremos receber na variavel(que iremos criar - qualquer nome) o contexto atual.
+~~~javascript
+const UseContext = props => {
+    const context = useContext(DataContext)
+    return (
+        <div className="UseContext">
+            <PageTitle
+                title="Hook UseContext"
+                subtitle="Aceita um objeto de contexto e rotar o valor atual do contexto!"
+            />
+            <SectionTitle title="Exercicio #01" />
+            <div className="center>
+            </div>
+    )
+}
+~~~
+
+    3 - Se olharmos dentro do [index.js] dentro do contexto passamos o valor de [value={data}], ao olharmos para o objeto [data] temos o [number | text].
+    -> Vamos fazer uma alteração onde vamos inicializar o contexto como nulo
+        -> const DataContext = React.createContext(null).
+~~~javascript
+[index.js]
+
+ReactDom.render(
+    <DataContext.Provider value={data}>
+        <App />
+    </DataContext.Provider>,
+    document.getElementById('root')
+)
+~~~
+~~~javascript
+[DataContext.js]
+
+import React from 'react'
+
+export const data = {
+    number:123,
+    text: 'Context API...'
+}
+const DataContext = React.createContext(null)
+~~~
+
+    4 - Nosso contexto é um objeto que possui um numero e um texto, como podemos acessar esses elementos?
+    -> dentro de [UseContext.jsx] vamos criar uma [div.center] junto com um [span.text] (Note que não estamos precisando criar comunicação direta nem indireta, simplesmente importamos o contexto.)
+    -> Feito isso basta utilizarmos a interpolação para fazer o acesso aos dados.
+
+~~~javascript
+[useContext.jsx]
+
+import React, { useContext } from "react";
+import PageTitle from "../../components/layout/PageTitle";
+import SectionTitle from "../../components/layout/SectionTitle";
+import DataContext from "../../data/DataContext";
+
+const UseContext = props => {
+    const context = useContext(DataContext)
+    return (
+        <div className="UseContext">
+            <PageTitle
+                title="Hooke UseContext"
+                subtitle="Aceita um objeto de contexto e retorna o valor atual do contexto!"
+            />
+            <SectionTitle title="Exercicio #01" />
+            <div className="center">
+                <span className="text">{context.text}</span>
+                <span className="text">{context.number}</span>
+            </div>
+        </div>
+    )
+}
+export default UseContext
+~~~
+
+    5 - Agora queremos fazer a modificação do valor, o que requer um cuidado pois a modificação do valor altera todo o CONTEXTO.
+    -> Para verificarmos isso vamos fazer algumas alterações:
+    1) COLOCAR O DATACONTEXT.PROVIDER PARA O [APP.JSX] EM VEZ DO [INDEX.JS], PARA ASSIM PODERMOS CRIAR UM ESTADO E DEPOIS UM FUNÇÃO QUE O ALTERE.
+
+~~~javascript
+[APP.JSX]
+const App = props => {
+    return (
+        <DataContext.Provider value={data}>
+            <div className="App">
+                <Router>
+                    <Menu />
+                    <Content />
+                </Router>
+            </div>
+        </DataContext.Provider>
+    )
+}
+~~~
+~~~javascript
+[index.js]
+ReactDom.render(
+    <App />,
+    document.getElementById('root')
+)
+~~~
+
+    6 - Podemos por exemplo inicializar um estado dentro do componente app, a partir do objeto {data} criado dentro do [DataContext.js], basicamente o numero e o texto.
+    -> Agora estamos inicializando o estado com um objeto, e temos uma função que irá alterar o estado.
+    -> Ao chamar a função de alterar o estado, temos que tomar o cuidado de SETAR O TIPO DE DADO correto que queremos.
+
+~~~javascript
+const [state, setState] = useState(data)
+~~~
+
+    7 - Agora em vez de passar o {data} em [value={}] vamos passar um objeto que terá dois atributos o [state, setState].
+    -> OBS: A utilização de duas chaves se da com a primeira sendo a interpolação de um valor, e as chaves internas indicam a delimitação de um objeto em javascript.
+~~~javascript
+const App = props => {
+    const [state, setState] = useState(data)
+    return (
+        <DataContext.Provider value={{state, setState}}>
+            <div className="App">
+                <Router>
+                    <Menu />
+                    <Content />
+                </Router>
+            </div>
+        </DataContext.Provider>
+    )
+}
+~~~
+    8 - Com isso nosso contexto possui um objeto com 2 atributos [state, setState].
+    -> Para acessar agora, precisamos colocar o [context.state.text] no span de [UseContext.jsx]
+~~~javascript
+[UseContext.jsx]
+<span className="text">{context.state.text}</span>
+<span className="text">{context.state.number}</span>
+~~~
+
+    9 - Como agora temos o [context.setState] podemos criar uma função chamada (addNumber) para alterar o numero.
+    -> Basicamente vamos receber um numero e chamar o [context.setState()]
+    -> Lembrando que ele irá setar um objeto, logo queremos que ele continue utilizando cada um dos atributos, usa o operador spredding(...) para pegar todos os atributos do estado atual.
+    -> E assim so alterar o valor do atributo [number] a partir do (delta) passado como parametro da fnção [setNUmber].
+    -> Quando formos alterar o estado o ideal é que se altere restaurando todos os outros atributos do objeto que não foram alterados.
+~~~javascript
+function addNumber(n){
+    context.setState({
+        ...context.state,
+        number: context.state.number + delta
+    })
+}
+~~~
+
+    10 - Vamos criar alguns botões para no onClick chamarmos funções arrow para alterar o estado.
+~~~javascript
+const UseContext = props => {
+    const context = useContext(DataContext)
+
+    function addNumber(delta){
+        context.setState({
+            ...context.state,
+            number: context.state.number + delta
+        })
+    }
+    return (
+        <div className="UseContext">
+            <PageTitle
+                title="Hooke UseContext"
+                subtitle="Aceita um objeto de contexto e retorna o valor atual do contexto!"
+            />
+            <SectionTitle title="Exercicio #01" />
+            <div className="center">
+                <span className="text">{context.state.text}</span>
+                <span className="text">{context.state.number}</span>
+                <div>
+                    <button className="btn"
+                    onClick={() => addNumber(-1)}>-1</button>
+                    <button className="btn"
+                    onClick={() => addNumber(1)}>+1</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+~~~
+
+    11 - Uma observação é que como esta sendo um dado que estamos compartilhando com a aplicação inteira, ao navegar para outra pagina e retornar, o valor anterior será mantido.
+    -> Pois o contexto irá sobrevivera aplicação inteira.
+    -> Se dermos um refresh irá restaurar para o valor inicial.
+  
+**[OUTRA FOMAR]**
+
+~~~javascript 
+const UseContext = (props) => {
+    // desestruturando
+    const {state, setState} = useContext(DataContext)
+
+    function addNumber(delta){
+        setState({
+            ...state,
+            number: state.number + delta
+        })
+    }
+}
+~~~
 
 
+Proxima aula vamos fazer d mesma coisa (criação de estados) mas de uma maniera mais organizada (sem ser dentro de APP).
+
+    1 - Criar dentro de /data/store.jsx.
 
 
+&nbsp;
+
+***
+---
+## [Aula 73] - useContext #02
+
+&nbsp;
+
+Vamos fazer mais um exercicio sobre o CONTEXT API. Essa aula é uma evolução, vamos utilizar exatamente as mesmas coisas, [context api, usecontext], so que iremos fazer usando uma formatação melhor.
+
+Vamos fazer de uma forma mais ENCAPSULADA. Na primeira solução criamos um Provider e passados para a aplicação inteira, ou seja, possui um baixo nivel de encapsulamento. Agora vamos criar de uma forma mais ENCAPSULADA.
+
+    1 - Vamos criar um componente não visual (por isso não colcoamos dentro de /components), que terá um estado interno para controlar o estado da aplicação.
+    -> Poderiamos usar o useReducer() depois, quebrar em arquivos diferentes, ja que o gerenciamento de estado de uma aplicaçã é algo que merece ter uma boa organização.
+
+    2 - Na estrutura inical do [STORE.JSX] vamos criar uma constante chamada (store) que irá receber o componente funcional que irá retornar algum tercho jsx.
+~~~javascript
+const Store = props => {
+    return (
+        <div>Store</div>
+    )
+}
+~~~
+
+    3 - Ja vimos que se quisermos usar esse componente (Store) envolvendo toda a aplicação, iriamos em [app.jsx] e envolveriamos todo o condigo dentro dessa nova tag/compoennte.
+    -> E assim para acessar iremos retonar na div o [props.children]
+~~~javascript
+[App.jsx]
+const App = props => {
+    const [state, setState] = useState(data)
+    return (
+        <Store>
+            <DataContext.Provider value={{state, setState}}>
+                <div className="App">
+                    <Router>
+                        <Menu />
+                        <Content />
+                    </Router>
+                </div>
+            </DataContext.Provider>
+        </Store>
+    )
+}
+~~~
+~~~javascript
+[Store.jsx]
+const Store = props => {
+    return (
+        <div>{props.children}</div>
+    )
+}
+~~~
+
+    4 - Agora a primeira parte do componente [STORE], esta funcionando. A outra parte que iremos precisar fazer será criar Dados e o Contexto.
+~~~javascript
+const initialState = {
+    number: 1234,
+    text: 'Context API + Hooks'
+}
+~~~
+    5 - Apos a criação do objeto de estado inical de dados, vamos fazer a criação do contexto e atribuir ele a uma variavel chamada (AppContext)
+~~~javascript
+const AppContext = React.createContext(InitialState)
+~~~
+
+    6 - Agora podemos acessa o [Provider] usando o AppContext e colocar a aplicação inteira dentro do provider e não na [div].
+    -> Vai dar uma advertencia pois nao utilizamos ainda a propriedade {value} no [.provider]
+~~~javascript
+[store.jsx]
+// criação estado inicial de dados
+const initialState = {
+    number: 1234,
+    text: 'Context API + Hooks'
+}
+// criação do contexto
+const AppContext = React.createContext(initialState)
+// alternativa
+// const AppContext = React.createContext(null)
+
+const Store = props => {
+    return (
+        <AppContext.Provider>
+            {props.children}
+        </AppContext.Provider>
+    )
+}
+
+export default Store
+~~~
+
+    7 - Agora como temos o estado inicial, vamos criar uma constante de estado (state,setState) e com o useState() vamos passar o estado inicial de dados que criamos.
+    -> Não vamos passar no [value] do PROVIDER, como fizemos anteriormente, o [state, setState] diretamente.
+    -> Como estamos criando um componente para fazer o controle do estado, vamos querer passar as funções mais ou menos prontas.
+        - FUNÇÃO DE ALTERAÇÃO DE TEXTO
+        - FUNÇÃO DE ALTERAÇÃO DO NUMERO
+    -> Não vamos querer passar a função setStage diretamente para os filhos e nem o state.
+
+~~~javascript
+const initialState = {
+    number:1234,
+    text:'Context API + Hooks'
+}
+const AppContext = React.createContext(InitialState)
+
+const Store = props => {
+    const [state, setState] = useState(initialState)
+}
+return (
+    <AppContext.Provider value={{
+        number: state.number,
+        text: state.text,
+    }}>
+            {props.children}
+    </AppContext.Provider>
+)
+~~~
+
+    8 - Vamos agora criar uma função chamada (updateState) que irá receber dois parametros (key = chave/nome_do_atributo (caso number), value = novo valor)
+    -> Para alterar o state, dentro dessa função chamamos o SetState(objeto-rplicar estado atual).
+    -> o atributo chave será uma string logo precisamos colocar ele enter colchetes.
+    -> Apos isso, em provider, em vamos passar a função setNumber recebendo um novo numero chamando o updatestate passando o valor number e o atributo(n).
+    -> Faz a mesma coisa para o atributo text.
+    -> A utilização da função [updateState] é uma forma simplificada de que todas as vezes que criarmos uma nova função nao termos que clonar o state nvoamente.
+~~~javascript
+const Store = props => {
+
+    const [state, setState] = useState(initialState)
+
+    function updateState(key, value){
+        setState({
+            ...state, // clonando
+            [key]:value
+        })
+    }
+    return (
+        <AppContext.Provider value={{
+            number: state.number,
+            text: state.text,
+            setNumber: n => updateState('number',n),
+            setText: t => updateState('number',t),
+        }}>
+            {props.children}
+        </AppContext.Provider>
+    )
+}
+~~~
+
+    9 - Em vez de passar a função que altera o estado inteiro, estamos passando funções indivoduais de alteração do estado. Causando a imposibilidade de alteração do estado itneiro de uma vez.
+    -> Então a partir do provider estamos compartilhando um objeto que criamos encapsulado dentro do componente [STORE].
+    -> Como a aplicação ja esta envolvida dentro de <store>, não precisamos fazer anda dentro de [App] simplesmente envolvemos dentro de uma tag/compoenente <Store>, temos a posibildiade de usar esse outro estado.
+
+    10 - Outra coisa que precisamos fazer em [Store.jsx] é exportar a variavel que esta criando o CONTEXTO, para assim podermos usar ele dentro de outros componentes.
+
+~~~javascript
+export const AppContext = React.createContext(initialState)
+~~~
+
+    11 - Dentro do [useContext.jsx] vamos criar um segundo exercicio.
+    -> Vamos acessar o [number, setNumber] usando o contexto.
+    -> Vamos mostra-los utilizando uma [span]
+~~~javascript
+[USECONTEXT.JSX]
+
+const UseContext = props => {
+    const context = useContext(DataContext)
+
+    function addNumber(delta){
+        context.setState({
+            ...context.state,
+            number: context.state.number + delta
+        })
+    }
+    const {number, setNumber} = useContext(AppContext)
+    return (
+        <div className="UseContext">
+            <PageTitle
+                title="Hooke UseContext"
+                subtitle="Aceita um objeto de contexto e retorna o valor atual do contexto!"
+            />
+            <SectionTitle title="Exercicio #01" />
+            <div className="center">
+                <span className="text">{context.state.text}</span>
+                <span className="text">{context.state.number}</span>
+                <div>
+                    <button className="btn"
+                    onClick={() => addNumber(-1)}>-1</button>
+                    <button className="btn"
+                    onClick={() => addNumber(1)}>+1</button>
+                </div>
+            </div>
+            <SectionTitle title="Exercicio #02" />
+            <div className="center">
+                <span className="text">{number}</span>
+                <div>
+                    <button className="btn"
+                        onClick={
+                            () => setNumber(number - 1)
+                        }
+                    >-1</button>
+                    <button className="btn"
+                        onClick={() => setNumber(number + 1)
+                    }>+1</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+~~~
+
+    12 - Agora podemos observar a mesma utilização de um contexto, mas agora sendo monitarado o acesso por um componente chamado [store.jsx].
+
+    13 - Para usar o text, basta importa-lo no contexto do {number} e coloca-lo dentro de uma <span>.
+~~~javascript
+const UseContext = props => {
+    const context = useContext(DataContext)
+
+    function addNumber(delta){
+        context.setState({
+            ...context.state,
+            number: context.state.number + delta
+        })
+    }
+
+    const {number,text, setNumber} = useContext(AppContext)
+
+    return (
+        <div className="UseContext">
+            <PageTitle
+                title="Hooke UseContext"
+                subtitle="Aceita um objeto de contexto e retorna o valor atual do contexto!"
+            />
+            <SectionTitle title="Exercicio #01" />
+            <div className="center">
+                <span className="text">{context.state.text}</span>
+                <span className="text">{context.state.number}</span>
+                <div>
+                    <button className="btn"
+                    onClick={() => addNumber(-1)}>-1</button>
+                    <button className="btn"
+                    onClick={() => addNumber(1)}>+1</button>
+                </div>
+            </div>
+            <SectionTitle title="Exercicio #02" />
+            <div className="center">
+                <span className="text">{text}</span>
+                <span className="text">{number}</span>
+                <div>
+                    <button className="btn"
+                        onClick={
+                            () => setNumber(number - 1)
+                        }
+                    >-1</button>
+                    <button className="btn"
+                        onClick={() => setNumber(number + 1)
+                    }>+1</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+export default UseContext
+~~~
+
+    14 - Podemos tambem fazer a utilização de algum tipo de useEffect(). Vamos passar uma função e colocar como dependenia o [number], se o numero que como padrão eh 1234, passar de 1250, vamos alterar o [text] para (Eita!!!!).
+~~~javascript
+const UseContext = props => {
+    const {state, setState} = useContext(DataContext)
+
+    function addNumber(delta){
+        setState({
+            ...state,
+            number: state.number + delta,
+        })
+    }
+
+    const {number,text, setNumber} = useContext(AppContext)
+
+    // como modificar o texto -add setText na variavel acima.
+    // useEffect(function() {
+    //     if(number > 1250){
+    //         setText('Eitaaa!!!')
+    //     }
+    // },[number])
+
+    return (
+        <div className="UseContext">
+            <PageTitle
+                title="Hooke UseContext"
+                subtitle="Aceita um objeto de contexto e retorna o valor atual do contexto!"
+            />
+            <SectionTitle title="Exercicio #01" />
+            <div className="center">
+                <span className="text">{state.text}</span>
+                <span className="text">{state.number}</span>
+                <div>
+                    <button className="btn"
+                    onClick={() => addNumber(-1)}>-1</button>
+                    <button className="btn"
+                    onClick={() => addNumber(1)}>+1</button>
+                </div>
+            </div>
+            <SectionTitle title="Exercicio #02" />
+            <div className="center">
+                <span className="text">{text}</span>
+                <span className="text">{number}</span>
+                <div>
+                    <button className="btn"
+                        onClick={
+                            () => setNumber(number - 1)
+                        }
+                    >-1</button>
+                    <button className="btn"
+                        onClick={() => setNumber(number + 1)
+                    }>+1</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+~~~
 
 
+&nbsp;
 
+***
+---
+## [Aula 74] - useReducer #01
 
-
-
-
-
+&nbsp;
 
 
 
