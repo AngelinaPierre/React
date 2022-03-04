@@ -3619,28 +3619,287 @@ Essas são algumas ideias para organizar o codigo.
 
 &nbsp;
 
+Vamos agora aprender a fazer um HOOK personalizado [useCustom.jsx]. 
+
+~~~javascript
+[useCustom.jsx - ESTRUTURA INICIAL]
+
+import React from "react";
+import PageTitle from "../../components/layout/PageTitle";
+import SectionTitle from "../../components/layout/SectionTitle";
+
+const UseCustom = props => {
+    return (
+        <div className="UseCustom">
+            <PageTitle
+                title="Hook UseCustom"
+                subtitle="Vamos aprender como criar o nosso próprio Hook!"
+            />
+            <SectionTitle title="Exercicio #01" />
+            <div className="center">
+                
+            </div>
+
+        </div>
+    )
+}
+export default UseCustom
+~~~
+
+    1 - Vamos criar uma pasta chamada [/src/hooks], dentro dessa pasta vamos criar um Hook chamado [useCounter.js] que será um hook que irá ENCAPSULAR UM CONTADOR.
+    -> Não colocamos a extensão (.jsx) pois não iremos usar jsx e sim react.
+    -> Vamos criar uma função chamada (useCounter()) onde iremos receber um unico parametro chamado (initialValue).
+    -> Dentro da função iremos retornar tanto o proprio contador quanto dois metodos (incremento e decremento).
+    -> Dentro de um hook, podemos usar outros hooks como por exemplo o [useState() - [count,steCount]]. que será iniciado com o valor inicial de 100.
+    -> Podemos criar uma função dentro de outra, assim iremos criar o increment() e o decrement()
+    -> Vamos fazer o retorno de uma array que possui [count, increment, decrement].
+~~~javascript
+[/hooks/useCounter.js]
+
+import {useState} from 'react'
+
+export const useCounter = (initialValue = 100) => {
+    const [count, setCount] = useState(initialValue)
+
+    function increment() {
+        setCount(count + 1)
+    }
+    function decrement(){
+        setCount(count - 1)
+    }
+    return [count, increment, decrement]
+}
+
+~~~~
+
+    2 - Vamos agora no [useCustom.jsx] importar o [useCounter.js]
+    -> Ao importar o useCounter() podemos fornecer um valor inicial ou nao, e vamos receber como resposta os 3 valores (count, increment, decrement), que podemos chamar do nome que quisermos:
+        const [count, inc, dec] = useCounter()
+    -> Se nao quisermos um determinado valor basta colocar [count,,decrement].
+    -> Uma vez feito isso, colocamos um span para o [count]. e criamos uma div para colocar botões de de incremento e decremento.
+~~~javascript
+[useCustom.jsx - ESTADO FINAL]
+
+import React from "react";
+import PageTitle from "../../components/layout/PageTitle";
+import SectionTitle from "../../components/layout/SectionTitle";
+import { useCounter } from "../../hooks/useCounter";
+
+const UseCustom = props => {
+    const [count, inc, dec] = useCounter(10)
+    return (
+        <div className="UseCustom">
+            <PageTitle
+                title="Hook UseCustom"
+                subtitle="Vamos aprender como criar o nosso próprio Hook!"
+            />
+            <SectionTitle title="Exercicio #01" />
+            <div className="center">
+                <span className="text">{count}</span>
+                <div>
+                    <button className="btn" onClick={() => inc()}>Increment 1</button>
+                    <button className="btn" onClick={() => dec()}>Decrement 1</button>
+                </div>
+            </div>
+
+        </div>
+    )
+}
+export default UseCustom
+~~~
+
+Ou seja, criamos nosso proprio HOOK, uma função chamada [useCounter()], com valor inicial sendo 100, podendo na chamada da função em [useCustom.jsx] colocarmos o valor que quisermos como valor inicial.
+
+Dentro de um hook personalizado, podemos criar nossas proprias funções, podemos usar um useEffect(), varias coisas interessantes. Vamos fazer um outro exemplo na proxima aula.
 
 
+&nbsp;
+
+---
+---
+## [Aula 79] - CUSTOM HOOKS #02
+
+&nbsp;
 
 
+Vamos criar outro exercicio relacionado a fazer hooks personalizados.
+
+Criamos um arquivo chamado [estados.json] colocado na url seguinte: [estados.json](http://files.cod3r.com.br/curso-react/estados.json)
+
+No console do browser existe uma API que nos permite fazer um FETCH() de uma URL.
+> Fetch('http://files.cod3r.com.br/curso-react/estados.json').then(resp => resp.jason()).then(json => console.log(json)).
+> Chamamos um then, pegamos a resposta.json() como função e encadeamos o then que receberá um json como resposta e vamos jogar um console.log(json) para vizualizar.
+
+Basicamente vamos encapsular, se quisermos fazer a chamada direta, esse codigo dentro de um hook. Vamos chamar esse hook de [useFetch.js] e vamos cria-lo mais ou menos da mesma forma que o [useCounter.js].
 
 
+    1 - Vamos exportar criando uma função constante chamada [useFetch] que irá receber dois parametros (url, metodo), vamos supor que o metodo por padrão que queremos passar seja o 'get' (podemos fazer um POST ou DELETE tbm).
+    -> Basicamente o que vamos fazer é criar um estado [response, setResponse] usando o useState(), onde teremos um objeto com dois atributos: (data - que iremos obter, no caso, a lista dos estados, que inicalmente esta nulo) e (loading - Enquanto estiver carregando os dados será true, e quando carregar iremos mudar para false)
+    -> Como vamos retornar o estado, que eh exatamente o objeto com os (dados e loading), e vamos querer e executar a função de chamar o fecch() diretamente dentro do [useFetch()], ou seja, vamos gerar um efeito colateral nesse dado. Passando uma função com duas dependecias, a primeira sendo a (url), se ela mudar automaticamente executa d novo, e o segundo parametro é um metodo que receberemos como parametro do (method) do [useFetch(url, method = 'get')].
+    -> Dentro do [useEffect()] vamos fazer um [fetch()] passando o parametros [url] e o segundo parametro será um objeto com o atributo {method}.
+    -> Feito isso teremos um (.then) onde teremos uma resposta (resp) e obtendo essa resposta vamos chamar ela como (.json) -> retornar uma promise.
+    -> Apos esse retorno vamos chamar o (.then) onde teremos um (json) que queremos retornar com um estado diferente. Logo iremos chamar o [setState] passando o atributo (data) para ser o (.json) que obtivemos, e o atributo loading para ser false, poderiamos não ter esse atributo. O fato é quando ele terminar de chamar, apos ter convertido para json, e na linha onde esta o json pronto, chamamos o setState colocando o json no local do atributo data. 
 
 
+~~~javascript
+[/hooks/useFetch.js]
+
+import {useEffect, useState} from 'react'
+
+export const useFetch = (url, method = 'get') => {
+    const [response, setResponse] = useState({
+        data: null,
+        loading: true,
+    })
+
+    useEffect(function(){
+        fetch(url, {method})
+            .then(resp => resp.json())
+            .then(json => setResponse({
+                data:json,
+                loading:false,
+            }))
+    },[url, method])
+    return response
+}
+~~~
+
+Agora nos temos um hook mais rebuscado que o passado, fazendo uma requisição. Vamos agora usar o [useFetch.js] no [useCustom.jsx]
+
+    1 - Vamos importa-lo passando a URL que iremos colocar dentro de uma constante, e a resposta do useFetch
+~~~javascript
+import {useFetch} from '../../hooks/useFetch'
+
+const url = 'http://files.cod3r.com.br/curso-react/estados.json'
+const response = useFetch(url)
+
+~~~
+
+    2 - Uma vez feito isso vamos ter dentro de [const response] o atributo [data - array com todos os elemntos].
+    -> Vamos criar uma função chamada (showStates) onde iremos receber os states e fazer um [.map()] que irá receber o conteudo dos estados (nome e sigla).
+    -> Para cada estado que iremos receber (state) vamos fazer uma interpolação dentro de uma <li> para mostrar o estado e a sigla.
+    -> Basicamente estamos transformando um array de elementos em um array de jsx.
+~~~javascript
+function showStates(states){
+    return states.map(state => <li>{state.nome} - {state.sigla}</li>)
+}
+~~~
+
+    3 - Agora podemos dentro do useCustom.jsx criar uma <ul> para mostrar esses dados chamando o show.States() passanod o [response.data] usando um condicional para mostrar caso exista.
+    -> Quando usamos o [.map()] lembrar de gerar uma chave{state.nome} por exemplo, quando tem repetição precisa criar chaves para o react atualizar direito.
+~~~javascript
+[useCustom.jsx - ESTRUTURA FINAL]
+
+import React from "react";
+import PageTitle from "../../components/layout/PageTitle";
+import SectionTitle from "../../components/layout/SectionTitle";
+import { useCounter } from "../../hooks/useCounter";
+import { useFetch } from "../../hooks/useFetch";
+
+const UseCustom = props => {
+    const [count, inc, dec] = useCounter(10)
+
+    const url = 'http://files.cod3r.com.br/curso-react/estados.json'
+    const response = useFetch(url)
+
+    function showStates(states){
+        return states.map(state => <li key={state.nome}>{state.nome} - {state.sigla}</li>)
+    }
+
+    return (
+        <div className="UseCustom">
+            <PageTitle
+                title="Hook UseCustom"
+                subtitle="Vamos aprender como criar o nosso próprio Hook!"
+            />
+            <SectionTitle title="Exercicio #01" />
+            <div className="center">
+                <span className="text">{count}</span>
+                <div>
+                    <button className="btn" onClick={() => inc()}>Increment 1</button>
+                    <button className="btn" onClick={() => dec()}>Decrement 1</button>
+                </div>
+            </div>
+            <SectionTitle title="Exercicio #02" />
+            <div className="center">
+                <ul>
+                    {response.data ?
+                        showStates(response.data) : false
+                    }
+                </ul>
+            </div>
+
+        </div>
+    )
+}
+export default UseCustom
+~~~
+
+Nos usamos o useFetch.js para encapsular um HOOK nosso, para encapsular a chamada do FETCH a partir de uma URL. Uma vez que mudou, automaticamente a resposta mudou (response) e a gente pode em vez de usar [response.data], podemos colocar o (loading) como condicional para mostrar a data:
+~~~javascript
+<ul>
+    {!response.loading ?
+        showStates(response.data) : false
+    }
+</ul>
+~~~ 
+
+&nbsp;
+
+---
+---
+## [Aula 80] - CONCLUSÃO DO MODULO.
+
+&nbsp;
+
+Podemos ver a documentação sobre HOOKS.
 
 
+&nbsp;
 
+---
+---
+## [Aula 81] - CONFIGURAÇÕES DO PROJETO.
 
+&nbsp;
 
+Projeto Cadastro - Integração com Banco de dados (Firestore).
 
+Vamos começar agora a primeira parte do AULÃO de NextJS, onde vamos trabalhar a aprte dos fundamentos do framework para depois construir uma aplicação.
 
+    1 - Vamos Criar uma pasta chamada /aulao_nextjs e dentro desta pasta vamos criar o nosso primeiro projeto que diz respeito aos fundamentos.
+~~~
+    npx create-next-app fundamentos
+~~~
+    2 - Apos a aplicação ser criada vamos construir o restante das configurações.
 
+Essa aplicação onde vamos trabalhar com os fundamentos, grande parte do tempo vamos trabalhar basicamente com javascript, sem intrpduzir o typescript, depois no final vamos mostrar como é feita a integração.
 
+Quando formos pra aplicação, desde o começo iremos usar o typescript pq ele nos ajuda em alguns aspectos. Tudo o que tem no javascript o typescript tbm susporta ,logo ele acrescenta uma serie de funcionalidade, issoa caba trazendo alguns beneficios para os nossos projetos.
 
+    3 - Uma vez o projeto instalado, podemos inicia-lo com o comando:
+~~~
+    npm run dev
+~~~~ 
 
+Observação importante, antes da instalação do projeto é preciso ter o [node] instalado na maquina.
 
+~~~
+node --version    -> versão usada : 16.3.0
+~~~
 
+    4 - Vamos criar uma pasta chamada /src e colocar duas pastas do projeto dentro dela. [/styles & /pages].
+    -> A pasta /public deixa fora do /src.
+    -> A pos isso basta rodar o mesmo comando de [npm start dev]
+    -> Essa configuração melhora na organização pois dentro de /src iremos criar outras pastas.  
 
+    5 - Criar as pasta /componentes para nos ajudar no processo de construir a aplicação de fundamentos.
+
+    6 - Outra modificação é, entrando na pasta /pages teremos dois arquivos [_app.js & index.js], esses arquivos são arquivos javascript. 
+    -> Porem, dentro do arquivo, temos codigos escritos em [jsx], o que podemos fazer é trocar a extensão do arquivo de [js] para [jsx] para que o vscode possa lidar com esse tipo de arquivo.
+    -> Quando mudarmos a do [_app.js] se tivessemos com a aplicação rodando iria dar um problema, basta reinicia-la.
+
+No caso do NextJS, ele suporta varias extensões [js - javascript | ts - typescript | jsx - javascrips com react & tsx - typescript com react].
 
 
 <!--
