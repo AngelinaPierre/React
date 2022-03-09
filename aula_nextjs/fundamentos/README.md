@@ -838,14 +838,89 @@ Se precisarmos ter um valor que precisa ser modificado fazemos a utilização de
 
 &nbsp;
 
+~~~javascript
+[/pages/index.jsx - ESTRUTURA INICIAL]
+
+export default function Inicio(){
+    return (
+        <div>
+            <h1>Fundamentos de Next.js & React</h1>
+            <h2>Vamos estudar esse framework</h2>
+        </div>
+    )
+} 
+
+~~~
+
+~~~javascript
+[/pages/Estiloso.jsx - ESTRUTURA INICIAL]
+
+import styles from '../styles/Estiloso.module.css'
+
+export default function Estiloso(){
+    return (
+        <div className={styles.roxo}>
+            <h1>Estilo usando CSS Módulos</h1>
+        </div>
+    )
+}
+~~~
 
 
+Esses principios basicos que trabalhamos ate entao, alguns relecionados os Next.js e outros ao React, em especial falamos sobre JSX e COMPONENTES/PROPRIEDAEDS DE COMPONENTES.
+
+Agora vamos voltar um pouco para uma funcionalidade do Next.js para vermos como podemos navegar entre as paginas/componentes da nossa aplicação que foram definidos dentro da pasta /pages, so que em vez de fazer a navegação direta na URL, queremos voltar a pagina principal [index] e substituir o conteudo por LINK para que a gente consiga fazer a navegação a partir do proprio Next.js em vez de pela URl.
+
+    1 - No /pages/index.js vamos excluir os titulos e vamos importar o {link} que vem do proprio [next/link].
+    -> Dentro desse Link vamos precisar definir o ATRIBUTO OBRIGATORIO {href=""}.
+    -> Qual o caminho que precisamos para entrar em /estiloso.jsx? ---- localhost:3000/Estiloso
+    -> Logo {href="/Estiloso}, dentro do Link podemos definis uma <div> colocando o nome [estilos] para ser mostrado...
+
+~~~javascript
+[/pages/index.jsx]
+
+import Link from 'next/link'
+
+export default function Inicio(){
+    return (
+        <div>
+            <Link href="/Estiloso">
+                Estiloso
+            </Link>
+        </div>
+    )
+} 
+
+~~~
+
+Dessa forma, temos um link que navega para a a pagina [Estilos.jsx], nessa pagina, podemos definir um link(fazer import) para voltar ao inicio, tendo a propriedade {href=""} apontando para a raiz[/].
+
+~~~javascript
+[/pages/Estiloso.jsx]
+
+import styles from '../styles/Estiloso.module.css'
+import Link from 'next/link'
+
+export default function Estiloso(){
+    return (
+        <div className={styles.roxo}>
+            <Link href="/">Voltar</Link>
+            <h1>Estilo usando CSS Módulos</h1>
+        </div>
+    )
+}
+~~~
+
+Agora nos temos a opção de voltar e fazer a navegação de um componente para outro.
 
 
+&nbsp;
 
+---
+---
+## [Aula 92] - COMPONENTE LAYOUT.
 
-
-
+&nbsp;
 
 
 
