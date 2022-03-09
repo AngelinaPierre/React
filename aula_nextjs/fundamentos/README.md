@@ -719,7 +719,7 @@ export default function Exemplo(){
 }
 ~~~
 
-Toda nossa aplicação fica dentro de uma div chamada (__next).
+Toda nossa aplicação fica dentro de uma div chamada (__next). Como podemos visualizar aos inspecionar o browser.
 
 
 &nbsp;
@@ -730,14 +730,113 @@ Toda nossa aplicação fica dentro de uma div chamada (__next).
 
 &nbsp;
 
+Quando vamos usar um componente, muitas vezes, queremos ter uma forma de personaliza-lo. Como exemplo o [o titulo/h1 do cabeçalho]. Como poderiamos passar para esse componente uma propriedade?
+
+~~~javascript
+[/components/Cabecalho.jsx - ESTRUTURA ATUAL]
+
+export default function Cabecalho(){
+    return (
+        <header>
+            <h1>Fundamentos Next.js & React</h1>
+        </header>
+    )
+}
+
+~~~
+    1 -  Logo na função Caveçalho() vamos receber um parametro entre os parenteses que podemos chamar de [props, x, abc...], e podemos observar o que tem dentro desse parametro usando o console.log().
+~~~javascript
+[/components/Cabecalho.jsx]
+
+export default function Cabecalho(abc){
+    console.log(abc)
+    return (
+        <header>
+            <h1>Fundamentos Next.js & React</h1>
+        </header>
+    )
+}
+~~~
+
+Podemos ver que a resposta vem como um objeto vazio. Se passarmos dentro do [exemplo.jsx - componente] alguns atributos para o cabeçalho. Se olharmos novamente para a resposta do console.log() poderemos observar os atributos que passamos como parametro no componente. 
+
+~~~javascript
+import Cabecalho from "../components/Cabecalho"
+
+export default function Exemplo(){
+    return(
+        <>
+            <Cabecalho nome="Angelina" idade={123} ehLegal={true} />
+            <Cabecalho />
+        </>
+    )
+}
+~~~
+
+Normalmente chamamos esse parametro de (PROPs = PROPRIEDADES DO COMPONENTE), logo a partir do momento que vamos no [exemplo.jsx] e dizemos que queremos passar um titulo...Significa que o titulo que definimos será passado como parametro para o cabeçalho. 
+
+Se quisermos passar dois titulos diferentes, dentro do nosso componente podemos usar o que vem dentro de [PROPS] que seria a propriedade {titulo}. E para usar essa propriedade usamos a interpolação la no componente..
+
+~~~javascript
+[/exemplo.jsx]
+
+export default function Exemplo(){
+    return(
+        <>
+            <Cabecalho titulo="Next.js & React" />
+            <Cabecalho titulo="Aprende Next na prática." />
+        </>
+    )
+}
+~~~
+
+~~~javascript
+[/components/Cabecalho.jsx]
+
+export default function Cabecalho(props){
+    console.log(props.titulo)
+    return (
+        <header>
+            <h1>Fundamentos Next.js & React</h1>
+        </header>
+    )
+}
+~~~
+
+Fazendo isso podemos vizualizar no console os valores que foram passados pois Há duas instancias do componente.
+
+    2 - Agora podemos, dentro do COMPONENTE usar o {props.titulo} um valor dinamico em vez de um valor estatico [<h1>Fundamentos Next.js & React</h1>].
+    ->Colocamos um par de {} para a interpolação. Acesso do jsx para o javascript.
+
+~~~javascript
+[/components/Cabecalho.jsx]
+
+export default function Cabecalho(props){
+    console.log(props.titulo)
+    return (
+        <header>
+            <h1>{props.titulo}</h1>
+        </header>
+    )
+}
+~~~
+
+Agora em vez de jogar no console.log() teremos cabeçalhos com {titulos} diferentes. Ou seja, se precisarmos definir cabeçalhos em locais diferentes da aplicação cada pagina possui um cabeçalho diferente/personalizado, podemos usar essa ideia de passar propriedades de um componente para outro.
+
+Ou seja, dentro do componente [exemplo.jsx] temos duas instancias do COMPONENTE CABEÇALHO,e estamos passando os {titulos}/ propriedades personalizadas, de tal forma que o componente terá os dados personalizados a partir do que passamos via PROPRIEDADES/PROPS.
+
+Uma questão importante é que as PROPRIEDADES não podem ser modificadas. Logo não podemos fazer **[props.titulo += "!!!!"]** , logo não podemos causar uma mudança nas propriedades/props pois ela é um OBJETO somente de LEITURA. -> MENSAGEM DE ERRO.
+
+Se precisarmos ter um valor que precisa ser modificado fazemos a utilização de um ESTADO/ESTADO DO COMPONENTE.
 
 
+&nbsp;
 
+---
+---
+## [Aula 91] - NAVEGAÇÃO ENTRE COMPONENTES.
 
-
-
-
-
+&nbsp;
 
 
 
