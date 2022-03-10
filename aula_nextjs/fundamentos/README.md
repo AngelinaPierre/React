@@ -1940,14 +1940,175 @@ Agora temos acesso a dois parametros (filial e codigo), como exemplos de navega�
 
 &nbsp;
 
+Voltando para o React, vamos comentar sobre a ideia de termos um COMPONENTE COM ESTADO. Essa é uma ideia bastante poderosa que utilizamos muito no dia-a-dia, onde antigamente so podemoriamos ter um "componente com estado" usando COMPONENTES BASEADOS EM CLASSE, onde agora temos componentes baseados em FUNÇÕES com ESTADO.
+
+    1 - Vamos criar uma pagina[/pages/estado.jsx] para exemplificar a criação de um componente com ESTADO INTERNO.
+    -> Lembrar de colcoar outra tag de Navegação em [/pages/index.jsx]
+~~~javascript
+[/pages/estado.jsx - ESTRUTURA INICIAL]
+
+import Layout from '../components/Layout'
+
+export default function Estado(){
+    return (
+        <Layout titulo="Componente com Estado">
+            <span>Numero = ???</span>
+        </Layout>
+    )
+
+}
+
+[/pages/index.jsx - ESTRUTURA INICIAL]
+
+import Navegador from '../components/Navegador'
+
+export default function Inicio(){
+    return (
+        <div style={{
+            display:'flex',
+            justifyContent:'center',
+            alignItems:'center',
+            height:'100vh',
+            flexWrap:'wrap',
+        }}>
+            <Navegador destino="/estiloso" texto="Estiloso"/>
+            <Navegador destino="/exemplo" texto="Exemplo" cor="#9400d3"/>
+            <Navegador destino="/jsx" texto="JSX" cor="crimson"/>
+            <Navegador destino="/navegacao" texto="Navegação #01" cor="green"/>
+            <Navegador destino="/cliente/sp-02/123" texto="Navegação Dinâmica #02" cor="blue"/>
+            <Navegador destino="/estado" texto="Componente com Estado" cor="orange"/>
+        </div>
+    )
+} 
+
+~~~
+
+    2 - Se criarmos uma variavel chamada numero=3 e colocamos para fazer a interpolação no <span>.
+~~~javascript
+export default function Estado(){
+    let numero = 3
+    return (
+        <Layout titulo="Exemplo de Componente com Estado">
+            <span>Numero = {numero}</span>
+        </Layout>
+    )
+
+}
+~~~
+
+    3 - Vamos observar nesse exemplo tambem, o fato de que conseguimos "ESCUTAR" EVENTOS.
+    -> Por exemplo, vamos criar um butão para incrementar o numero. O evento é, quando clicarmos no botão será acrescido ao numero um valor determinado.
+    -> Como fazemos então para ao clicar no botão ele chamar uma ação dentro do REACT?
+~~~javascript
+export default function Estado(){
+    let numero = 3
+    return (
+        <Layout titulo="Exemplo de Componente com Estado">
+            <span>Numero = {numero}</span>
+            <button>Incrementar</button>
+        </Layout>
+    )
+
+}
+~~~
+    4 - Vamos criar uma função chamada incrementar, onde sabemos que dentro do javascript podemos criar uma função dentro de outra função [Estado() -> incrementar()].
+    -> Dentro do <button> existe um evento chamado [onClick={}], onde, dentro dele, podemos passar a referencia para a função [incrementar()], a chamando-a ao clicar. 
+~~~javascript
+export default function Estado(){
+    let numero = 3
+
+    function incrementar(){
+        numero += 1
+        console.log(numero)
+    }
+
+    return (
+        <Layout titulo="Exemplo de Componente com Estado">
+            <div>Numero : {numero}</div>            
+            <button onClick={incrementar}>Incrementar</button>
+        </Layout>
+    )
+
+}
+~~~
+
+    5 - Dentro de [incrementar()] não podemos simplesmente fazer o calculo [num += 1], pois isso não será suficiente para atualizar o valor, embora ele esteja sendo atualizado quando vemos no console.log().
+    -> O valor esta sendo incrementado, porem, não esta gerando um impacto na interface grafica. Para impacto na interface grafica, quando gerarmos o valor, precisamos criar um ESTADO.
+    -> Para criar um ESTADO existe uma função do React chamada [useState()], que podemos inicialiar com umv alor inicial [useState(0)] e atribuimos essa função a uma constante (de qualquer nome - state) que será o nosso ESTADO.
+    -> Esse estado (state) é um array, olhando o [console.log(state)] vemos que ele é um ARRAY de 2 POSIÇÕES: [1] = VALOR && [2] = FUNÇÃO_DE_ALTERAÇÃO ---- [0,f]
+    ->Vamos utilizar essa função (f) para alterar o valor do estado.
+    -> Existem varias configurações para fazer isso, vamos ver a primeira:
+~~~javascript
+[/pages/estado.jsx]
+
+import Layout from '../components/Layout'
+import {useState} from 'react'
+
+export default function Estado(){
+
+    const state = useState(0)
+
+    // criação de consntates para recber o valor e a função de alteração
+    let numero = state[0]
+    let alterarNumero = state[1]
+
+    function incrementar(){
+        alterarNumero(numero + 1)
+    }
+
+    return (
+        <Layout titulo="Exemplo de Componente com Estado">
+            <div>Numero : {numero}</div>            
+            <button onClick={incrementar}>Incrementar</button>
+        </Layout>
+    )
+
+}
 
 
+~~~
+
+Agora temos um componente que possui um ESTADO INTERNO, não fazemos a mudança dos valores a partir das propriedades, pois ja vimos que elas servem para somente LEITURA.
+
+    1 - Vamos simplificar a forma de criação, ou seja, sem criar tantas variveis.
+    -> Quando criamos um array no javascript por exemplo {const a = [1,2]}.
+    -> Conseguimos pegar as informações desses elementos usando uma tecnica chamada DESTRUCTURING.
+        > let x = a[0] && let y=a[1] - acessando o array e dando os valores
+        > const a = [1,2] > const [x,y] = a -> usando destructuring para dar os valores.
+    -> Colocar um colchete antes do simbolo do igual estamos definindo um destructuring.
+~~~javascript
+[/pages/estado.jsx - ESTRUTURA FINAL]
+
+import Layout from '../components/Layout'
+import {useState} from 'react'
+
+export default function Estado(){
+
+    const [numero, setNumero] = useState(0) // rEACT hook
+
+    function incrementar(){
+        setNumero(numero + 1)
+    }
+
+    return (
+        <Layout titulo="Exemplo de Componente com Estado">
+            <div>Numero : {numero}</div>            
+            <button onClick={incrementar}>Incrementar</button>
+        </Layout>
+    )
+
+} 
+
+~~~
 
 
+&nbsp;
 
+---
+---
+## [Aula 97] - USANDO API #01
 
-
-
+&nbsp;
 
 
 
