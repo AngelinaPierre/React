@@ -1656,6 +1656,307 @@ Logo podemos ter uma pasta e criar varias paginas dentro dessa pasta e eventualm
 
 &nbsp;
 
+Um outro exemplo que temos de navegação é quando temos **VALORES DINÂMICOS** na URL. Haverá situações por exemplo, onde iremos querer acessar um cliente por codigo.
+
+    1 - Vamos criar a pasta [/pages/cliente] e dentro de /cliente vamos criar uma arquivo chamado [/cliente/codigo.jsx], e vamos querer acessar um cliente por codigo (componente funcional).
+    -> Vamos chamar essa função de [clientePorCodigo], nela, não iremos precisar receber nenhuma propriedade por enquanto.
+    -> Vamos usar o <Layout> das aulas passadas para manter a estrutura, e dentro do mesmo, iremos colocar um <span> para verificarmos o codigo do cliente que queremos passar.
+~~~javascript
+[/pages/cliente/codigo.jsx - ESTRUTURA INICAL]
+
+import Layout from '../../components/Layout'
+export default function ClientePorCodigo(){
+    return (
+        <Layout titulo="Navegação Dinamica #01">
+            <span>Código: = ???</span>    
+        </Layout>
+    )
+}
+~~~
+
+    2 - Em [/pages/index.jsx] temos que criar outra tag de Navegação para essa seção.
+    -> Onde vamos passar no [destino] a pasta (/cliente) + um codigo => [destino="/cliente/123"].
+~~~javascript
+[/pages/index.jsx - ESTRUTURA INICIAL]
+
+import Navegador from '../components/Navegador'
+
+export default function Inicio(){
+    return (
+        <div style={{
+            display:'flex',
+            justifyContent:'center',
+            alignItems:'center',
+            height:'100vh',
+            flexWrap:'wrap',
+        }}>
+            <Navegador destino="/estiloso" texto="Estiloso"/>
+            <Navegador destino="/exemplo" texto="Exemplo" cor="#9400d3"/>
+            <Navegador destino="/jsx" texto="JSX" cor="crimson"/>
+            <Navegador destino="/navegacao" texto="Navegação #01" cor="green"/>
+        </div>
+    )
+} 
+
+[/pages/index.jsx]
+
+import Navegador from '../components/Navegador'
+
+export default function Inicio(){
+    return (
+        <div style={{
+            display:'flex',
+            justifyContent:'center',
+            alignItems:'center',
+            height:'100vh',
+            flexWrap:'wrap',
+        }}>
+            <Navegador destino="/estiloso" texto="Estiloso"/>
+            <Navegador destino="/exemplo" texto="Exemplo" cor="#9400d3"/>
+            <Navegador destino="/jsx" texto="JSX" cor="crimson"/>
+            <Navegador destino="/navegacao" texto="Navegação #01" cor="green"/>
+            <Navegador destino="/cliente/123" texto="Navegação Dinâmica #02" cor="blue"/>
+        </div>
+    )
+} 
+
+~~~
+
+    3 - Agora nos temos a Navegação #02 que queremos navegar como [(http://localhost:3000/cliente/123)], so que esse (123) da em uma pagina não encontrada.
+    -> So iremos conseguir acessar o /cliente se digitarmos especificamente a palavra codigo [http://localhost:3000/cliente/codigo] entrando assim na navegação dinamica.
+    -> Para transformar esse codgoi em algo dinamico, temos que alterar o nome do arquivo (codigo.jsx) , simplesmente colocando um par de colchetes ( [codigo].jsx). Mostranod agora que esse valor [codigo] é algo dinamico que pode ser substituido por exemplo por um numero ou qualquer valor textual.
+    -> Agora as duas opções irão funcionar na URL:
+        -> http://localhost:3000/cliente/123
+        -> http://localhost:3000/cliente/codigo
+        -> http://localhost:3000/cliente/vla
+
+    4 - O vamos precisar agora fazer, eh o acesso desse valor dinamico. Esse valor pode ser acessado a partir do import que iremos fazer da biblioteca [next/router], usando uma propriedades chamada {useRouter} que nos ajudará a ter acesso ao valor.
+    -> Existem outras formas de acesso, como exemplo fazer o import de (router - next/router) colocando um console.log(router), e na primeira chamada, dentro de um objeto chamado query, temos o valor [codigo:"123"]. Esse nome "codigo" vem do valor colocado no arquivo entre os colchetes[] e será visivel dentro do console no atributo QUERY.
+~~~javascript
+[/cliente/[codigo].jsx - USANDO router]
+
+import Layout from '../../components/Layout'
+import router from 'next/router'
+export default function ClientePorCodigo(){
+    console.log(router)
+    return (
+        <Layout titulo="Navegação Dinamica #01">
+            <span>Código: = ???</span>    
+        </Layout>
+    )
+}
+~~~
+
+    4 - Nesse caso que estamos utilizando, se no console.log() tentarmos acessar (router.query), irá dar um erro informando que não possui nenhuma instancia do router e que ele deve ser usado do lado cliente da aplicação.
+    -> Essa mensagem pode ser estranha para quem não conhece como o Next.jsx funciona internamente, pois o next irá renderizar esse tipo de conteudo que tinhamos (sem o console.log), como um tipo de conteudo gerado de forma estatica. Irá gerar o conteudo do lado do servidor entendo que esse conteudo pode ser gerado de forma estatica por uma questão de desempenho, performace e outras coisas. Logo não podemos usar o [console.log(router.query)] diretamente. Podemos sim, para utiliza-lo, colocamos ele dentro de um HOOK chamado [UseEffect()].
+    -> Dentro do [useEffect(()=>{},valor_inicialização)] conseguimos acessar o valor, e vamos ativa-lo quando o componente for inicializado (valor_inicialização = []). Assim agora iremos conseguir acessar o nosso [query].
+~~~javascript
+[/cliente/[codigo].jsx - USANDO router(erro)]
+
+import Layout from '../../components/Layout'
+import router from 'next/router'
+export default function ClientePorCodigo(){
+    console.log(router.query)
+    return (
+        <Layout titulo="Navegação Dinamica #01">
+            <span>Código: = ???</span>    
+        </Layout>
+    )
+}
+
+[/cliente/[codigo].jsx - USANDO router(erro_fix)]
+
+import Layout from '../../components/Layout'
+import router from 'next/router'
+import {useEffect} from 'react'
+export default function ClientePorCodigo(){
+    useEffect(()=>{
+        console.log(router.query)
+    },[])
+    return (
+        <Layout titulo="Navegação Dinamica #01">
+            <span>Código: = ???</span>    
+        </Layout>
+    )
+}
+~~~
+
+    5 - Podemos tbm por exemplo acessar [console.log(router.query.codigo)]. Quando darmos um [f5] o valor estara como (undefined) mas se usarmos a navegação, ele passara a ter um valor preenchido.
+~~~javascript
+[/cliente/[codigo].jsx - USANDO router]
+
+import Layout from '../../components/Layout'
+import router from 'next/router'
+import {useEffect} from 'react'
+export default function ClientePorCodigo(){
+    useEffect(()=>{
+        console.log(router.query.codigo)
+    },[])
+    return (
+        <Layout titulo="Navegação Dinamica #01">
+            <span>Código: = ???</span>    
+        </Layout>
+    )
+}
+~~~
+
+    6 - Podemos consumir o valor no <span>, mas eventualmente podemos ter um problema se acessar diretamente pois pode cair naquele cenario onde o Next.js nos fala que so podemos usar uma instancia do [next/router] do lado do cliente.  
+
+~~~javascript
+[/cliente/[codigo].jsx - USANDO router]
+
+import Layout from '../../components/Layout'
+import router from 'next/router'
+import {useEffect} from 'react'
+export default function ClientePorCodigo(){
+    useEffect(()=>{
+        console.log(router.query.codigo)
+    },[])
+    return (
+        <Layout titulo="Navegação Dinamica #01">
+            <span>Código: = {router.query.codigo}</span>    
+        </Layout>
+    )
+}
+~~~
+
+    7 - Para isso que existe o HOOK [useRouter()], que usamos da seguinte forma:
+    -> Criamos um constante chamada [router] e atribuimos a ela o HOOK.
+    -> Agora com essa instancia (router) criada, conseguimos fazer algumas coisas interessantes, como por exemplo fazer o acesso por interpolarização ao nosso codigo do cliente pelo <span>.
+    -> Podemos agora tirar o useEffect() que faz a verificação no console.
+~~~javascript
+[/cliente/[codigo].jsx - USANDO useRouter()]
+
+import Layout from '../../components/Layout'
+import {useRouter} from 'next/router'
+export default function ClientePorCodigo(){
+    const router = useRouter()
+    return (
+        <Layout titulo="Navegação Dinamica #01">
+            <span>Código: = {router.query.codigo}</span>    
+        </Layout>
+    )
+}
+~~~
+
+**RESUMO** - Como fazer uma **NAVEGAÇÃO DINÂMICA**
+
+    1 - Colocamos o nome do arquivo com [colchetes] = [codigo.jsx]
+    2 - Colocamos o nome do parametro que queremos receber (dentro dos colchetes).
+    3 - E usamos o HOOK [useRouter()] para acessar esse valor, lembrando que o codigo é passado, nesse caso, no [/pages/index.jsx]
+        <Navegador destino="/cliente/123" texto="Navegação Dinâmica #02" cor="blue"/>
+
+Caso a gente queira dois ou mais parametros para clientes (codigo + nome da filial), criamos dentro de [/cliente] um novo diretorio/folder [/clientes/[filia]] e movemos o arquivo [/clientes/[codigo].jsx] para dentro de [/clientes/[filial]/[codigo].jsx].
+
+```text
+|--- |pages
+|--- |--- |api
+|--- |--- |cliente
+|--- |--- |--- |[filial]
+|--- |--- |--- |--- |[codigo].jsx
+|--- |--- |navegacao
+|--- |--- |index.jsx
+...
+|--- |--- |
+
+```
+Agora so iremos conseguir acessar esse elemento [Navegação dinamica #01 - pagina] se passarmos **2 VALORES DINÂMICOS** em [/pages/index.jsx]. Irá gerar um erro caso os imports não sejam atualizados apos movermos o arquivo para a outra pasta.
+
+~~~javascript
+[/pages/index.jsx]
+
+import Navegador from '../components/Navegador'
+
+export default function Inicio(){
+    return (
+        <div style={{
+            display:'flex',
+            justifyContent:'center',
+            alignItems:'center',
+            height:'100vh',
+            flexWrap:'wrap',
+        }}>
+            <Navegador destino="/estiloso" texto="Estiloso"/>
+            <Navegador destino="/exemplo" texto="Exemplo" cor="#9400d3"/>
+            <Navegador destino="/jsx" texto="JSX" cor="crimson"/>
+            <Navegador destino="/navegacao" texto="Navegação #01" cor="green"/>
+            <Navegador destino="/cliente/sp-02/123" texto="Navegação Dinâmica #02" cor="blue"/>
+        </div>
+    )
+} 
+~~~
+
+    1 - Podemos colocar outro <span> para vermos a filial que criamos ou dentro da mesma...
+~~~javascript
+[/pages/cliente/[filial]/[codigo].jsx - estrutura minha com div e span]
+
+import Layout from '../../../components/Layout'
+import {useRouter} from 'next/router'
+import {useEffect} from 'react'
+export default function ClientePorCodigo(){
+    const router = useRouter()
+
+    useEffect(()=>{
+        console.log(router.query)
+    },[])
+
+    return (
+        <Layout titulo="Navegação Dinamica #01">
+            <div>
+                <span>|Filial = {router.query.filial} | Código = {router.query.codigo}|</span>
+            </div>
+        </Layout>
+    )
+}
+
+[/pages/cliente/[filial]/[codigo].jsx - estrutura prof usando div para ficar em 2 linhas]
+import Layout from '../../../components/Layout'
+import {useRouter} from 'next/router'
+import {useEffect} from 'react'
+export default function ClientePorCodigo(){
+    const router = useRouter()
+
+    useEffect(()=>{
+        console.log(router.query)
+    },[])
+
+    return (
+        <Layout titulo="Navegação Dinamica #01">
+            <div>Código = {router.query.codigo}</div>
+            <div>Filial = {router.query.filial}</div>
+        </Layout>
+    )
+}
+~~~
+
+Agora temos acesso a dois parametros (filial e codigo), como exemplos de navegação dinamica que é algo muitoforte dentro do Next.js pois eventualmente vamos precisar passar esses parametros de forma dinamica quando precisarmos chamar alguma de nossas paginas.
+
+
+&nbsp;
+
+---
+---
+## [Aula 96] - COMPONENTE COM ESTADO.
+
+&nbsp;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 <!-- This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
