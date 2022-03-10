@@ -3855,6 +3855,9 @@ Nos usamos o useFetch.js para encapsular um HOOK nosso, para encapsular a chamad
 Podemos ver a documentação sobre HOOKS.
 
 
+# ==== [Seção 6 - Projeto Cadastro (Integração com Banco de dados (Firestore)) ] ====
+
+
 &nbsp;
 
 ---
@@ -3900,6 +3903,8 @@ node --version    -> versão usada : 16.3.0
     -> Quando mudarmos a do [_app.js] se tivessemos com a aplicação rodando iria dar um problema, basta reinicia-la.
 
 No caso do NextJS, ele suporta varias extensões [js - javascript | ts - typescript | jsx - javascrips com react & tsx - typescript com react].
+
+
 
 
 <!--

@@ -922,8 +922,739 @@ Agora nos temos a opção de voltar e fazer a navegação de um componente para 
 
 &nbsp;
 
+Uma vez que aprendemos sobre componentes e como fazer a navegação simples entre eles, vamos criar um componente que irá representar o LAYOUT DA PAGINA.
+
+    1 - /componentes/layout.jsx. Será um componente funcional (export default) e com ele vamos organizar um pouco a estrutura dos nossos exemplos, e assim evoluindo em cima de uma estrutura basica que poderemos reutilizar algumas coisas importantes.
+~~~javascript
+[/componentes/Layout.jsx - ESTRUTURA INICAL]
+
+export default function Layout(props){
+    return (
+        <div>
+            
+        </div>
+    )
+}
+~~~
+
+    2 - Vamos fazer o import do {link} e colocar dentro da <div> onde terá como valor a Raix[/] por padrão.
+~~~javascript
+import Link from 'next/link'
+
+export default function Layout(props){
+    return (
+        <div>
+            <Link href="/>Voltar</Link>
+        </div>
+    )
+}
+~~~
+
+    3 - Agora vamos querer passar um conteudo para dentro do componente [Layout.jsx].
+    -> No [Estiloso.jsx] colocamos um <Link>.
+~~~javascript
+[/pages/Estiloso.jsx - ESTRUTURA INICIAL]
+
+import styles from '../styles/Estiloso.module.css'
+import Link from 'next/link'
+
+export default function Estiloso(){
+    return (
+        <div className={styles.roxo}>
+            <Link href="/">Voltar</Link>
+            <h1>Estilo usando CSS Módulos</h1>
+        </div>
+    )
+}
+~~~
+
+    4 - Vamos supor que a gente queira fazer algo assim:
+    -> Vamos querer usar o componente [Layout - fazer import], e vamos passar o conteudo para dentrod de [Layout]. Sem referenciar o link.
+    -> Vamos querer que o proprio Layout nos forneça o link dee voltar.
+~~~javascript
+[/pages/estiloso.jsx]
+
+import styles from '../styles/estiloso.module.css'
+import Link from 'next/link'
+import Layout from '../components/Layout'
+
+export default function Estiloso(){
+    return (
+        <Layout>
+            <div className={styles.roxo}>
+                <Link href="/">Voltar</Link>
+                <h1>Estilo usando CSS Módulos</h1>
+            </div>
+        </Layout>
+    )
+}
+~~~
+
+    5 -Se olharmos agora a pagina, vemos que o [estiloso.jsx] so possui a opção de [voltar], mas as outras informações relacionadas ao componente não foram renderizadas [<div>].
+    -> Como conseguimos pegar os elementos que estão dentro de um componente funcional[estiloso.jsx], passado dentro de outro Componente [layout.jsx].
+    -> Se dentro de [Layout.jsx] colocarmos um console.log() para vermos quais propriedades estao sendo passadas, iremos observar que dentro de [props] ha uma propriedade chamada [CHILDREN].
+    -> Dentro dessa propriedade CHILDREN, temos a estrutura interna para renderizar tudo que foi passado dentro do componente/tag [Layout], referenciado em [estilo.jsx].
+~~~javascript
+[/components/Layout.jsx]
+
+import Link from 'next/link'
+export default function Layout(props){
+    console.log(props)
+    return (
+        <div>
+            <Link href="/">Voltar</Link>
+        </div>
+    )
+}
+~~~
+
+    6 - Logo a <div> que colocamos em [estiloso.jsx] é referenciada no React como CHILDREN. Que são os filhos...
+    -> Para renderizarmos isso basta acessarmos um trecho de javascript {} - utilizando as chaves, e colocamos o {props.children}.
+~~~javascript
+[/componentes/Layout.jsx]
+
+import Link from 'next/link'
+export default function Layout(props){
+    console.log(props)
+    return (
+        <div>
+            <Link href="/">Voltar</Link>
+            {props.children}
+        </div>
+    )
+}
+~~~
+
+    7 - Agora estamos renderizando a informação dentro da pagina que representa um [layout].
+    -> Vamos criar /style/Layout.module.css
+    -> Vamos referenciar o estilo em [Layout.jsx]
+~~~javascript
+import styles from '../styles/Layout.modules.css'
+~~~
+
+    8 - Dentro da div, vamos referenciar o styles e criar uma classe com o mesmo nome do componente (por enquanto essa classe não existe).
+~~~javascript
+import Link from 'next/link'
+import styles from '../styles/Layout.module.css'
+export default function Layout(props){
+    console.log(props)
+    return (
+        <div className={styles.layout}>
+            <Link href="/">Voltar</Link>
+            {props.children}
+        </div>
+    )
+}
+~~~
+
+    9 - Vamos agora criar o CSS para a classe criada[layout].
+    -> Podemos colocar a altura para (100vh), não precisamos mais colocar essa informação dentro dos componentes (ex:estiloso) logo podemos apagar...
+    -> Vamos tbm definir o layout para usar o [display:flex], e o [flex-direction:column].
+    -> Teremos dentro do nosso layout uma parte que será o [cabeçalho] e a outro que será o [conteudo].
+        -> Uma <div> com className = cabeçalho ---> lembrar de referenciar o styles
+        -> Uma <div> com className = conteudo ---> lembrar de referenciar o styles
+    -> Poderiamos fazer tanto o [cabeçalho] quanto o [conteudo] para serem componentes a parte da função layout, mas vamos colocar o componente [layout] para ser um unico componente.
+    -> Vamos colocar o Link para a area dentro do [cabeçalho], e o {props.children} dentro do [conteudo].
+~~~javascript
+import Link from 'next/link'
+import styles from '../styles/Layout.module.css'
+export default function Layout(props){
+    console.log(props)
+    return (
+        <div className={styles.layout}>
+            <div className={styles.layout}>
+                <div className={styles.cabecalho}>
+                    <Link href="/">Voltar</Link>
+                </div>
+                <div className={styles.conteudo}>
+                    {props.children}    
+                </div>
+            </div>
+        </div>
+    )
+}
+~~~
+
+    10 - Vamos agora criar dentro do [layout.module.css] as classes/seletores CSS que referenciamos no componente [Layout].
+    -> Não precisamos ter seletores CSS complicados, podemos simplesmente colocar os nomes diretos pois o proprio Next.js irá garantir que essa classe seja unica, pois ele irá criar aquele valor random().
+    -> No cabeçalho, vamos:
+    -> flex-end = -> Link irá ficar no lado direito da pagina.
+    -> padding =  -> (y,x)
+~~~CSS
+
+.cabecalho {
+    display:flex;
+    justify-content: flex-end; 
+    padding:10px 20px;
+}
+~~~
+
+    11 - Com relação ao Link podemos colocar um estilo diferente, se inspecionarmos esse elemento no console, veremos que foi colocado uma tag <a> e dentro possui um [href]
+    -> Por isso, em [Layout.jsx - no componente] podemos colocar o link diretamente:
+    -> Ou simplesmente colocar o voltar como antes
+~~~javascript
+[FORMA 1]
+
+<Link href='/'>
+    <a>VOltar</a>
+</Link>
+
+[FORMA 2]
+
+<Link href="/">Voltar</Link>
+~~~
+
+    12 - Para aplicarmos um estilo em cima do <LINK>, como ele esta gerando um link, podemos usar a junção de seletores: [.cabecalho a{}]
+        -> background-color
+        -> padding 
+        -> border-radius -> arredonda borda
+~~~CSS
+
+.cabecalho a{
+    background-color: crimson;
+    padding: 5px 12px;
+    border-radius: 5px;
+}
+
+~~~
+
+    13 - Na parte do cabeçalho, vamos colocar um background diferente para ficar um pouyco mais claro e podermos diferenciar entre cabeçalho e conteudo.
+    -> Dentro do conteudo vamos colocar um padding em todas as direções para o conteudo nao ficar grudado na tela.
+    -> Vamos colocar uma altura para ocupar o espaço que der, ou seja 100%.
+    -> No [Estiloso.module.css] vamos tirar a altura de 100vh, pois ja estamos utilizando no layout.
+    -> Se inspecionarmos e ver o conteudo, temos o conteudo ocupando o espaço inteiro com a observação de que colocamos um padding ao redor do conteudo. Se quisermos que a parte escrita do [Estilo usando CSS Módulos] ocupe o espaço inteiro, em vez de ter em [.roxo{} - Estiloso.module.css] colocamos 100%. Ocupando assim o espaço que foi reservado para o conteudo.
+~~~CSS
+[/styles/Layout.module.css]
+
+.layout{
+    height:100vh;
+    display: flex;
+    flex-direction:column;  
+}
+
+.cabecalho{
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px 20px;
+    background-color: #777;
+}
+
+.cabecalho a{
+    background-color: crimson;
+    padding: 5px 12px;
+    border-radius: 5px;
+}
+
+.conteudo{
+    padding: 25px;
+    height: 100%;
+}
+~~~
+
+~~~CSS
+[/styles/Estiloso.module.css - ESTRUTURA FINAL]
+
+.roxo {
+    height: 100%;
+    background-color: #670bbd;
+    color: #fff;
+}
+
+.roxo h1{
+    margin: 0;
+}
+~~~
+
+Agora temos um componente layout, que ajuda a ter uma certa estrutura na sua pagina, ou seja, qualquer pagina que criarmos agora usando esse componente como padrão. Terá uma barra com a opção de voltar e agora vamos fazer um cabeçalho para entendermos melhor.
+
+    1 - No componente [Layout.jsx] temos a parte do cabeçalho com o <link>, vamos criar um <h1> para receber esse titulo via props, ou podemos usar o proprio componente de cabeçalho que criamos em seções passadas.
+    -> Vamos fazer da primeira maneira, supondo que se não passarmos nenhum parametro, vamos condicionar um padrão. 
+    -> Vamos no Layout tirar as margens do <h1>, colocar uma font-size.
+    -> Dentro do CSS do cabeçalho estamos justificando o conteudo para o [flex-end - parte esquerda da pagina], vamos colocar para ser space-between, colocando assim um do lado e outro do outro.
+    -> Para passar um titulo, em [Estiloso() - pagina] passamos para o <Layout> uma propriedades chamada "titulo" - 
+~~~javascript
+[/components/Layout.jsx - ESTRUTURA FINAL]
+
+import Link from 'next/link'
+import styles from '../styles/Layout.module.css'
+export default function Layout(props){
+    console.log(props)
+    return (
+        <div className={styles.layout}>
+            <div className={styles.layout}>
+                <div className={styles.cabecalho}>
+                    <h1>{props.titulo ?? 'Mais um exemplo'}</h1>
+                    <Link href="/">Voltar</Link>    
+                </div>
+                <div className={styles.conteudo}>
+                    {props.children}    
+                </div>
+            </div>
+        </div>
+    )
+}
+~~~
+~~~javascript
+[/pages/estiloso.jsx - ESTRUTURA FINAL]
+
+import styles from '../styles/Estiloso.module.css'
+import Link from 'next/link'
+import Layout from '../components/Layout'
+
+export default function Estiloso(){
+    return (
+        <Layout titulo='Exemplo de CSS Modularizado'>
+            <div className={styles.roxo}>
+                <h1>Estilo usando CSS Módulos</h1>
+            </div>
+        </Layout>
+    )
+}
+~~~
+~~~CSS
+[/styles/Layout.module.css]
+
+.layout{
+    height:100vh;
+    display: flex;
+    flex-direction:column;  
+}
+
+.cabecalho{
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background-color: #777;
+}
+
+.cabecalho h1{
+    margin:0;
+    font-size: 1.4rem;
+}
+
+.cabecalho a{
+    background-color: crimson;
+    padding: 5px 12px;
+    border-radius: 5px;
+}
+
+.conteudo{
+    padding: 25px;
+    height: 100%;
+}
+~~~
+~~~CSS
+[/styles/Estiloso.module.css]
+
+.roxo {
+    height: 100%;
+    background-color: #670bbd;
+    color: #fff;
+}
+
+.roxo h1{
+    margin: 0;
+}
+~~~
 
 
+Fizemos a parte do nosso LAYOUT, vamos criar um outro componente que irá representar um LINK na aplicação fazendo algumas alterçções na pagina index para linkar todos os exemplos.
+
+
+
+&nbsp;
+
+---
+---
+## [Aula 93] - COMPONENTE NAVEGADOR.
+
+&nbsp;
+
+VAmos agora definir um componente para se encarregar dos links. Na nossa pagina [index.jsx] temos um <Link> diretamente escrito, mas se quisermos estilisa-lo, e deixa-lo mais interessante o ideia seria que o colocasse-mos dentro de um componente. 
+
+~~~javascript
+import Link from 'next/link'
+
+export default function Inicio(){
+    return (
+        <div>
+            <Link href="/estiloso">
+                Estiloso
+            </Link>
+        </div>
+    )
+} 
+~~~
+
+    1 - Vamos criar um componente funcional (export default) chamado [/components/Navegador.jsx], que recebera uma propriedade(props) e vamos encapsular dentro do nosso componente o que seria o nosso link ( de forma fixa/estatica por enquanto).
+~~~javascript
+[/componentes/Navegador.jsx - ESTRUTURA INICIAL]
+
+import Link from 'next/link'
+
+export default function Navegador(props){
+    return (
+        <Link href="/estiloso">
+            Estiloso
+        </Link>
+    )
+}
+~~~
+~~~javascript
+[/pages/index.jsx]
+
+import Link from 'next/link'
+import Navegador from '../components/Navegador'
+
+export default function Inicio(){
+    return (
+        <div>
+            <Navegador/>
+        </div>
+    )
+}
+~~~
+
+    2 - VAmos querer trablhar com as propriedades que ja vimos, logo, vamos querer passar via (props) o [href=],nesse caso[href="/estiloso"] nos vamos chamar de destino colocando {props.destino}.
+    -> Dessa forma no [/pages/index.jsx] podemso colocar uma propriedades chamada [destino], que irá encaminhar para [/estiloso] + [/exemplo] + [/jsx].
+~~~javascript
+[/components/Navegador.jsx]
+
+import Link from 'next/link'
+
+export default function Navegador(props){
+    return (
+        <Link href={props.destino}>
+            Estiloso
+        </Link>
+    )
+}
+~~~
+~~~javascript
+[/pages/index.jsx]
+
+import Navegador from '../components/Navegador'
+
+export default function Inicio(){
+    return (
+        <div>
+            <Navegador destino="/estiloso"/>
+            <Navegador destino="/exemplo" />
+            <Navegador destino="/jsx" />
+        </div>
+    )
+} 
+~~~
+
+    3 - Vamos agora melhorar o componente [Navegador.jsx].
+    -> Temos o texto que seria o Link [estiloso], vamos recebe-lo via props para assim podermos definir um para cada pagina no [index.jsx]
+~~~javascript
+[/components/Navegador.jsx]
+
+import Link from 'next/link'
+
+export default function Navegador(props){
+    return (
+        <Link href={props.destino}>
+            {props.texto}
+        </Link>
+    )
+}
+~~~
+
+~~~javascript
+[/pages/index.jsx]
+
+import Navegador from '../components/Navegador'
+
+export default function Inicio(){
+    return (
+        <div>
+            <Navegador destino="/estiloso" texto="Estiloso"/>
+            <Navegador destino="/exemplo" texto="Exemplo"/>
+            <Navegador destino="/jsx" texto="JSX" />
+        </div>
+    )
+} 
+~~~
+
+    4 - Vamos criar para o componente [Navegador.jsx] um estilo css [Navegador.module.css] - Referenciar dentro de Navegador.jsx.
+~~~javascript
+import styles from '../styles/Navegador.module.css
+~~~
+    5 - Com isso, nos temos a possibildiade agora, dentro do [Navegador.jsx], de definir algumas classes para aplicamos o CSS.
+~~~javascript
+[/components/Navegador.jsx]
+
+import Link from 'next/link'
+import styles from '../styles/Navegador.module.css'
+
+export default function Navegador(props){
+    return (
+        <Link href={props.destino}>
+            <div className={styles.navegador}>
+                {props.texto}
+            </div>
+        </Link>
+    )
+}
+~~~
+
+    6 - Vamos agora no [Navegador.module.css] utilizar a classe que criarmos como seletor.
+~~~CSS
+.navegador{
+    background-color: #bbb;
+    padding: 30px;
+}
+~~~
+
+    7 - Vamos colocar na <div> do [/pages/index.jsx] uma classe para aplicarmos um estilo em relação ao navegadores dessa pagina.
+    -> Podemos se quisermos utilizar o proprio [style] dentro da div. O primeiro par de chaves {} estamos acessando o javscript, o segundo {{}} é a representação de um objeto.
+    -> Se dermos um ctrl+space, podemos observar varias propriedades do html (font-family, font-size...).
+    -> É utilizado a estrutura CamelCase para propriedades que possuem hifen no meio.
+    -> Para ir para o centro da pagina, colocarmos o height=100vh, e para dizer que ele aceita quebrar a linha caso tenha varios elementos seria o [flexWrap].
+~~~javascript
+[/pages/index.jsx]
+
+export default function Inicio(){
+    return (
+        <div style={{
+            display:'flex',
+            justifyContent:'center',
+            alignItems:'center',
+            height:'100vh',
+            flexWrap:'wrap',
+        }}>
+            <Navegador destino="/estiloso" texto="Estiloso"/>
+            <Navegador destino="/exemplo" texto="Exemplo"/>
+            <Navegador destino="/jsx" texto="JSX" />
+        </div>
+    )
+}
+~~~
+    8 - No [Navegador.module.css] vamos colocar uma margem de 10px em todas as direções para os links nã o ficarem grudados.
+    -> Vamos colcoar um border-radius e uma cor de fonte diferente (dodgeblue).
+
+~~~CSS
+[/styles/Navegador.module.css]
+
+.navegador {
+    background-color: dodgerblue;
+    padding: 30px;
+    margin: 10px;
+    border-radius: 8px;
+}
+~~~
+    9 - Para finalizar em vez de definirmos o background-color dentro de [Navegador.module.css], podemos por exemplo não passar a cor, e dentro de [Navegador.jsx] vamos, alem de aplicar um (className), um (style = estilo) de forma dinamica.
+    -> Onde, caso a gente receba [props.cor] vamos usa-la, caso contrario iremos usar a cor azul ['dodgerblue']. Ou seja, estamos aplicando de forma dinamica a cor dentro dos LINKS.
+~~~javascript
+[/components/Navegador.jsx - ESTRUTURA FINAL]
+
+export default function Navegador(props){
+    return (
+        <Link href={props.destino} passHref>
+            <div className={styles.navegador} style={{
+                backgroundColor: props.cor ?? 'dodgerblue'
+            }}>
+                {props.texto}
+            </div>
+        </Link>
+    )
+}
+~~~
+
+    10 - Se voltarmos no [Index.jsx] alem de passar os atributos [texto e destino], podemos por exemplo passar uma [cor] cor diferente para cada link. 
+~~~javascript
+[/pages/index.jsx - ESTRUTURA FINAL]
+
+import Navegador from '../components/Navegador'
+
+export default function Inicio(){
+    return (
+        <div style={{
+            display:'flex',
+            justifyContent:'center',
+            alignItems:'center',
+            height:'100vh',
+            flexWrap:'wrap',
+        }}>
+            <Navegador destino="/estiloso" texto="Estiloso"/>
+            <Navegador destino="/exemplo" texto="Exemplo" cor="#9400d3"/>
+            <Navegador destino="/jsx" texto="JSX" cor="crimson"/>
+        </div>
+    )
+} 
+~~~
+
+    11 - Para finalizar dentro dos outros exemplos [/exemplo.jsx e /jsx.jsx] vamos colocar a estrutura de [Layout.jsx], como no exemplo de [estilos.jsx].
+    -> Dentro de [Exemplo.jsx] vamos apagar o fragmento <></>.
+~~~javascript
+[/pages/exemplo.jsx - ESTRUTURA MINHA]
+
+import Cabecalho from "../components/Cabecalho"
+import Layout from "../components/Layout"
+
+export default function Exemplo(){
+    return(
+        <Layout titulo="Exemplo Componente Cabeçalho">
+            <Cabecalho titulo="Next.js & React" />
+            <Cabecalho titulo="Aprende Next na prática." />
+        </Layout>
+    )
+}
+
+[/pages/jsx.jsx - ESTRUTURA MINHA]
+
+import Layout from "../components/Layout"
+
+export default function Jsx(){
+    const titulo = <h1>JSX é um conceito Central</h1>
+    function subtitulo(){
+        return <h2>{"muito legal".toUpperCase()}</h2>
+    }
+    return (
+        <Layout titulo="Exemplo sobre conceitos JSX">
+            <div>
+                {titulo}
+                {subtitulo()}
+                <p>
+                    {JSON.stringify({nome:'joao',idade:30})}
+                </p>
+            </div>
+        </Layout>
+    )
+}
+~~~
+~~~javascript
+[/pages/exemplo.jsx - ESTRUTURA PROFESSOR]
+
+import Cabecalho from "../components/Cabecalho"
+import Layout from "../components/Layout"
+
+export default function Exemplo(){
+    return(
+        <Layout titulo="Exemplo Usando Componentes : Cabeçalho">
+            <Cabecalho titulo="Next.js & React" />
+            <Cabecalho titulo="Aprende Next na prática." />
+        </Layout>
+    )
+}
+
+[/pages/jsx.jsx - ESTRUTURA PROFESSOR]
+
+import Layout from "../components/Layout"
+
+export default function Jsx(){
+    const titulo = <h1>JSX é um conceito Central</h1>
+    function subtitulo(){
+        return <h2>{"muito legal".toUpperCase()}</h2>
+    }
+    return (
+        <Layout titulo="Exemplo sobre conceitos de JSX">
+            <div>
+                {titulo}
+                {subtitulo()}
+                <p>
+                    {JSON.stringify({nome:'joao',idade:30})}
+                </p>
+            </div>
+        </Layout>
+    )
+}
+
+~~~
+
+&nbsp;
+
+---
+---
+## [Aula 94] - NAVEGAÇÃO SIMPLES.
+
+&nbsp;
+
+Como ja temos a parte da navegação funcionando vamos falar sobre alguns aspectos da parte da navegação.
+
+    1 - Se criarmos uma pasta chamada /navegação e dentro desta pasta criarmos um arquivo chamado [index.jsx] sendo um componente funcional.
+    -> Vamos importar o compoennte [Layout.jsx] para mantermos uma estrutura.
+~~~javascript
+[/pages/navegacao/index.jsx - ESTRUTURA INICAL]
+
+import Layout from '../../components/Layout'
+
+export default function Navegacao(){
+    return (
+        <Layout titulo="Exemplo de Navegação #01">
+            <h1>Navegação #01</h1>
+        </Layout>
+    )
+}
+~~~
+~~~javascript
+[/pages/index.jsx - ESTRUTURA INICIAL]
+import Navegador from '../components/Navegador'
+
+export default function Inicio(){
+    return (
+        <div style={{
+            display:'flex',
+            justifyContent:'center',
+            alignItems:'center',
+            height:'100vh',
+            flexWrap:'wrap',
+        }}>
+            <Navegador destino="/estiloso" texto="Estiloso"/>
+            <Navegador destino="/exemplo" texto="Exemplo" cor="#9400d3"/>
+            <Navegador destino="/jsx" texto="JSX" cor="crimson"/>
+        </div>
+    )
+} 
+~~~
+    2 - Com isso, podemos ir no [/pages/index.jsx], e, a pergunta é, como iremos tratar essa navegação:
+    -> Vamos criar outra tag de <Nevegador> | texto="navegação #01" e vamos referenciar o caminho da pasta (destino) simplesmente como [/navegacao]. Ou seja, podemos criar tanto um arquivo/componente para a navegação, quanto podemos criar uma pasta /navegação e dentro dela criar um arquivo chamado [index.jsx].
+    -> Da mesma forma que dentro de [/pages] o (index.jsx) equivale ao {/ = root}, dentro da pasta [/navegação] o (index.jsx) tambem equivale ao {/}. Então basta referenciar no (destino="/navegacao").
+~~~javascript
+[/pages/index.jsx]
+import Navegador from '../components/Navegador'
+
+export default function Inicio(){
+    return (
+        <div style={{
+            display:'flex',
+            justifyContent:'center',
+            alignItems:'center',
+            height:'100vh',
+            flexWrap:'wrap',
+        }}>
+            <Navegador destino="/estiloso" texto="Estiloso"/>
+            <Navegador destino="/exemplo" texto="Exemplo" cor="#9400d3"/>
+            <Navegador destino="/jsx" texto="JSX" cor="crimson"/>
+            <Navegador destino="/navegacao" texto="Navegação #01" cor="green"/>
+        </div>
+    )
+}
+~~~
+
+    3 - Outra mudança que podemos fazer no [Navegador.module.css] é com relação ao cursor do mouse para ficar pointer. Assim ao passar o mouse o cursor ira mudar para um mao, ficando mais claro que eh um link.
+~~~CSS
+.navegador {
+    padding: 30px;
+    margin: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+~~~
+
+Existe essas duas possibilidades de navegação, principalmente se formos criar/agrupar varias paginas para alguma coisa. Por exemplo, queremos criar uma pasta [/clientes], ai iremos ter uma pagina para obter todos os clientes, para obter o cliente por ID, para ter o cadastro de clientes.
+
+Logo podemos ter uma pasta e criar varias paginas dentro dessa pasta e eventualmente podemos ter uma pasta principal que seria o (index.jsx) ou qualquer outra extensão que utilizamos na aplicação.
+
+&nbsp;
+
+---
+---
+## [Aula 95] - NAVEGAÇÃO DINÂMICA.
+
+&nbsp;
 
 
 
