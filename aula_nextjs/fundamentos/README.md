@@ -2205,6 +2205,155 @@ Como proximo assunto vamos criar uma URL dinamica em [/clientes] e retornar um c
 
 &nbsp;
 
+Os **PARAMETROS** podem ser passados de duas FORMAS.
+
+    1 - Se no BROWSER colocarmos:
+        localhost:3000/api/hello?nome=Leo&idade=30
+    -> Esses novos parametros podem ser acessados fazendo algumas alterações em [/hello.js].
+    -> Falamos que [params] recebe um JSON.STRINGFY em cima de request.query.
+~~~javascript
+export default function handler(req, res) {
+    res.status(200).json({
+        name: 'Teste API',
+        metodo: req.method,
+        params: JSON.stringify(req.query)
+    })
+}
+
+~~~
+    2 - Dando um f5 na pagina, veremos que ele transformou nome e idade como uma string.
+        {
+            "name":"Teste API",
+            "metodo":"GET",
+            "params":"{
+                \"nome\":\"Leo\",
+                \"idade\":\"30\"
+            }"
+        }
+
+    3 - Poderiamos acessar diretamente da seguinte maneira:
+    -> No browser conseguimos observar que ele conseguiu pegar as informações que vinheram diretamente na URL. Lembrando que todas essas informações são do tipo STRING.
+~~~javascript
+export default function handler(req, res) {
+    res.status(200).json({
+        name: 'Teste API',
+        metodo: req.method,
+        // params: JSON.stringify(req.query)
+        nome: req.query.nome,
+        idade: req.query.idade
+    })
+}
+~~~
+
+    4 - Se eventualmente voce queira transformar essas informações no tipo numerico uma das maneira seria colocando o [+] em frente de {req.query.idade}.
+    -> Estamos usando uma extensão de browser para vizualiar o JSON de maneira estruturada, trabalhando no RAW do browser, iremos ver os objetos em uma linha so.
+~~~javascript
+export default function handler(req, res) {
+    res.status(200).json({
+        name: 'Teste API',
+        metodo: req.method,
+        // params: JSON.stringify(req.query)
+        nome: req.query.nome,
+        idade: +req.query.idade
+    })
+
+~~~
+
+    5 - Podemos obter essas informações com a QUERY de outra forma tbm, como fizemos em outros exemplos:
+    -> Em [/api/clientes] vamos criar um arquivo chamada [/api/clientes/[codigo].js].
+    -> Vamos exportar uma função da mesma forma que fizemos com os componentes, so que essa função em vez de receber {props} irá receber (requisição e resposta -> pode ser qualquer nome tbm).
+    -> Na resposta vamos mandar um status, e o conteudo, se for um json usamos o (.json({})). 
+    -> Como vamos querer passar um codigo, ou seja, vamos receber um codigo dinamicamente, podemos falar, por exemplo que {id:req} ID irá receber requisição, ja que o codigo/parametros vem a partir da requiisição, colocando o [.query.Nome_arquivo - caso:codigo].
+    -> Ao substituirmos as aspas simples[''] por crazes [``] conseguimos fazer uma interpolação e assim obter o CODIGO.
+~~~javascript
+[/api/clientes/[codigo].js - ESTRUTURA INICIAL(sem constante)]
+
+export default function handler(req,res){
+    res.status(200).json({
+        id: req.query.codigo,
+        nome: `Maria ${codigo}`,
+        email: 'mariamariamaria@xcfmail.com'
+    })
+}
+~~~
+
+    6 - Podemos simplificar o codigo se criarmos uma constante e atribuirmos a ela o valor de [req.query.codigo].
+    -> Vamos utilizar a interpolação tanto no [nome] quanto no [email].
+    -> Assim os 3 valores serão gerados de acordo com o codigo passado dinamicamente
+        - /api/clientes/123
+        - retorno: 
+                {
+                    "id": "123",
+                    "nome": "Maria 123",
+                    "email": "mariamariamaria@xcfmail.com"
+                } 
+~~~javascript
+[/api/clientes/[codigo].js - ESTRUTURA INICIAL(sem constante)]
+
+export default function handler(req,res){
+    const codigo = req.query.codigo
+    res.status(200).json({
+        id: codigo,
+        nome: `Maria ${codigo}`,
+        email: `mariamariamaria${codigo}@xcfmail.com` 
+    })
+}
+~~~
+
+Agora como podemos obter essa informação la no **FRONT-END** para conseguirmos integrar tanto o **FRONT-END** com o **NEXT.JS** com a nossa aplicação **BACK-END**.
+
+Não vamos entrar no merito de como fazer para integrar com o **MONGODB** pois, não tem haver com o Netx.js e sim em como voce ira tratar a requisição, que tipo de banco de dados voce ira acessar, se é um banco de dados relacional ou um não-relacional.
+
+Mas do ponto de vista de sua **API**, de ter as **ROTAS**, e voce ter os **METODOS** para tratar as **REQUISIÇÕES** e as **RESPOSTAS**, é algo super simples. Conseguimos tratar os medetodos **HTTP** (condifcional recebendo a resposta e a requisição) podendo assim tratar da forma que quisermos, usando o AMBIENTE DO NODE para isso, podendo tambem passar a parte da REQUISIÇÃO para um **BACK-END** na nuvem como exemplo.
+
+Temos assim muitas possibilidades para tratar a parte do **BACK-END**, inclusive, podemos usar **PADRÕES ARQUITETURAIS, ARQUITETURAS ZAGONAL**, organizar o seu codigo de uma maneira interessante, inclusive tbm integrando com **TYPESCRIPT**, que é algo extremamente interessante e que te ajuda a ter uma **ESTRUTURA* mais interessante na sua aplicação.
+
+
+
+&nbsp;
+
+---
+---
+## [Aula 99] - INTEGRAÇÃO COM API
+
+&nbsp;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <!-- This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
