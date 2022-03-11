@@ -2318,25 +2318,393 @@ Temos assim muitas possibilidades para tratar a parte do **BACK-END**, inclusive
 
 &nbsp;
 
+Agora iremos fazer uma integração sim com relação ao nosso **FRONT-END COM O BACK-END**, a gente criou na aula passada, uma API ([codigo].js).
+~~~javacript
+[/api/clientes/[codigo].jsx - ESTRUTURA INICIAL]
 
+export default function handler(req,res){
+    const codigo = req.query.codigo
+    res.status(200).json({
+        id: codigo,
+        nome: `Maria ${codigo}`,
+        email: 'mariamariamaria@xcfmail.com'
+    })
+}
 
+[RESPOSTA BROWSER - API]
 
+//http://localhost:3000/api/clientes/123
+{
+    "id": "123",
+    "nome": "Maria 123",
+    "email": "mariamariamaria@xcfmail.com"
+}
 
+~~~
 
+E em cima disso, vamos querer consumir essas informações dentro da nossa APLICAÇÃO. Como é somente uma aplicação, esta rodando na mesma maquina, na mesma porta, não teremos problema de **CORES**, e será muito simples fazer o acesso usando a API padrão do BROWSER que seria a **FETCH API**.
 
+    1 - Vamos criar uma pagina chamada [/pages/integracao_1.jsx], como um componente funcional e vamos chamar essa função de [Integração()], e nela iremos acessar as informações que estão no [BACK-END].
+        {
+            "id": "123",
+            "nome": "Maria 123",
+            "email": "mariamariamaria@xcfmail.com"
+        }
+    -> No caso, temos somente um objeto, poderia tambem ser um [ARRAY] de objetos e podemos mostrar um exemplo de ARRAY que tambem é super simples.
 
+~~~javascript
+[/pages/integracao_1.jsx - ESTRUTURA BASICA DE COMPONENTE]
+export default function Integracao(){
+    return (
+        <div>
+            
+        </div>
+    )
+}
+~~~
 
+    2 - Vamos agora querer obter as informações [id,nome,email] la do [BACK-END], para isso vamos precisar trabalhar com um conceito chamada [ASSINCRONISMO].
+    -> Poderiamos por exemplo, instalar uma BLIBLIOTECA, que é um cliente HTTP (AXIOS), que é muito famoso, mas iremos utilizar o proprio [FETCH()] para obter essas informações.
+    -> A URL que precisamos para obter o [cliente = 123] seria: URL(http://localhost:3000/api/clientes/123)
+~~~javascript
+[/pages/integracao_1.jsx - USANDO FETCH() P/ CONECTAR BECK-END]
 
+export default function Integracao(){
+    fetch('http://localhost:3000/api/clientes/123')
+    return (
+        <div>
+            
+        </div>
+    )
+}
+~~~
 
+    3 - O resultado do [FETCH()] irá retornar uma [PROMISES], de tal forma que se utilizarmos o [.then()] passando a ele uma resposta, que chama a [resposta.json()] pegando assim o JSON da resposta "prometida/promise", criando assim uma outra PROMISES(res), e dentro do segundo [.then()], vamos conseguir ter acesso aos dados(criando uma arrowfunction, igual ao primeiro then, passando um console.log para vermos as informações).
+    -> Com esses dados podemos colocar um console.log(dados) mostrando assim o valor dos dados obtidos no BACK-END.
+    -> Isso acontecerá de forma ASSINCRONA. Vamos mostrar as informações por meio de uma LISTA NÃO ORDENADA.
+    -> Vamos tbm criar uma link de navegação para acessarmos essa parte da integração como nos exercicios anteriores.
+    -> Vamos utilizar o <Layout> criado nas aulas passadas para mantermos a padronização.
+~~~javascript
+[/pages/integracao_1.jsx - USANDO FETCH() P/ CONECTAR BECK-END]
 
+export default function Integracao(){
+    fetch('http://localhost:3000/api/clientes/123')
+        .then(
+            resp => resp.json()
+        )
+        .then(
+            dados => console.log(dados)
+        )
+    return (
+        <Layout titulo="Exemplo Integração #01">
+            <div>
+                <ul>
+                    <li>Código: </li>
+                    <li>Nome: </li>
+                    <li>Email: </li>
+                </ul>
+            </div>
+        </Layout>
+    )
+}
+~~~
 
+~~~javascript
+[/pages/index.jsx - NAVEGAÇÃO DE PAGINAS]
 
+import Navegador from '../components/Navegador'
 
+export default function Inicio(){
+    return (
+        <div style={{
+            display:'flex',
+            justifyContent:'center',
+            alignItems:'center',
+            height:'100vh',
+            flexWrap:'wrap',
+        }}>
+            <Navegador destino="/estiloso" texto="Estiloso"/>
+            <Navegador destino="/exemplo" texto="Exemplo" cor="#9400d3"/>
+            <Navegador destino="/jsx" texto="JSX" cor="crimson"/>
+            <Navegador destino="/navegacao" texto="Navegação #01" cor="green"/>
+            <Navegador destino="/cliente/sp-02/123" texto="Navegação Dinâmica #02" cor="blue"/>
+            <Navegador destino="/estado" texto="Componente com Estado" cor="orange"/>
+            <Navegador destino="/integracao_1" texto="Integração com API #01" cor="yellow"/>
+        </div>
+    )
+} 
+~~~
 
+    4 - Podemos agora observar na resposta do console, onde ele obteve a informação do BACK-END.
+    -> Para termos essas informações definidas em nossa aplicação, vamos precisar criar uma ESTADO[cliente, setCliente], passando como valor_inicial um objeto vazio {}.
+    -> Iremos chamar a função de mundaça [setCLiente] quando uma REQUISIÇÃO for feita, pegando os dados que irão vir do back-end, e os colocando no Estado que criamos.
+~~~javascript
+[/pages/integracao_1.jsx - USANDO FETCH() P/ CONECTAR BECK-END]
 
+import Layout from "../components/Layout"
+import {useState} from 'react'
 
+export default function Integracao(){
 
+    const [cliente, setCliente] = useState({})
 
+    fetch('http://localhost:3000/api/clientes/123')
+        .then(
+            resp => resp.json()
+        )
+        .then(
+            dados => setCliente(dados)
+        )
+    return (
+        <Layout titulo="Exemplo Integração #01">
+            <div>
+                <ul>
+                    <li>Código: </li>
+                    <li>Nome: </li>
+                    <li>Email: </li>
+                </ul>
+            </div>
+        </Layout>
+    )
+}
+~~~
+
+    5 - Para não ficar fazendo um LOOP DE REQUISIÇÂO e assim podendo gerar algum problema, vamos criar um BUTTON que irá obter o cliente.
+    -> Outra coisa que iremos fazer, que ainda não vimos, é como INTEGRAR OS DADOS DE UM INPUT para obtermos por exemplo um valor especifico, esse input pode ser inclusive um number.
+~~~javascript
+[/pages/integracao_1.jsx - USANDO FETCH() P/ CONECTAR BECK-END]
+
+export default function Integracao(){
+
+    const [cliente, setCliente] = useState({})
+
+    fetch('http://localhost:3000/api/clientes/123')
+        .then(
+            resp => resp.json()
+        )
+        .then(
+            dados => setCliente(dados)
+        )
+    return (
+        <Layout titulo="Exemplo Integração #01">
+            <div>
+                <input type="number" />
+                <button>Obter Cliente</button>
+            </div>
+            <div>
+                <ul>
+                    <li>Código: </li>
+                    <li>Nome: </li>
+                    <li>Email: </li>
+                </ul>
+            </div>
+        </Layout>
+    )
+}
+~~~
+
+    6 - Vamos colocar o [fetch()] dentro de uma função para organizar melhor o codigo e c  essa função. Por enquanto o valor da URL() esta FIXO.
+    -> Nesse caso, agora quando clicarmos no botão, ele irá obter o cliente, e quando o cliente for obtido, irá chamar o setCliente() alterando assim o valor do ESTADO[cliente,setCliente] criado, que por enquanto, é um objeto vazio.
+    -> POdemos fazer agora a interpolação do valor para vermos na tela as informações que obtivemos do BACK-END.
+~~~javascript
+[/pages/integracao_1.jsx - USANDO FETCH() P/ CONECTAR BECK-END]
+
+export default function Integracao(){
+
+    const [cliente, setCliente] = useState({})
+
+   function obterCliente(){
+        fetch('http://localhost:3000/api/clientes/123')
+            .then(
+                resp => resp.json()
+            )
+            .then(
+                dados => setCliente(dados)
+            )
+    }
+    return (
+        <Layout titulo="Exemplo Integração #01">
+            <div>
+                <input type="number" />
+                <button onClick={obterCliente}>Obter Cliente</button>
+            </div>
+            <div>
+                <ul>
+                    <li>Código:{cliente.id} </li>
+                    <li>Nome:{cliente.nome} </li>
+                    <li>Email:{cliente.email} </li>
+                </ul>
+            </div>
+        </Layout>
+    )
+}
+~~~
+
+    7 - Agora, iremos passar um determinado numero no <INPUT>, e quando passarmos e obtermos o cliente, ele irá trazer um cliente com o [id = input].
+    -> Ou seja, queremos considerar o [id=input] dentro do conteudo [fetch('http://localhost:3000/api/clientes/123')].
+    -> Basicamente iremos precisar criar uma outro ESTADO para que tenhamos essa informação do (codigo). Como valor_inicial podemos colocar o numero (1).
+    -> Podemos usar esse estado "codigo" como o valor associado ao <input> -> [value = {codigo}]. Assim iremos conseguir vincular o codigo ao input. So iremos conseguir manipular esse valor do input se de alguma forma conseguir chamar o [setCodigo()], que por enquanto não esta sendo chamado em nenhum lugar.
+~~~javascript
+[/pages/integracao_1.jsx - USANDO FETCH() P/ CONECTAR BECK-END]
+
+export default function Integracao(){
+
+    const [cliente, setCliente] = useState({})
+    const [codigo, setCodigo] = useState(1)
+
+   function obterCliente(){
+        fetch('http://localhost:3000/api/clientes/123')
+            .then(
+                resp => resp.json()
+            )
+            .then(
+                dados => setCliente(dados)
+            )
+    }
+    return (
+        <Layout titulo="Exemplo Integração #01">
+            <div>
+                <input type="number" value={codigo} />
+                <button onClick={obterCliente}>Obter Cliente</button>
+            </div>
+            <div>
+                <ul>
+                    <li>Código:{cliente.id} </li>
+                    <li>Nome:{cliente.nome} </li>
+                    <li>Email:{cliente.email} </li>
+                </ul>
+            </div>
+        </Layout>
+    )
+}
+~~~
+
+    8 - Para o <input> poder ser alterado, temos que criar um EVENTO especifico que será chamado quando há um mundaça no <input> [onChange].
+    -> Quando esse evento de mudança (onCHange) acontecer, vamos pegar o proprio evento que aconteceu (e) e vamos obter o valor dele a partir de [e.target.value].
+    -> Com Esse valor obtido, chamando o [setCodigo], conseguimos alterar o codigo, tendo ele agora sempre atualizado. Podendo assim manipular o valor do INPUT.
+~~~javascript
+[/pages/integracao_1.jsx - USANDO FETCH() P/ CONECTAR BECK-END]
+
+export default function Integracao(){
+
+    const [cliente, setCliente] = useState({})
+    const [codigo, setCodigo] = useState(1)
+
+   function obterCliente(){
+        fetch('http://localhost:3000/api/clientes/123')
+            .then(
+                resp => resp.json()
+            )
+            .then(
+                dados => setCliente(dados)
+            )
+    }
+    return (
+        <Layout titulo="Exemplo Integração #01">
+            <div>
+                <input type="number" value={codigo} onChange={
+                    e => setCodigo(e.target.value)
+                } />
+                <button onClick={obterCliente}>Obter Cliente</button>
+            </div>
+            <div>
+                <ul>
+                    <li>Código:{cliente.id} </li>
+                    <li>Nome:{cliente.nome} </li>
+                    <li>Email:{cliente.email} </li>
+                </ul>
+            </div>
+        </Layout>
+    )
+}
+~~~
+
+Existe um [video](https://www.youtube.com/watch?v=XQxitgyZ_S4) que mostra varios dos conceitos do REACT e alguns conceitos que estamos tratando nessa aula podem ser complementares a esse video. Essa parte de entender como funciona o [input], de como liga-lo a um ESTADO INTERNO DE UM COMPONENT é algo extremamente importante, pois caso não o faça, o valor do input fica IMUTAVEL.
+
+    1 - Agora que conseguimos obter o valor do CODIGO, conseguimos usar uma TEMPLATE STRING para considerar o uso do codigo na chamada da API.
+        `http://localhost:3000/api/clientes/&{codigo}`
+    -> De tal forma que agora quando clicarmos eo botão de obter o cliente, ele ira pegar o valor do codigo atualizado.
+~~~javascript
+[/pages/integracao_1.jsx - USANDO FETCH() P/ CONECTAR BECK-END]
+
+export default function Integracao(){
+
+    const [cliente, setCliente] = useState({})
+    const [codigo, setCodigo] = useState(1)
+
+   function obterCliente(){
+        fetch('http://localhost:3000/api/clientes/${codigo}')
+            .then(
+                resp => resp.json()
+            )
+            .then(
+                dados => setCliente(dados)
+            )
+    }
+    return (
+        <Layout titulo="Exemplo Integração #01">
+            <div>
+                <input type="number" value={codigo} onChange={
+                    e => setCodigo(e.target.value)
+                } />
+                <button onClick={obterCliente}>Obter Cliente</button>
+            </div>
+            <div>
+                <ul>
+                    <li>Código:{cliente.id} </li>
+                    <li>Nome:{cliente.nome} </li>
+                    <li>Email:{cliente.email} </li>
+                </ul>
+            </div>
+        </Layout>
+    )
+}
+~~~
+
+    2 - Uma outra possibilidade do que poderiamos fazer seria tratar o METODO DE REQUISIÇÃO [fetch()] como ASSINCRONO.
+    -> Tratando esse metodo como ASSINCRONO podemos escrever o codigo de outra maneira:
+    -> usando a parte do ASYNC AWAIT tratamos o codigo como se fosse sincrono, entao fazemos uma chamada (resp) e somente cqundo ele finalizar essa chamda que ele ira para a proxima linha, somente quando (dados) estiver pronto, que será chamado o [setCLiente()].
+    -> Isso tem haver com o javascript, tornando a requsiição mais LIMPA.
+~~~javascript
+[/pages/integracao_1.jsx - USANDO FETCH() P/ CONECTAR BECK-END]
+
+export default function Integracao(){
+
+    const [cliente, setCliente] = useState({})
+    const [codigo, setCodigo] = useState(1)
+
+   async function obterCliente(){
+       const resp = await fetch(`http://localhost:3000/api/clientes/${codigo}`)
+       const dados = await resp.json()
+       setCliente(dados)
+    }
+    return (
+        <Layout titulo="Exemplo Integração #01">
+            <div>
+                <input type="number" value={codigo} onChange={
+                    e => setCodigo(e.target.value)
+                } />
+                <button onClick={obterCliente}>Obter Cliente</button>
+            </div>
+            <div>
+                <ul>
+                    <li>Código:{cliente.id} </li>
+                    <li>Nome:{cliente.nome} </li>
+                    <li>Email:{cliente.email} </li>
+                </ul>
+            </div>
+        </Layout>
+    )
+}
+~~~
+
+&nbsp;
+
+---
+---
+## [Aula 100] - RECOMENDAÇÃO DE VIDEO
+
+&nbsp;
 
 
 
