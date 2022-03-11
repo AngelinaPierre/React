@@ -1,12 +1,12 @@
 import Layout from '../../../components/Layout'
 import {useRouter} from 'next/router'
-import {useEffect} from 'react'
+// import {useEffect} from 'react'
 export default function ClientePorCodigo(){
     const router = useRouter()
 
-    useEffect(()=>{
-        console.log(router.query)
-    },[])
+    // useEffect(()=>{
+    //     console.log(router.query.codigo)
+    // }, [])
 
     return (
         <Layout titulo="Navegação Dinamica #01">

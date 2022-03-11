@@ -2867,8 +2867,190 @@ Se olharmos a documentação de **[PRE-RENDERING](https://nextjs.org/docs/basic-
 ~~~javascript
 [/pages/index.jsx - NAVEGAÇÃO]
 
+import Navegador from '../components/Navegador'
+
+export default function Inicio(){
+    return (
+        <div style={{
+            display:'flex',
+            justifyContent:'center',
+            alignItems:'center',
+            height:'100vh',
+            flexWrap:'wrap',
+        }}>
+            <Navegador destino="/estiloso" texto="Estiloso"/>
+            <Navegador destino="/exemplo" texto="Exemplo" cor="#9400d3"/>
+            <Navegador destino="/jsx" texto="JSX" cor="crimson"/>
+            <Navegador destino="/navegacao" texto="Navegação #01" cor="green"/>
+            <Navegador destino="/cliente/sp-02/123" texto="Navegação Dinâmica #02" cor="blue"/>
+            <Navegador destino="/estado" texto="Componente com Estado" cor="#a45b71"/>
+            <Navegador destino="/integracao_1" texto="Integração com API #01" cor="#42a9a9"/>
+            <Navegador destino="/estatico" texto="Conteúdo Estático" cor="#fa054a"/>
+        </div>
+    )
+}
 
 ~~~
+
+    1 - Vamos criar em [/pages/estatico.jsx] como um componente funcional, usando o <layout> das aulas passadas para manter a padronização.
+~~~javascript
+[/pages/estatico.jsx - ESTRUTURA INICIAL]
+import Layout from '../components/Layout'
+
+export default function Estatico(){
+    return (
+        <Layout titulo="Exemplo Conteúdo Estático">
+            <div>
+
+            </div>
+        </Layout>
+    )
+}
+~~~
+
+    2 - Dentro da <div> vamos fazer uma interpolação pedindo para ser gerado um numero aleatorio.
+    -> Vamos perceber que a partir do momento que entrarmos no conteudo será gerado um numero aleatorio.
+    -> Se abrirmos o console, ele nos informará que há um problema entre o que foi gerado do lado do servidor e o que foi gerado do lado do cliente.
+>Warning: Text content did not match. Server: "0.28377876762375465" Client: "0.8909159632645725"
+
+&nbsp;
+
+Isso acontece no **Next.js**, pois por padrão, todas as paginas serão renderizadas, e como ele esta gerando um conteudo do lado do servidor, e quando chega no cliente ele tambem irá rodar o javascript. Por que no caso do next.js, temos codigo rodando do lado do servidor (pre-renderizar)  e temos codigo tambem sendo executado do lado do cliente.
+
+É importante entender esse conceito pois queremos utilizar o REACT para termos um conteudo dinamico e que faça sentido para uma aplicação moderna, o que o Netx.js tambem se proproe a ter.
+
+No caso, ele irá gerar esse problema, e para tratarmos esse problema, ou seja, tratar um numero qualquer como uma propriedade gerada uma unica vez?
+
+Podemos fazer isso utilizando um metodo chamado **getStaticProps()**.
+
+    1 - Entao, vamos criar uma função com esse nome e exporta-la para dentro do componente.
+    -> Essa função irá retornar um objeto e dentro deste objeto tem o atributo {props:} onde, dentro desse atributo {props} podemos colocar um atributo chamado {numero:} para ser gerado, no caso [math.random()].
+    -> Agora uma vez criado essa função/metodo e retornamos um objeto com o atributo {props}, no componente [Estatico()] podemos acessar as propriedades via (props) e fazer a interpolação para vermos o numero.
+~~~javascript
+[/pages/estatico.jsx]
+
+import Layout from '../components/Layout'
+
+export function getStaticProps(){
+    return {
+        props:{
+            numero: Math.random()
+        }
+    }
+}
+
+export default function Estatico(props){
+    return (
+        <Layout titulo="Exemplo Conteúdo Estático">
+            <div>
+                {props.numero}
+            </div>
+        </Layout>
+    )
+}
+~~~
+
+Agora se formos das um refresh no nosso compente, veremos que ele irá gerar o numero sem nenhuma advertencia, com o numero gerado apenas uma unica vez. O numero aleatorio irá mudar toda vez que dermos um refresh, a geração de conteudo **ESTATICO** esta no momento que fazemos o **BUILD** da aplicação.
+
+~~~text
+npm run build
+~~~
+
+Fazendo ele gerar o conteudo estatico e quando executarmos o projeto no modo produção
+
+~~~text 
+npm start
+~~~
+> O start so irá funcionar apos o comando de build.
+
+
+Agora se dermos o refresh será gerado exatamente o mesmo conteudo, pois ele so irá gerar o conteudo uma unica vez.
+
+Outra questão é que a função que usamos **getStaticProps()**, ela pode ser uma função **ASSINCRONA**.
+
+~~~javascript
+export function getStaticProps(){
+    return {
+        props:{
+            numero: Math.random()
+        }
+    }
+}
+~~~
+
+    1 - Dentro dela podemos por exemplo chamar uma API usando o [fetch(asdasd)], pegar informações, e reotornar o conteudo de forma ASSINCRONA e passar algo que obtivemos remotamente no [BACK-END], na documentação temos um exemplo exatamente de como fazer isso.
+    1.1 - Cria uma função Assincrona
+    1.2 - cria uma constante(res) para receber uma resposta usando o [await e fetch()].
+    1.3 - Cria outra constante para receber o JSON desse request [res.json()].
+    1.4 - A resposta do [.JSON()] é retornada e esse valor é passado via propriedaes/props para o componente.
+~~~javascript
+export function getStaticProps(){
+    fetch('http://...')
+    return {
+        props:{
+            numero: Math.random()
+        }
+    }
+}
+~~~
+
+Então conseguimos passar dados que eventualmente vamos obter de uma **API**. Tambem podemos trabalhar o conceito de **REAVALIDAR O CONTEUDO** , fazer com que o conteudo seja gerado novamente a cada [X segundos]. Nesse caso usamos uma propriedade de revalidação que diz a quantidade de segundos que irá gerar novamente a pagina automaticamente.
+
+Fizemos um exemplo de geração de conteudo estatico, vamos deixar como exercicio a geração de conteudo dinamico do lado do servidor, onde iremos percer que, no caso do conteudo gerado dinamicamente, sempre que fizermos um REFRESH(f5), ele irá gerar um novo numero aleatorio, mesmo que esse numero tenha sido gerado do lado do servidor.
+
+Podemos entender co fazer isso melhor se olharmos na documentação na parte de [SERVER-SIDE RENDERING](https://nextjs.org/docs/basic-features/pages#server-side-rendering). Onde o nome da função que iremos criar será **getServerSideProps()**. A ideia é a mesma
+
+    1 - Voce cria um objeto que tem {props:}, so que se voce gerar esse conteudo, sempre que voce fizer uma requisição para essa pagina, essa funçao [getServerSideProps()] será rodada novamente, gerar as propriedades e passar para o componente.
+
+
+
+&nbsp;
+
+---
+---
+## [Aula 103] - INTRODUÇÃO DO PROJETO
+
+&nbsp;
+
+Agora iremos desenvolver uma aplicação de cadastro (**CRUD - CREATE/READ/UPDATE/DELETE**), vamos integrar nossa aplicação com o **FIRE BASE**, vamos utilizar HOOKS PERSONALIZADOS, vamos usar o **TAILWIND CSS** novamente, vamos usar **TYPESCRIPT** e **INTERFACES**.
+
+>**Tailwind CSS** is basically a utility-first CSS framework for rapidly building custom user interfaces. It is a >highly customizable, low-level CSS framework that gives you all of the building blocks you need to build >bespoke designs without any annoying opinionated styles you have to fight to override.
+
+Vamos fazer a integração de varias ferramentas para aprendermos a fazer um **CRUD**, inclusive de uma forma organizada, dando varias dicas de como organizar o codigo durante o processo de construção do PROJETO. 
+
+Será algo que sem duvida ira ajudar a ter uma consolidação melhor de tudo que ja foi visto no curso. Vamos começar na proxima aula vendo uma visão geral do projeto.
+
+
+
+&nbsp;
+
+---
+---
+## [Aula 104] - RESULTADO FINAL
+
+&nbsp;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
