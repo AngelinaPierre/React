@@ -2855,6 +2855,21 @@ O next.js consegue deteectar o tipo de renderização de acordo com o componente
 
 &nbsp;
 
+Vamos finalizar o conceito de **PRE-RENDERIZAÇÃO** na pratica. Trabalhar esse conceito é algo simples dentro do Netx.js que visa **DOIS OBJETIVOS**:
+
+    1 - Um melhor desempenho na aplicação
+    2 - E trabalhar de uma forma mais eficiente usando o SEO - SEARCH ENGINE OPTIMIZATION.
+
+Se olharmos a documentação de **[PRE-RENDERING](https://nextjs.org/docs/basic-features/pages#pre-rendering)**, ela nos dará exemplos classicos de como gerar os dois tipos de **PRE-RENDERIZZAÇÃO**. Vamos exemplificar a geração de conteúdo estatico (**STATIC GENERATION**) para entendermos melhor o conceito.
+
+> Como exercicio, fazer a exemplificação do conteudo dinamico.
+
+~~~javascript
+[/pages/index.jsx - NAVEGAÇÃO]
+
+
+~~~
+
 
 
 
