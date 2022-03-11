@@ -2721,11 +2721,139 @@ Uma outra referencia seria a utilização de um site de [PALETAS DE CORES](https
 &nbsp;
 
 
+Vamos terminar nossa conversa sobre Nexts.js, falando um pouquinho sobre o **[PRE-RENDERING](https://nextjs.org/docs/basic-features/pages#pre-rendering)**.
+
+Ele irá nos informar que por padrão, o Next.jsx, pre-renderiza, cada uma das paginas da sua APLICAÇÃO. Ele irá trabalhar com duas formas de pre-renderização(renderização que acontecem do lado do servidor), e isso gera um impacto de desempenho muito grande.
+
+É um assunto que, embora esteja nos recursos basicos(base-line do framework), mas não é necessariamente algo tão simples de explicar.
+
+- Tipos de **Pre-renderização**:
+  - **STATIC GENERATION (Recommended)** = The HTML is generated at **build time** and will be reused on each request.
+  - **SERVER-SIDE RENDERING** = The HTML is generated on **each request**.
 
 
+|cliente/browser| ------------------------------ |servidor| 
 
+|cliente| = Quando temos um conteudo gerado do lado do cliente, basicamente o que íra acontecer é que:
 
+    1 - Será feita uma requisição para o servidor(GET).
+        |cliente/browser| ----------[GET]----------> |servidor|
+    2 - O servidor irá retornar uma pagina [HTML].
+        |cliente/browser| <----------[HTML]---------- |servidor|
+    3 - Dentro dessa pagina HTML temos um codigo JAVASCRIPT, e esse codigo [js] será responsavel por gerar todo o conteudo dinamicamente dentro do BROWSER do usuario.
+        [HTML(js)] ---------[geração de conteudo dinamico] ---------> [cliente/browser]
 
+Esse seria o cenário onde teriamos apenas uma unica pagina HTML , pois estamos trabalhando com uma aplicação **SPA - single page aplicarion**. Onde temos apenas uma unica pagina HTML e a partir do JAVASCRIPT geramos o conteudo dinamicamente. Este é um modelo suportado pelo Next.js, mas não cai em nenhum dos dois cenários que o Next.js chamada de **[PRE-RENDERIZAÇÃO]**.
+
+&nbsp;
+
+### **STATIC GENERATION**
+
+Temos o cliente fazendo uma requisição para o servidor que por sua vez, ira encaminhar uma resposta.
+
+        |cliente/browser| -----------[REQUISIÇÃO]--------------> |servidor| 
+        |cliente/browser| <-----------------[RESPOSTA]---------- |servidor|
+    
+Essa requisição e essa resposta irá depender do tipo de conteudo que iremos gerar, vamos trabalhar a **GERAÇÃO DE CONTEUDO ESTÁTICA** que inclusive é a recomendada.
+
+Nesse cenário, ele irá gerar, durante o momento em que rodarmos na nossa aplicação o comando:
+~~~
+npm run build
+~~~
+Ele irá gerar a nossa aplicação para a **PRODUÇÃO**.
+
+> Ira gerar um WARNING caso voce nao tenha passado o atributo **{passHref}** dentro de **Navegador.jsx**.
+> Ou passamos essa referencia/atributo ou colocamos um <LINK> dentro do navegador
+> ~~~javascript
+> export default function Navegador(props){
+>    return (
+>        <Link href={props.destino} passHref>
+>            <div className={styles.navegador} style={{
+>                backgroundColor: props.cor ?? 'dodgerblue'
+>            }}>
+>                {props.texto}
+>            </div>
+>        </Link>
+>    )
+>}
+>~~~
+
+No momento que ele esta gerando o BUILD é quando ele esta gerando tbm o **CONTEÚDO ESTÁTICO**. Existem excessões a essa regra, mas basicamente o que ele irá fazer é gerar um arquivo html (arquivo fisico), e esse conteudo será servido de forma **ESTATICA** sendo **REUSADO** a cada requisição.
+
+    1 - Imagine um blog que voce fez um artigo. Esse artigo é um arquivo ESTÁTICO que voce escreveu(texto). Ele foi la, gerou uma pagina HTML, de forma estatica, ou seja o ARTIGO ja foi escrito la no blog.
+    2 - Assim que fizermos a requisição(cliente -> servidor) para uma determinada coisa que queremos acessar [/...], se existir um arquivo fisico gerado, o servidor sempre irá devolver esse arquivo pronto.
+        |cliente/browser| -----------[REQUISIÇÃO - artigo]--------------> |servidor| -> [/blog/artigo.txt]
+
+        |cliente/browser| <-----------------[RESPOSTA - /blog/artigo.txt]---------- |servidor|
+
+Como vantagem temos que para montar o arquivo (artigo.txt) não precisamos acessar o banco de dados, nao precisa mais consumir outros recursos do servidor alem de obter a pagina gerada ESTATICAMENTE. Ou seja, para cada requisição ele irá devolver a mesma pagina.
+
+Isso tambem irá suportar alguns cenários mais complexos, por exemplo, podemos dizer que a pagina [artigo.txt] irá ter uma duração de (60 minutos).
+
+    1 - A cada 60 minutos, queremos que gere novamente a pagina estatica. Imagine que voce possui os nesta pagina produtos que estão em promoção de hora em hora. Querendo assim que ela atualize de acordo com o tempo determinado.
+    |servidor| -> [/blog/artigo.txt](60min)
+
+O Next.js suporta esse tipo de ação e para isso ele terá internamente uma opção que dirá quanto tempo a pagina irá durar, gerando ela novamente de tempos em tempos. 
+
+O fato é que nesse cenário que estamos trabalhando, em vez do **SPA**, estamos trabalhando com o **SSG - STATIC SITE GENERATION**.
+
+Em outras palavras é um conteúdo estático em um arquivo que foi gerado a partido do momento do BUILD. Existe momentos de excessão que ele será gerado novamente sobre demanda, mas via de regra, quando fazemos o build e ele termina de forma bem sucedida, ele irá gerar os conteudos estaticamente.
+
+    Podemos observar isso na saida do build no terminal:
+        (server) server-side renders at runtime (uses getInitialProps or getServerSideProps)
+        (static) automatically rendered as static HTML (uses no initial props)
+        (SSG)    automatically generated as static HTML + JSON (uses getStaticProps)
+        (ISR)    incremental static generation (uses revalidate in getStaticProps)
+
+Vamos ter o **SERVER-SIDE REDERING(server)** e vamos ter a parte de geração de conteudo estatico [static, SSG,ISR]. Inclusive com o que o Next.js chama de **ISR - INCREMENTAL STATIC GENERATION**, que é como dizemos o tempo de duração do site [60min,24h,2h...]. Vamos ter tambem o que o Next.js chama de **SSG - STATIC SITE GENERATION**, que é quando temos o conteudo estatico mais um **JSON** que foi obtido a partir da função
+~~~next.js
+getStaticProps()
+~~~
+
+Logo o cenário de geração estatica:
+
+                        [REQUISIÇÃO - artigo]
+    |cliente/browser| ---------------------------------------------> |servidor| -> [/blog/artigo.txt]
+
+                                    [RESPOSTA - /blog/artigo.txt]
+    |cliente/browser| <--------------------------------------------- |servidor| -> [/blog/artigo.txt]
+
+Cai dentro dos 3 cenários que vemos no build, que é a **GERAÇÃO DE CONTEÚDO ESTÁTICO**, quando tem **CONTEÚDO ESTATICO + JSON** (eventualmente algo que tenha la na **API-BKND**, ou quando precisamos ter alguma informação que iremos obter de forma **ASSINCRONA**),E A **GERAÇÃO INCREMENTAL** é quando dizemos, que ele irá ter uma **PROPRIEDADE DE REVALIDAÇÃO** (revalide o conteudo a cada 2h).
+
+        (server) server-side renders at runtime (uses getInitialProps or getServerSideProps)
+        (static) automatically rendered as static HTML (uses no initial props)
+        (SSG)    automatically generated as static HTML + JSON (uses getStaticProps)
+        (ISR)    incremental static generation (uses revalidate in getStaticProps)
+
+&nbsp;
+### **SERVER-SIDE RENDERING**
+
+O ultimo cenário é quando temos o lado cliente/browser e temos o servidor (node - ja que estamos falando de next.js).
+    
+    1 - Vamos ter uma requisição, e para cada requisição feita, ele irá gerar do lado do SERVIDOR o HTML.
+                        [REQUISIÇÃO]
+    |cliente/browser| ---------------------------------------------> |servidor|
+
+                                    [RESPOSTA]
+    |cliente/browser| <--------------------------------------------- |servidor|
+                                                                   <-|DINAMIC_HTML|
+
+    2 - Ou seja, nesse caso ele ira dar uma resposta ESPECIFICA para cada requisição.
+    -> Não será gerado um arquivo fisico, o servidor ira gerar dinamicamente o HTML em respota a requisição que foi feita, gerando o conteudo do lado do servidor. Esse conteudo eventualmente pode ter interações de java script na parte do cliente, o next.js ira combinar parte do conteudo sendo gerado no servidor com a interatividade que conhecemos do REACT.
+
+O **SSR -server side rendering** é gerado do lado do servidor e para cada requisição a resposta eh gerada especifica para aquela requisição. Se para gerar o conteudo, precisa por exemplo acessar o banco de dados dados da aplicação, ele ira para cada requisição, acessar o banco de dados, montar o conteudo dinamicamente, para depois responder para o cliente.
+
+Enquanto um faz o reuso do html, o outro ira gerar novamente para cada requisição.
+
+O next.js consegue deteectar o tipo de renderização de acordo com o componente escrito.
+
+&nbsp;
+
+---
+---
+## [Aula 102] - PRE-RENDERIZAÇÃO NA PRATICA
+
+&nbsp;
 
 
 
