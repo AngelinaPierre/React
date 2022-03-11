@@ -3030,9 +3030,30 @@ Será algo que sem duvida ira ajudar a ter uma consolidação melhor de tudo que
 
 &nbsp;
 
+Antes de começar a codificação vamos ver o resultado final da aplicação que iremos trablhar. Embora seja uma aplicação simples, iremos trabalhar com muitos conceitos interessantes.
+
+Os dados que aparecem são dados que estão vindo da numve, no caso, **FIREBASE**, mas precisamente do **FIRESTORE**.
+
+Quando clicamos em [Novo Cliente], será direcionado para um formulario, como é um formulario onde o criente não foi cadastrado, aparece apenas o nome e a idade. Ou seja, o codigo/id não aparece.
+    
+    nome = leonardo
+    idade = 18 
+
+Quando clicamos em salvar ele volta para a tela da lista de cadastro, trazendo mais um novo usuario cadastrado. Em codigo estamos colocando diretamente o proprio ID obtido do FIREBASE, mas se quisermos podemos omitir essa informação a retirando da tabela.
+
+Podemos tambem editar e complementar as informações dos usuarios cadastrados, na parte de edição, colocamos o codigo para somente leitura, mas podemos tambem suprimir essa informação. Quando editamos e salvamos, volta para a tela que lista os usuarios.
+
+Podemos tambem excluir os dados (os usuarios cadastrados)
 
 
 
+&nbsp;
+
+---
+---
+## [Aula 105] - CONFIGURAÇÃO: **NextJS, TailwingCSS e Firebase**
+
+&nbsp;
 
 
 
