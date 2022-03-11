@@ -2110,14 +2110,100 @@ export default function Estado(){
 
 &nbsp;
 
+Agora vamos interagir com a parte ded API's, vamos trablhar com o arquivo [/api/hello.js].
+
+~~~javascript
+[/api/hello.js - ESTRUTURA INICIAL]
+
+// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
+
+export default function handler(req, res) {
+  res.status(200).json({ name: 'John Doe' })
+}
+
+~~~
+
+Se formos no browser e acessarmos http://localhost/3000/api/hello poderemos visualizar o arquivo que criamos. 
+
+    1 - Nesse arquivo, vamos querer que ele nos auxilia a retornar uma informação chamada [metodo:] que é exatamente o METODO HTTP usado para fazer a requisição.
+    -> na função handler(req,res) temso os parametros req = requisição e res = resposta, onde a partir da requisição nos podemos pegar os parametros que foram passados para a requisição usando o [requisição.query] igual ao [router.query].
+    -> O metodo chamado vamos ter acesso a partir de [req.method].
+    -> resposta no browser:
+            - {"name":"Teste API","metodo":"GET"}
+    -> Nesse caso fizemos uma requisição do tipo "GET"
+~~~javascript
+export default function handler(req, res) {
+    res.status(200).json({
+        name: 'Teste API',
+        metodo: req.method,
+    })
+}
+~~~
+
+    2 - Existe uma ferramenta chamada POSTMAN, usada para testar API, para fazer requisições do tipo POST, DELETE, PUT. Sem a necessidade de ter um formulario ou algo do tipo.
+    -> Baixar o POSTMAN ou usar versão web, criar uma conta irá salvar seus teste de API's. Dentro do postman criamos uma REQUISIÇÃO DO TIPO POST  utilizando a URL(http://localhost:3000/api/hello).
+    -> Como resultado será mandndo o nosso JSON(teste api) com o metodo do tipo POST.
+    -> Se mandarmos um metodo do tipo PUT ele irá mostrar no POSTMAN o metodo do tipo PUT. Essa eh uma das formas que dentro da API conseguimos a partir de uma unica URL, tratar diferentes tipos de requisição.
+
+    3 - Dentro de [/api] vamos criar uma pasta chamada [/clientes] e dentro dessa nova pasta, vamos criar um arquivo chamado [/clientes/index.js]. Esse arquivo será um componente funcional chamada [handlers()- podemos colocar qualquer nome], vamos colocar [cliente()] para melhorar a estrutura.
+    -> Vamos ter dois parametros nessa função [requisição(req) | resposta(res)]. Normalmente iremos precisar pelo menos usar a resposta para retornar algo para quem fez a requisição.
+        - res.status(200).send() - colocamos o .send() para no caso de nao querermos enviar nenhuma informação.
+    -> Testando no postman usando /api/clientes poderemos ver o status de 200 mas sem nenhuma informação.
+    -> Se no lugar de [200] colocarmos um [204] nos trará como resposta um [ok - no content]. 
+    -> Se não colocarmos o [.send()] ira ficar preso num [send resquet] pois o servidor nao esta respondendo. É sempre importante mandar alguma coisa, seja um [.send()] ou seja um [json()] onde podemos mandar um objeto:
+~~~javascript
+export default function clientes(req,res){
+    res.status(200).json({
+        id: 3,
+        nome: 'Maria',
+        idade: 35
+    })
+}
+~~~
+
+Ira retornar assim o objeto que criamos usando o [.json()]. Existe um tipo de ESTADO que seria o METHODO NÃO SUPORTADO(405), logo poderiamos colocar uma condicional com esse methodo para nos avisar se a requisição eh suportada ou nao.
+
+    1 - Vamos criar uma função para lidar com o GET [handleGet()] onde a mesma recebera como parametros [req & res].
+    -> Vamos criar uma condicional para a [req.method], ou seja, a depender do tipo do methodo irá fazer alguma coisa.
+    -> Caso não caia dentro do [if()] vamos pegar o status da resposta e definir o [405 - method not suported]
+            - res.status(405).send() - Estamos enviando para o cliente que fizemos uma requisição que a URL não suporta.
+
+~~~javascript
+[/api/clientes/index.js]
+
+export default function clientes(req,res){
+    
+
+    if(req.method === 'GET'){
+        handleGet(req,res)
+    }else{
+        res.status(405).send()
+    }
 
 
+    function handleGet(req,res){
+        res.status(200).json({
+            id:3,
+            nome:'Maria',
+            idade: 35,
+        })
+    }
+
+}
+~~~
+
+Assim se no POSTAMAN  enviarmos um GET, ele irá retornar, mas qualquer outro tipo de requisição trará o errro 405 - metodo não permitido. POdemos definir outros cenários para tratar os tipo diferentes de requisições.
+
+Como proximo assunto vamos criar uma URL dinamica em [/clientes] e retornar um cliente com ID especifico. Gerando assim um conteduo dinamico.
 
 
+&nbsp;
 
+---
+---
+## [Aula 98] - USANDO API #02
 
-
-
+&nbsp;
 
 
 <!-- This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
