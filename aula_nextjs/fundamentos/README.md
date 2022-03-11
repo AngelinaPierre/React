@@ -3055,12 +3055,47 @@ Podemos tambem excluir os dados (os usuarios cadastrados)
 
 &nbsp;
 
+Vamos começar nossa jornada criando nosso aplicativo(**next-crud**) com o comando abaixo:
 
+~~~
+npx create-next-app next-crud
+~~~
 
+Vamos fazer a Integração com o **[Firebase](https://console.firebase.google.com/u/1/)**, vamos tambem instalar o **[TAILWINGCSS](https://tailwindcss.com)** para configurarmos  o estilo da pagina.
 
+No **Firebase** vamos criar um novo projeto e chama-lo tbm de [next-crud], vamos desativar o ANALYTICS. Essa parte de configuração é feita no inicio, tanto a parte do projeto quanto a do firebase.
 
+>Lembre-se de no final excluir o projeto para nao ficar disponivel ate porque terá algumas informações sensiveis, que irão aparecer.
 
+Apos a criação do projeto no **FIREBASE**, vamos pedir para ele criar uma aplicação web com o nome de [frontend]. Será mostrado algumas informações de configurações que poderemos visualiza-las depois, ou seja, podemos copia-las agora ou buscar mais tarde(configurações do projeto).
 
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.8/firebase-app.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+            authDomain: "zzzzzzzzzzzzzzzzzzzzzzz",
+            projectId: "zzzzzzzzzzzzzzzzzzzzzzzzzzz",
+            storageBucket: "zzzzzzzzzzzzzzzzzz",
+         messagingSenderId: "zzzzzzzzzzzzzzzzzzzzzzz",
+            appId: "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+    </script>
+
+Podemos ja tambem entrar na parte do **Firestore** fazendo ja a criação do banco de dados, vamos cria-lo no modo **DESENVOLVIMENTO** para não termos que ficar nos preocupando tanto com as questões de regras e tals, mas é simples fazer as regras, podemos por exemplo, deixar apenas o usuario so mexer em dados que tenha haver com o email dele e coisas similares.
+
+Como vamos colocar no modo de **TESTE/DEV** temos que ter cuidado, para eventualmente deixarmos nessa forma e informações sensiveis do projeto vazem. Logo cuidao na criação do banco de dados, e principalmente ficar atento na parte das regras(definida como qualquer um pode escrever).
+
+Do ponto de vista do **FIREBASE** nos criamos o nosso projeto, vamos depois precisar das informações relacionadas a ele (ex: "apikey:", "authDomain:","projectid:"), para podermos fazer com que nossa aplicação interaja com o **FIREBASE**. 
+
+Agora, apos a criação do nosso projeto com o comando **npx create-next-app** vamos entrar no nosso projeto e começar as configurações.
 
 
 
