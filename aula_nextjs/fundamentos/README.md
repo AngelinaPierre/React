@@ -2706,12 +2706,19 @@ export default function Integracao(){
 
 &nbsp;
 
+Uma recomendação de complementação é um video no canal da [COD3R](https://www.youtube.com/watch?v=TzufYnZUmz4), que explica o porque da utilização do NExts.js. É um video teorico e pratico ao mesmo tempo.
+
+Uma outra referencia seria a utilização de um site de [PALETAS DE CORES](https://coolors.co/generate) para os nossos **MENUS**.
 
 
 
+&nbsp;
 
+---
+---
+## [Aula 101] - MODELOS PRE-RENDERIZADOS
 
-
+&nbsp;
 
 
 
