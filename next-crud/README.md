@@ -645,6 +645,195 @@ export default function Home() {
 
 &nbsp;
 
+Agora iremos criar uma outra pasta [/src/core], para representar o que seria do **DOMINIO** da nossa aplicação.
+
+Podemos seraparar essa pasta [/core] em multiplas pastas/subdominios, podemos ter o dominio do RH, do financeiro de qualquer setor relecionado a sua aplicação. Como vamos criar uma aplicação simples, vamos criar os arquivos diretamente no [/core]. Obviamente numa aplicação grande voce separa em sub-pastas/sub-pacotes dentro de [/core].
+
+    1 - Vamos criar uma arquivo chamado [/core/Cliente.ts] que será a nossa CLASSE que irá representar um CLIENTE.
+    -> Vamos exportar a classe que criarmos e essa classe terá 3 atributos [id|nome|idade].
+    -> Podemos usar o proprio [PRIVATE] do TYPESCRIPT para os membros/propriedades da classe CLiente.
+>TypeScript also has its own way to declare a member as being marked private, it cannot be accessed from outside of its containing class. For example
+    -> Vamos criar um construtor que irá receber [nome,idade,id] e como o id será algo gerado, colocamos ele por ultimo na sequencia, para podermos colocar como valor_inicial um valor PADRÃO para ser NULO inicialmente. Ou seja, quando criarmos um cliente, ele terá um [ID]NULO, quando enviarmos para o FIREBASE irá gerar uma [ID], e na volta teremos o [ID] setado.
+    -> Vamos usar o [this.] para referenciar as propriedades da classe e criar o nosso objeto.
+~~~typescript
+[/core/Cliente.ts - ESTRUTURA INICIAL]
+
+export default class Cliente{
+    // criação das propriedadades
+    private id: string
+    private nome: string
+    private idade: number
+
+    // criação do objeto usando constructor
+    constructor(nome:string, idade:number, id:string = null){
+        this.nome = nome
+        this.idade = idade
+        this.id = id
+    }
+
+}
+
+~~~
+
+    2 - Apos isso, podemos criar os nossos [GET & SET]'s.
+    -> Vamos falar que o [GET][ID] irá retornar o {this.id} - objeto. Dessa maneira como esta escrita irá gerar um problema.
+~~~typescript
+[/core/Cliente.ts]
+
+get id(){
+        return this.id
+    }
+~~~
+
+    3 - Ele esta informando que o "GETTER" que temos esta com o mesmo nome que o atributo da classe Cliente {private id:string}.
+    -> Nesse caso, vamos usar o proprio recurso do JAVASCRIPT para trabalhar com [DADOS PRIVADOS].
+    -> Para fazer isso, precisamos mudar o nosso [tsconfig.json] para uma versão mais nova (ex:ES2015), que ja suporta a questão dos ATRIBUTOS PRIVADOS. 
+~~~~json
+"compilerOptions": {
+    "target": "ES2015",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "incremental": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve"
+  },
+
+~~~~ 
+
+    4 - Apos feita essa mudança, em vez de colocar [PRIVATE] na frente dos atributos iremos utilizar a cerquilha [#].
+    -> Isso faz com que tenhamos NATIVAMENTE (javascript) ATRIBUTOS PRIVADOS.
+~~~typescript
+[/core/Cliente.ts]
+
+export default class Cliente{
+    // criação das propriedadades
+    #id: string
+    #nome: string
+    #idade: number
+
+    // criação do objeto usando constructor
+    constructor(nome:string, idade:number, id:string = null){
+        this.nome = nome
+        this.idade = idade
+        this.id = id
+    }
+
+    get id(){
+        return this.id
+    }
+}
+~~~
+
+    5 - Outra alteração que teremos que fazer para funcionar, é colocar o [#] nos restos das referencias.
+~~~typescript
+[/core/Cliente.ts]
+
+export default class Cliente{
+    // criação das propriedadades
+    #id: string
+    #nome: string
+    #idade: number
+
+    // criação do objeto usando constructor
+    constructor(nome:string, idade:number, id:string = null){
+        this.#nome = nome
+        this.#idade = idade
+        this.#id = id
+    }
+
+    get id(){
+        return this.#id
+    }
+}
+~~~ 
+
+    6 - Vamos agora fazer o mesmo processo de [GET] para [nome & idade]. Essas são as funçõespor onde iremos acessar essas 3 INFORMAÇÕES.
+~~~typescript
+[/core/Cliente.ts]
+
+export default class Cliente{
+    // criação das propriedadades
+    #id: string
+    #nome: string
+    #idade: number
+
+    // criação do objeto usando constructor
+    constructor(nome:string, idade:number, id:string = null){
+        this.#nome = nome
+        this.#idade = idade
+        this.#id = id
+    }
+
+    get id(){
+        return this.#id
+    }
+    get nome(){
+        return this.#nome
+    }
+    get idade(){
+        return this.#idade
+    }
+}
+~~~
+
+Por enquanto não vamos criar nenhum "SETTER" na nossa aplicação, se fossemos precisar, criariamos de outra forma para não criar **OBJETOS MUTAVEIS** (poderia ser uma estrategia de criação).
+
+    7 - Outra coisa que iremos fazer é a criação de um [METODO ESTATICO] para criar uma INSTANCIA VAZIA. No caso, um "CLIENTE" VAZIO.
+    -> Para não termos que instanciar?? podemos ja por exemplo retornar um cliente [new Cliente()] passando os atributos (nome:'')(idade:0)(id = nulo - não precisa colocar).
+    -> Essa é uma maneira de fazer, outra seria declarar o padrão na criação do constructor.
+~~~typescript
+[/core/Cliente.ts]
+
+static vazio(){
+    return new Cliente('',0)
+}
+~~~
+
+Agora criamos o methodo, quando precisarmos no COMPONENTE [index.tsx] INSTANCIAR um cliente, podemos instanciar sem usar o CONSTRUCTOR mas sim um METODO ESTATICO para criar um cliente VAZIO.
+
+Feito isso, podemos agora ir para a parte de criação da nosso **TABELA** e passar a ela uma lista de clientes.
+- Podemos criar essa **LISTA** inicialmente **MOCADA** (na mão mesmo).
+- Depois iremos evoluindo e fazendo a integração com o BKND.
+  
+Proxima aula iremos usar a classe que criamos e criar os clientes manualmente para vermos o componente **TABELA** funcionando.
+
+
+&nbsp;
+
+---
+---
+## [Aula 108] - COMPONENTE TABELA #01
+
+&nbsp;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <!-- This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
