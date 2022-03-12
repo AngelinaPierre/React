@@ -818,21 +818,248 @@ Proxima aula iremos usar a classe que criamos e criar os clientes manualmente pa
 
 &nbsp;
 
+Dentro de [/components] vamos criar o nosoo componente da **TABELA**.
 
+```text
+|components
+|---|Layout.tsx
+|---|Tabela.tsx
+|---|Titulo.tsx
+```
+    1 - Ela seráum componente funcional do react que irá utilizar propriedades recebidas.
+    -> Como a tabela é um componente simples, basicamente em seu [return()], vamos utilizar a tag <table> para ja retorna-la.
+    -> Outra coisa que podemos fazer nesse componente é definir uma [INTERFACE - Recurso Typescritpt], para deixarmos mais ENCAPSULADO ainda o que esperemos receber como propriedade dentro deste componente, ou seja, para utilizarmos ele.
+~~~typescript
+[/components/Tabela.tsx - ESTRUTURA INICIAL]
 
+interface TabelaProps {
 
+}
 
+export default function Tabela(props: TabelaProps){
+    return (
+        <table>
+            
+        </table>
+    )
+}
+~~~
 
+    2 - Como estamos trabalhando com uma tabela especifica para CLIENTES, ate poderiamos chamar de [TabelaClientes()], mas vamos colocar genericamente como [Tabela()], pois nosso escopo é desenvolver apenas um CRUD.
+    -> Poderiamos criar uma SUBPASTA para ter todos os componentes relacionados a CLIENTE ou coisas do tipo.
+    -> Como propriedade DO COMPONENTE TABELA, vamos esperar receber um ARRAY de clientes, onde, nos passa [1] criamos essa classe [/src/core/Cliente.ts].
+    -> Esperamos receber um ARRAY de clientes que é exatamente o que iremos RENDERIZAR no componente [Tabela()].
+    -> Depois iremos criar funções dentro do nosso componente de tabela, pois na nossa aplicação final, dentro da tabela temos uma opção que irá representar quando o cliente for selecionado, ou quando for excluido.
+    -> Ou seja, existem eventos que a tabela irá disparar quando clicarmos em certos elementos.
+~~~typescript
+[/core/Cliente.ts - ESTRUTURA INICIAL]
 
+export default class Cliente{
+    // criação das propriedadades
+    #id: string
+    #nome: string
+    #idade: number
 
+    // criação do objeto usando constructor
+    constructor(nome:string, idade:number, id:string = null){
+        this.#nome = nome
+        this.#idade = idade
+        this.#id = id
+    }
 
+    static vazio(){
+        return new Cliente('',0)
+    }
 
+    get id(){
+        return this.#id
+    }
+    get nome(){
+        return this.#nome
+    }
+    get idade(){
+        return this.#idade
+    }
+}
+~~~ 
 
+~~~typescript
+[/components/Tabela.tsx]
 
+import Cliente from '../core/Cliente'
 
+interface TabelaProps {
+    clientes: Cliente[]
+}
 
+export default function Tabela(props: TabelaProps){
+    return (
+        <table>
 
+        </table>
+    )
+}
+~~~
 
+    3 - Outra coisa que podemos fazer é a quebrar a renderização em multiplas funções.
+    -> Poderiamos simplesmente na tabela colocar um <tr - table row - linha> e dentro dela colocaremos um <th>.
+    -> O primeiro ao terceiro <th>, respectivamente, serão [Código, Nome, idade], e o quarto <th> iremos colocar depois, será as ações.
+~~~typescript
+[/components/Tabela.tsx]
+
+import Cliente from '../core/Cliente'
+
+interface TabelaProps {
+    clientes: Cliente[]
+}
+
+export default function Tabela(props: TabelaProps){
+    return (
+        <table>
+            <tr>
+                <th>Código </th>
+                <th>Nome </th>
+                <th>Idade </th>
+            </tr>
+        </table>
+    )
+}
+~~~
+
+    4 - Agora temos o que seria o cabeçalho da tabela, temos agora que fazer o import desse novo componente no nosso conteudo dentro do [/pages/index.tsx].
+    -> Precisamos passar uma lista de clientes, usando o atributo {clientes}, para isso temos que criar uma constante chamada clientes que será um ARRAY, e vamos instanciar(dar valor) -> new Cliente('Ana',34,'1').
+    -> Criar varios clientes para usar no exemplo. 
+    -> Apos a criação da lista de clientes, possamos ela como parametro para a tabela.
+~~~typescript
+[/pages/index.tsx]
+
+import Layout from "../components/Layout";
+import Tabela from "../components/Tabela";
+import Cliente from "../core/Cliente";
+
+export default function Home() {
+    const clientList = [
+        new Cliente('Ana',34,'1'),
+        new Cliente('Bia',45,'2'),
+        new Cliente('Clara',65,'3'),
+        new Cliente('Giulia',12,'4'),
+    ]
+  return (
+    <div className={`
+        flex justify-center items-center h-screen
+        bg-gradient-to-r from-blue-500 to-purple-500
+        text-white
+    `}>
+        <Layout titulo="Cadastro Simples">
+            <Tabela clientes={clientList}></Tabela>
+        </Layout>
+    </div>
+  )
+}
+~~~
+    5 - Apos feita essas configurações, teremos nossa tabela sendo exibida apenas com a parte do cabeçalho. Podemos evetualmente, olhando para o nosso componente [Tabela.tsx] querer quebrar-lo em funções para deixarmos a renderização um pouco mais organizada.
+    -> Podemos criar, como exemplo uma função(rendCabecalho) para renderização do cabeçalho da tabela. E depois, no retorno da função Tabela(props) fazemos a interpolaçao chamando a função que acabamos de criar.
+    -> Assim vamos organizando e quebrando um pouco mais a renderização dos nossos componentes.
+~~~typescript
+[/components/Tabela.tsx]
+
+import Cliente from '../core/Cliente'
+
+interface TabelaProps {
+    clientes: Cliente[]
+}
+
+export default function Tabela(props: TabelaProps){
+
+    function rendCabecalho() {
+        return(
+            <tr>
+                <th>Código </th>
+                <th>Nome </th>
+                <th>Idade </th>
+            </tr>
+        )
+    }
+
+    return (
+        <table>
+            {rendCabecalho()}
+        </table>
+    )
+}
+
+~~~ 
+
+    6 - Outra parte que podemos trabalhar é a parte de renderização dos dados.
+    -> Vamos criar uma função igual a da renderização do cabeçalho.
+    -> Nessa função vamos precisar trabalhar com a lista de clientes [return props.clientes].
+    -> Vamos imaginar que se esse cliente vinher nulo, e chamarmos a função map() [props.clientes.map()] teriamos um problema. Para isso não ocorrer, usamos a SINTAXE do optional channing(?) [ props.clientes?.map]. Ou seja, so irá chamar a função [.map()] caso clientes esteja preenchido, com isso não precisamos ficar nos preocupando se esta nulo ou nao.
+    -> Como propriedade do [.map()], vamos receber o [cliente e o indice que estivermos pecorrendo], esse indice (i) irá nos ajudar no ZEBRADO das cores da tabela de clientes.
+    -> No retorno da função de renderização de dados, vamos retornar uma linha <tr> e alguns <tds>, onde respectivamente vamos colocar fazendo a interpolação. [cliente.id|cliente.nome|cliente.idade]. 
+    -> Como estamos trabalhando com lista de elementos, vamos precisar fazer a definição de uma chave unica na tag <tr> e o compilador não ficar reclamando que estamos rederizando elementos dentro de um contexto de lista sem a propriedade chave.
+~~~typescript
+[/components/Tabela.tsx]
+
+function rendDados(){
+        return props.clientes.map((cliente,i)=>{
+            return (
+                <tr key={cliente.id}>
+                    <td>{cliente.id}</td>
+                    <td>{cliente.nome}</td>
+                    <td>{cliente.idade}</td>
+                </tr>
+            )
+        })
+    }
+~~~
+
+    7 - Apos a criação da função para renderização dos dados dos clientes. Podemos fazer sua renderização usando a interpolação.
+    -> Vamos fazer a renderização do CABECALHO() dentro de um <thead>.
+    -> E a renderização dos dados será dentro de um <tbody>.
+~~~typescript
+[/components/Tabela.tsx]
+
+import Cliente from '../core/Cliente'
+
+interface TabelaProps {
+    clientes: Cliente[]
+}
+
+export default function Tabela(props: TabelaProps){
+
+    function rendCabecalho() {
+        return(
+            <tr>
+                <th>Código </th>
+                <th>Nome </th>
+                <th>Idade </th>
+            </tr>
+        )
+    }
+    function rendDados(){
+        return props.clientes.map((cliente,i)=>{
+            return (
+                <tr key={cliente.id}>
+                    <td>{cliente.id}</td>
+                    <td>{cliente.nome}</td>
+                    <td>{cliente.idade}</td>
+                </tr>
+            )
+        })
+    }
+
+    return (
+        <table>
+            <thead>{rendCabecalho()}</thead>
+            <tbody>{rendDados()}</tbody>
+        </table>
+    )
+}
+~~~
+
+Agora temos uma tabela funcional, sem o layout, mas mostrando os codigos, os nomes e as idades dos clientes registrados manualmente ate agora.
+
+Na proxima aula, vamos trabalhar um pouco a parte do layout para deixarmos nossa tabela um pouco mais parecida com nossa aplicação de referencia.
 
 <!-- This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
