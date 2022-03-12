@@ -3097,7 +3097,7 @@ Do ponto de vista do **FIREBASE** nos criamos o nosso projeto, vamos depois prec
 
 Agora, apos a criação do nosso projeto com o comando **npx create-next-app** vamos entrar no nosso projeto e começar as configurações.
 
-
+-> Proxima folder /next-crud.
 
 
 
