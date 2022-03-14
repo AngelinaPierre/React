@@ -1662,23 +1662,273 @@ Nossa tabela agora ja esta exibindo as informações e ja esta chamando a funç�
 
 &nbsp;
 
+Vamos criar um outro componente funcional, que será o **COMPONENTE BOTÃO**, para melhorar a estruturação do nosso cosigo.
 
+    1 - Vamos criar uma componente funcinal e exporta-lo por padrão, ele irá receber propriedades via {props}.
+    -> Como retorno dessa função teremos um <button> e dentro dele vamos fazer a interpolação usando {props.children}, pois assim conseguimos ter um pouco mais de flexibilidade caso a gente queira passar um icone, ou algo dentro do botão.
+~~~typescript
+[/components/botao.tsx - ESTRUTURA INICIAL]
 
+export default function Botao(props){
+    return (
+        <button>
+            {props.children}
+        </button>
+    )
+}
+~~~
 
+    2 - Vamos tambem criar uma INTERFACE chamada [BotaoProps], onde nela, iremos definir o tipo de informação/atributo/propriedade que a função [Botao()] ira receber via props.
+~~~typescript
+[/components/Botao.tsx]
 
+interface BotaoProps{
+    children: any
+}
 
+export default function Botao(props: BotaoProps){
+    return (
+        <button>
+            {props.children}
+        </button>
+    )
+}
+~~~
 
+    3 - Alem dessa propriedade[children] vamos tambem querer passar a cor, que será um atributo opcional, onde iremos definir 3 cores literais['gree'|'blue'|'grey'].
+~~~typescripts
+[/components/Botao.tsx]
 
+interface BotaoProps{
+    children: any
+    cor: 'green' | 'blue' | 'grey'
+}
+~~~
 
+    4 - Vamos tambem colocar o botao que acabamos de criar na interface grafica [index.tsx], temos a <Tabela> dentro do <Layout> e vamos colocar o componente do <Botao> entre eles.
+    -> Lembrando que no componente que criamos do [Botao.tsx] definimos que ele possui componentes filhos, logo, vamos dar colocar "Novo Cliente".
+~~~typescript
+[/pages/index.tsx]
 
+import Botao from "../components/Botao";
+import Layout from "../components/Layout";
+import Tabela from "../components/Tabela";
+import Cliente from "../core/Cliente";
 
+export default function Home() {
+...
+        <Layout titulo="Cadastro Simples">
+            <Botao>Novo CLiente</Botao>
+            <Tabela 
+                clientes={clientList} 
+                clientSelect={selectClient}
+                clientDelete={deleteClient}
+            />
+        </Layout>
+    </div>
+  )
+}
 
+~~~
 
+Vamos fazer uma modificação que eventualmente pode gerar problema quando formos fazer a geração da versão final para a produção.
 
+    5 - Vamos fazer umas estilisações no botão usando o TAILWINDCSS.
+~~~html
+[/components/Botao.tsx]
 
+<button className={`
+    bg-gradient-to-r from-blue-400 to-blue-700
+    text-white px-4 py-2 rounded-md
+`}>
+    {props.children}
+</button>
+~~~
 
+    6 - Nos tambem podemos definir uma margem, so que nesse caso, em vez de definir especificamente no botão, vamos esperar receber uma PROPRIEDADE[BotaoProps] OPICIONAL chamada [className:] do tipo (string).
+~~~typescript
+[/components/Botao.tsx]
 
+interface BotaoProps{
+    children: any
+    cor: 'green' | 'blue' | 'grey'
+    className?: string 
+}
+~~~
 
+    7 - Vamos fazer com que essa propriedade que adicionamos seja colocada no final das nossas configurações de TAILWIND. De tal forma que se for passada alguma propriedade será SUBESCRITO o que tinha sido configurado antes.
+~~~typescript
+[/componentes/Botao.tsx]
+
+export default function Botao(props: BotaoProps){
+    return (
+        <button className={`
+            bg-gradient-to-r from-blue-400 to-blue-700
+            text-white px-4 py-2 rounded-md
+            ${props.className}
+        `}>
+            {props.children}
+        </button>
+    )
+}
+~~~
+
+    8 - Nesse caso, especificamente para esse componente de <Botao> que criamos podemos colocar uma atributo("className") e dentro dele colocar a margem que queremos. Dando assim um espaçamento entre o <Botao> e a <Tabela>.
+~~~typescript
+[/pages/index.tsx]
+...
+<div className={`
+    flex justify-center items-center h-screen
+    bg-gradient-to-r from-blue-500 to-purple-500
+    text-white
+`}>
+    <Layout titulo="Cadastro Simples">
+        <Botao className='mb-4'>Novo CLiente</Botao>
+        <Tabela 
+            clientes={clientList} 
+            clientSelect={selectClient}
+            clientDelete={deleteClient}
+        />
+    </Layout>
+</div>
+~~~
+
+    9 - Outra coisa que podemos colocar, é esse botão dentro de uma <div> e nela criar alguns estilos.
+~~~typescript
+[/pages/index.tsx]
+
+<Layout titulo="Cadastro Simples">
+    <div className="flex justify-end">
+        <Botao className='mb-4'>Novo CLiente</Botao>
+    </div>
+    <Tabela 
+        clientes={clientList} 
+        clientSelect={selectClient}
+        clientDelete={deleteClient}
+    />
+</Layout>
+~~~
+
+    10 - Agora, o que podemos fazer em relação a cor.
+    -> Lembrando que criamos na interface um atributo chamado {cor}.
+    -> Podemos fazer uma interpolação a variavel que esta dentro de {props.cor} para usar as cores definidas na interface.
+~~~typescript
+[/components/Botao.tsx]
+
+interface BotaoProps{
+    children: any
+    cor?: 'green' | 'blue' | 'grey'
+    className?: string 
+}
+
+export default function Botao(props: BotaoProps){
+    return (
+        <button className={`
+            bg-gradient-to-r from-${props.cor}-400 to-${props.cor}-700
+            text-white px-4 py-2 rounded-md
+            ${props.className}
+        `}>
+            {props.children}
+        </button>
+    )
+}
+~~~
+
+    11 - Poderiamos tambem ter um valor padrão, basta criamos uma constante chamada [cor], que irá receber uma condicional. Se {props.cor} estiver setado, retornarmos {props.cor} ou (??), se nao estiver setado, retornamos o "grey".
+    
+~~~typescript
+[/components/Botao.tsx]
+
+export default function Botao(props: BotaoProps){
+    const cor = props.cor ?? 'grey'
+    return (
+        <button className={`
+            bg-gradient-to-r from-${cor}-400 to-${cor}-700
+            text-white px-4 py-2 rounded-md
+            ${props.className}
+        `}>
+            {props.children}
+        </button>
+    )
+}
+~~~
+
+    12 - No caso, ira ficar cinza o botão pois não colocamos o atributo de cor no componente <Botao> dentro do [index.tsx].
+    -> Quando colocarmos o atributo[cor=""], ele nos dará a opção de 3 cores, que foram as que definimos na INTERFACE.
+~~~typescript
+[/pages/index.tsx]
+
+<Layout titulo="Cadastro Simples">
+    <div className="flex justify-end">
+        <Botao 
+            className='mb-4'
+            cor="green"
+        >Novo CLiente</Botao>
+    </div>
+    <Tabela 
+        clientes={clientList} 
+        clientSelect={selectClient}
+        clientDelete={deleteClient}
+    />
+</Layout>
+~~~
+
+Essa logica funciona no **AMBIENTE DE DESENVOLVIMENTO** mas quando enviarmos para o **AMBIENTE DE PRODUÇÃO** irá dar um problema. Pois, quandor for fazer o [ purge: ] do **tailwind.config.js**, ele irá olhar todos os arquivos dentro de **/pages** e **/components**, vai procurar todas as classes do **tailwindCSS** que são usadas, e ai ele vai gerar a versão final.
+
+Ao fazermos dessa forma, irá gerar um problema pq ele não irá conseguir detectar que **from-${props.cor}-400 é uma classe que possui 3 possiveis cores ['green' | 'blue' | 'grey'][interface BotaoProps].
+
+Existe uma forma de garantirmos que algumas classes CSS estejam sempre disponiveis quando o **tailwindCSS** *fizer o processo de **PURGE** - tirar todas as classes que não são utilizadas*.
+
+Para fazer isso, termos o **SAFE-LIST** e conseguirmos na produção ter o comportamento do botão funcionando (mudança de cores).
+
+    1 - Precisamos transformar o [ PURGE ] em um objeto { PURGE }, onde existe um atributo chamado [content - que é a lista que tinhamos antes no purge].
+~~~javascript
+[/next-crud/tailwind.config.js]
+
+module.exports = {
+    purge: {
+        content: [
+            "./src/pages/**/*.{js,ts,jsx,tsx}",
+            "./src/components/**/*.{js,ts,jsx,tsx}",
+        ],
+        safeList:[
+
+        ]
+    },
+    theme: {
+    extend: {},
+    },
+    plugins: [],
+}
+
+~~~
+    2 - Depois colocamos a virgula para adicionarmos outra propriedades chamada [safeList:], onde vamos colocar uma [ARRAY] com todas as classes que queremos que tenha na versão final.
+    -> Podemos inclusive, colocar uma EXPRESSÃO REGULAR, como exemplo, vamos colocar todas as classes que começam com [ ^/bg-/, ^/to-/,^/from-/].
+~~~javascript
+[/next-crud/tailwind.config.js]
+
+module.exports = {
+    purge: {
+        content: [
+            "./src/pages/**/*.{js,ts,jsx,tsx}",
+            "./src/components/**/*.{js,ts,jsx,tsx}",
+        ],
+        safeList:[
+            /^bg-/,
+            /^to-/,
+            /^from-/,
+        ],
+    },
+    theme: {
+    extend: {},
+    },
+    plugins: [],
+}
+~~~
+
+Agora, mesmo que estejamos trabalhando com **CLASSES DINAMICAS** (interpolação de uma determinada propriedade),como foi no caso do [Botao.jsx], sabemos que todas as cores irão funcionar pois criamos a [safelist].
+
+Dito isso, nos construimos o nosso **BOTÃO**, nesse caso especificamente ele é verde, e vamos trabalhar agora a alternancia entre o **MODO TABELA** e quando clicarmos no botão **NOVO CLIENTE**, será direcionado para a area do formulario. Onde depois tambem iremos construir o formulario.
 
 
 
@@ -1690,9 +1940,910 @@ Nossa tabela agora ja esta exibindo as informações e ja esta chamando a funç�
 
 ---
 
-## [Aula 112] -
+## [Aula 112] - COMPONENTE FORMULÁRIO
 
 &nbsp;
+
+Vamos criar agora dois componentes que iremos trabalhar em paralelo. O primeiro sendo o **FORMULÁRIO.tsx** e o segundo a **ENTRADA.tsx**.
+
+    1 - Vamos criar a estrutura inicial do componente [Formulario.tsx], será um componente funcional, que possuirá uma interface chamada[FormularioProps{}] .
+    -> O proximo componente que vamos criar chamado {Entrada.tsx} será importado para o [Formulario.tsx]
+~~~typescript
+[/components/Formulario.tsx - ESTRUTURA INICIAL]
+
+import Entrada from './Entrada'
+
+interface FormularioProps {
+
+}
+export default function Formulario(props: FormularioProps) {
+    return (
+        <Entrada />
+    )
+}
+~~~
+
+    2 - Vamos criar o segundo arquivo/componente de nome [Entrada.tsx], que irá representar o nosso INPUT.
+    -> Vamos ter a mesma estrutura por enquanto.
+    -> Apos exportar o componente [Entrada.tsx] para o [Formulario.tsx], vamos começar a trabalhar no componente {Entrada.tsx} e depois no [Formulario.tsx]
+~~~typescript
+[/components/Entrada.tsx - ESTRUTURA INICIAL]
+
+interface EntradaProps {
+
+}
+export default function Entrada(props: EntradaProps) {
+    return (
+        
+    )
+}
+
+~~~
+
+    3 - Apos exportar o componente [Entrada.tsx] para o [Formulario.tsx], vamos começar a trabalhar no componente {Entrada.tsx} e depois no [Formulario.tsx].
+    -> Vamos definir uma <label> onde dentro dela, teremos um {texto:string}, logo, na interface vamos criar essa propriedade do componente Entrada.tsx.
+~~~typescript
+[/components/Entrada.tsx]
+
+interface EntradaProps {
+    text: string
+}
+export default function Entrada(props: EntradaProps) {
+    return (
+        <label></label>
+    )
+}
+~~~
+
+    4 - No[Formulario.tsx] vamos colocar a primeira entrada para ser "nome".
+~~~typescript
+[/components/Formulario.tsx]
+
+import Entrada from './Entrada'
+
+interface FormularioProps {
+
+}
+export default function Formulario(props: FormularioProps) {
+    return (
+        <Entrada text="Nome" />
+    )
+}
+~~~
+
+    5 - Na [Entrada.tsx] vamos usar pegar a propriedade passada para nos pela <Entrada text> no [Formulario.tsx], para aparecener no <label> fazendo a interpolação.
+~~~typescript
+[/components/Entrada.tsx]
+
+interface EntradaProps {
+    text: string
+}
+export default function Entrada(props: EntradaProps) {
+    return (
+        <label>{props.text}</label>
+    )
+}
+~~~
+
+    6 - Apos a definição da <labe> vamos definir o <input>, esse <input> terá um tipo de dado (criado por nos) que será um [texto || numero] (poderiamos ter outros tipo, mas so iremos utilizar esses dois).
+    -> Vamos criar uma condicional na interpolarização, onde caso o tipo do dado não seja informado, vamos assumir que o padrão será "text".
+~~~typescript
+[/components/Entrada.tsx]
+
+interface EntradaProps {
+    tipo: 'text' | 'number'
+    text: string
+}
+export default function Entrada(props: EntradaProps) {
+    return (
+        <div>
+            <label>{props.text}</label>
+            <input>
+                {props.tipo ?? 'text'}
+            </input>
+        </div>
+    )
+}
+~~~
+
+    7 - Outra coisa que iremos precisar passar para a Entrada, será o valor, que poderá ser uma STRING, um NUMERO, por isso vamos colocar na interface que o tipo dessa propriedade pode ser {any}.
+    -> Depois disso vamos colocar ele como o value do <input>.
+~~~typescript
+[/components/Entrada.tsx]
+
+interface EntradaProps {
+    text: string
+    tipo: 'text' | 'number'
+    valor: any
+}
+export default function Entrada(props: EntradaProps) {
+    return (
+        <div>
+            <label>{props.text}</label>
+            <input 
+                type={props.tipo ?? 'text'}
+                value={props.valor}
+            ></input>
+        </div>
+    )
+}
+~~~
+
+    8 - Podemos ter outras propriedades para assim crescermos nossa aplicação. Por exemplo, uma propriedade opcional de somente leitura, que terá um tipo de dado com valores booleanos.
+    -> Se não for passado, o valor ficará com falso, se passar fica como verdadeiro.
+~~~typescript
+[/components/Entrada.tsx]
+
+interface EntradaProps {
+    text: string
+    tipo: 'text' | 'number'
+    valor: any
+    SomenteLeitura?: boolean
+}
+export default function Entrada(props: EntradaProps) {
+    return (
+        <div>
+            <label>{props.text}</label>
+            <input 
+                type={props.tipo ?? 'text'}
+                value={props.valor}
+                readOnly={props.SomenteLeitura}
+            ></input>
+        </div>
+    )
+}
+~~~
+
+    9 - Agora ja temos alguns atributos obrigatorios para o componente <Entrada />, que esta dentro de [Formulario.tsx]. Vamos colocar esses atributos para serem usados pela Entrada.
+    -> Vamos alterar tbm, na interface {EntradaProps} o dado {tipo} para ser opcional(?). Pois se não tiver sido passado iremos assumir como "text"
+~~~typescript
+[/components/Formulario.tsx]
+
+import Entrada from './Entrada'
+
+interface FormularioProps {
+
+}
+export default function Formulario(props: FormularioProps) {
+    return (
+        <Entrada text="Nome" valor="teste"/>
+    )
+}
+
+~~~
+
+    10 - Vamos visualizar a construção do nosso formulario na nossa pagina, para isso vamos comentar a tabela e criar o componente <Formulario />.
+~~~typescript
+[/pages/index.tsx]
+
+import Botao from "../components/Botao";
+import Formulario from "../components/Formulario";
+import Layout from "../components/Layout";
+import Tabela from "../components/Tabela";
+import Cliente from "../core/Cliente";
+
+export default function Home() {
+    const clientList = [
+        new Cliente('Ana',34,'1'),
+        new Cliente('Bia',45,'2'),
+        new Cliente('Clara',65,'3'),
+        new Cliente('Giulia',12,'4'),
+    ]
+    function selectClient(cliente: Cliente){
+        console.log(cliente.nome)
+    }
+    function deleteClient(cliente: Cliente){
+        console.log(`Excluindo...${cliente.nome}`)
+    }
+  return (
+    <div className={`
+        flex justify-center items-center h-screen
+        bg-gradient-to-r from-blue-500 to-purple-500
+        text-white
+    `}>
+        <Layout titulo="Cadastro Simples">
+            <div className="flex justify-end">
+                <Botao 
+                    className='mb-4'
+                    cor="green"
+                >Novo CLiente</Botao>
+            </div>
+            {/* <Tabela 
+                clientes={clientList} 
+                clientSelect={selectClient}
+                clientDelete={deleteClient}
+            /> */}
+            <Formulario />
+        </Layout>
+    </div>
+  )
+}
+~~~
+
+    11 - Agora que podemos visualizar o formulario na pagina, vamos trabalhar um pouco com a questão do CSS, usando o [TAILWINDCSS].
+    -> Vamos definir a primeira <div> para possui as propriedaes {flex + flex-column} para ficar um embaixo do outro.
+    -> Vamos tambem definir no <input> um {className} onde iremos usar varias classes CSS logo, colocamos uma TEMPLATE-STRING.
+    -> Vamos tirar o outline quando dermos um focus no input. [focus:outline-none].
+    -> Vamos tbm colocar um {className} no <label> para criarmos um afastamento entre ela e o <input>
+~~~typescript
+[/components/Entrada.tsx]
+
+interface EntradaProps {
+    text: string
+    tipo?: 'text' | 'number'
+    valor: any
+    SomenteLeitura?: boolean
+}
+export default function Entrada(props: EntradaProps) {
+    return (
+        <div className="flex flex-col">
+            <label className="mb-4">{props.text}</label>
+            <input 
+                className={`
+                    border border-purple-500 rounded-lg
+                    focus:outline-none bg-gray-50
+                    px-4 py-2
+                `}
+                type={props.tipo ?? 'text'}
+                value={props.valor}
+                readOnly={props.SomenteLeitura}
+            ></input>
+        </div>
+    )
+}
+
+~~~
+
+    12 - ara fazermos a questão do foco, ou seja, quando ele focar, mostrar uma cor difernte.
+    -> Vamos querer que ele fale [focus:bg-white], mas so iremos querer aplicar isso, se ele não for da classe de SomenteLeitura. Ou seja, fazemos aquela interpolação usando o ${}, para aplicar a condicional.
+    -> Se for {somenteLeitura} não faz nada, caso não seja aplicar o background branco.
+~~~typescript
+[/components/Entrada.tsx]
+
+
+interface EntradaProps {
+    text: string
+    tipo?: 'text' | 'number'
+    valor: any
+    SomenteLeitura?: boolean
+}
+export default function Entrada(props: EntradaProps) {
+    return (
+        <div className="flex flex-col">
+            <label className="mb-4">{props.text}</label>
+            <input 
+                className={`
+                    border border-purple-500 rounded-lg
+                    focus:outline-none bg-gray-100
+                    px-4 py-2 
+                    ${props.SomenteLeitura ? '' : 'focus:bg-white'}
+                `}
+                type={props.tipo ?? 'text'}
+                value={props.valor}
+                readOnly={props.SomenteLeitura}
+            ></input>
+        </div>
+    )
+}
+~~~
+
+    13 - Por enquanto no nosso [Formulario.tsx] temos a entrada/input do nome, vamos precisar fazer outra entrada para a idade.
+~~~typescript
+[/components/Formulario.tsx]
+
+import Entrada from './Entrada'
+
+interface FormularioProps {
+
+}
+export default function Formulario(props: FormularioProps) {
+    return (
+        <div>
+            <Entrada 
+                text="Nome" 
+                valor="teste"
+            />
+            <Entrada 
+                text="Idade" 
+                tipo='number' 
+                valor="teste" 
+            />
+        </div>
+    )
+}
+~~~
+
+    14 - Ainda no nosso formulario, vamos precisar definir dois ESTADOS. Um para fazer o controle do [NOME] e o outro para fazer o controle da idade.
+    -> Na interface do nosso FORMULARIO vamos criar a referencia para a classe "client", que será o que ele irá receber na sua função Formulario(). Lembrando que temos q fazer o import pois ja criamos em [/core/Cliente.ts] essa classe com seus atributos.
+~~~typescript
+[/core/Cliente.ts - ESTRUTURA INICIAL]
+export default class Cliente{
+    // criação das propriedadades
+    #id: string
+    #nome: string
+    #idade: number
+
+    // criação do objeto usando constructor
+    constructor(nome:string, idade:number, id:string = null){
+        this.#nome = nome
+        this.#idade = idade
+        this.#id = id
+    }
+
+    static vazio(){
+        return new Cliente('',0)
+    }
+
+    get id(){
+        return this.#id
+    }
+    get nome(){
+        return this.#nome
+    }
+    get idade(){
+        return this.#idade
+    }
+}
+
+[/components/Formulario.tsx]
+import Entrada from './Entrada'
+import Cliente from '../core/Cliente'
+import {useState} from 'react'
+
+interface FormularioProps {
+    client: Cliente
+}
+export default function Formulario(props: FormularioProps) {
+    const [nome, setNome] = useState()
+    return (
+        <div>
+            <Entrada 
+                text="Nome" 
+                valor="teste"
+            />
+            <Entrada 
+                text="Idade" 
+                tipo='number' 
+                valor="teste" 
+            />
+        </div>
+    )
+}
+~~~
+
+    15 - Se esse cliente estiver setado e tiver ID, quer dizer que estamos modificando algo que ja existe, se não estiver setado, ou sem ID, significa que é um cliente novo.
+    -> Logo vamos criar uma constante para receber a ID, criando no momento da atribuição uma condicional caso o ID não seja passado iremos setar como nulo. 
+        const id = props.client.id ?? null
+        -> Se o cliente não estiver setado e tentarmos acessar o ID dele, pode gerar um problema, por isso, podemos usar o optiona-chaning:
+            const id = props.client?.id
+~~~typescript
+[/components/Formulario.tsx]
+
+import Entrada from './Entrada'
+import Cliente from '../core/Cliente'
+import {useState} from 'react'
+
+interface FormularioProps {
+    client: Cliente
+}
+export default function Formulario(props: FormularioProps) {
+    const [nome, setNome] = useState()
+    const id = props.client?.id
+    return (
+        <div>
+            <Entrada 
+                text="Nome" 
+                valor="teste"
+            />
+            <Entrada 
+                text="Idade" 
+                tipo='number' 
+                valor="teste" 
+            />
+        </div>
+    )
+}
+~~~
+
+    16 - Agora a depender da situação criamos uma entrada para mostrar o codigo do usuario juntamente com uma renderização condicional. Caso o ID esteja setado irá mostrar, caso nao irá retornar "false".
+    -> ja com relação ao nome e a idade, vão aparecer sempre, idependente de ter o USUARIO ou nao.
+~~~typescript
+[/components/Formulario.tsx]
+
+import Entrada from './Entrada'
+import Cliente from '../core/Cliente'
+import {useState} from 'react'
+
+interface FormularioProps {
+    client: Cliente
+}
+export default function Formulario(props: FormularioProps) {
+    const [nome, setNome] = useState()
+    const id = props.client?.id
+    return (
+        <div>
+            {id?
+                (<Entrada text="Código" valor="teste" />)
+                :false
+            }
+            <Entrada 
+                text="Nome" 
+                valor="teste"
+            />
+            <Entrada 
+                text="Idade" 
+                tipo='number' 
+                valor="teste" 
+            />
+        </div>
+    )
+}
+
+~~~
+
+    17 - Vamos aplicar no ESTADO que criamos os valores iniciais de (props.cliente?.nome), lembrando que se não possuirmos o cliente, não iremos querer acessar o nome, e como valor padrão vamos querer uma string vazia [''].
+    -> Vamos fazer a mesma criação de estado de [nome] para a idade. Tendo assim dois componentes controlados.
+~~~typescript
+[/components/Formulario.tsx]
+
+import Entrada from './Entrada'
+import Cliente from '../core/Cliente'
+import {useState} from 'react'
+
+interface FormularioProps {
+    client: Cliente
+}
+export default function Formulario(props: FormularioProps) {
+    const [nome, setNome] = useState(props.client?.nome ?? '')
+    const [idade, setIdade] = useState(props.client?.idade ?? 0)
+    const id = props.client?.id
+    return (
+        <div>
+            {id?
+                (<Entrada text="Código" valor="teste" />)
+                :false
+            }
+            <Entrada 
+                text="Nome" 
+                valor="teste"
+            />
+            <Entrada 
+                text="Idade" 
+                tipo='number' 
+                valor="teste" 
+            />
+        </div>
+    )
+}
+~~~
+
+    18 - A <Entrada> do ID, irá receber como valor o proprio {id} que iremos receber, e irá tambem possui a propriedade de somente leitura.
+~~~typescript
+[/components/Formulario.tsx]
+
+import Entrada from './Entrada'
+import Cliente from '../core/Cliente'
+import {useState} from 'react'
+
+interface FormularioProps {
+    client: Cliente
+}
+export default function Formulario(props: FormularioProps) {
+    const [nome, setNome] = useState(props.client?.nome ?? '')
+    const [idade, setIdade] = useState(props.client?.idade ?? 0)
+    const id = props.client?.id
+    return (
+        <div>
+            {id?
+                (<Entrada 
+                    SomenteLeitura
+                    text="Código" 
+                    valor={id}
+                />)
+                :false
+            }
+            <Entrada 
+                text="Nome" 
+                valor="teste"
+            />
+            <Entrada 
+                text="Idade" 
+                tipo='number' 
+                valor="teste" 
+            />
+        </div>
+    )
+}
+~~~
+
+    19 - Com relação ao valor das outras entradas, vamos mudar para {nome} e {idade}.
+~~~typescript
+[/components/FOrmulario.tsx]
+
+import Entrada from './Entrada'
+import Cliente from '../core/Cliente'
+import {useState} from 'react'
+
+interface FormularioProps {
+    client: Cliente
+}
+export default function Formulario(props: FormularioProps) {
+    const [nome, setNome] = useState(props.client?.nome ?? '')
+    const [idade, setIdade] = useState(props.client?.idade ?? 0)
+    const id = props.client?.id
+    return (
+        <div>
+            {id?
+                (<Entrada 
+                    SomenteLeitura
+                    text="Código" 
+                    valor={id}
+                />)
+                :false
+            }
+            <Entrada 
+                text="Nome" 
+                valor={nome}
+            />
+            <Entrada 
+                text="Idade" 
+                tipo='number' 
+                valor={idade} 
+            />
+        </div>
+    )
+}
+~~~
+
+    20 - Agora precisamos construir uma forma de alterar os campos de valor da <Entrada>. Logo, dentro deste componente [Entrada.tsx - interface{}] vamos precisar receber uma função que nos diga quando o valor foi modificado.
+    -> Poderia ser [onChange - que seria o padrão se fosse ingles].
+    -> Vamos criar a função valorMudou e coloca-la na interface como sendo opcional, para não nos preocuparmos com o acesso a função caso seja somente leitura, Vamos receber como retorno dessa função o "(valor:any)" do tipo any, sendo que essa função irá retornar void.
+~~~typescript
+[/components/Entrada.tsx]
+
+interface EntradaProps {
+    text: string
+    tipo?: 'text' | 'number'
+    valor: any
+    SomenteLeitura?: boolean
+    valorMudou?: (valor:any) => void
+}
+~~~
+
+    21 - Uma vez recebida essa função podemos, dentro do nosso <input> chamar o atributo {onChangpara quando receber uma notificação de mudança vamos receber um evento(e), que irá chamar o {props.valorMudou} de maneira condicional.
+    -> Se o valor tiver sido informado vamos invocar a função [valorMudou?.() - optional channing], passando o valor de (e.target.value). ====================DANDO ERRO NO VALUE=============
+~~~typescript
+[/components/Entrada.tsx]
+
+interface EntradaProps {
+    text: string
+    tipo?: 'text' | 'number'
+    valor: any
+    SomenteLeitura?: boolean
+    valorMudou?: (valor:any) => void
+}
+export default function Entrada(props: EntradaProps) {
+    return (
+        <div className="flex flex-col">
+            <label className="mb-4">{props.text}</label>
+            <input 
+                className={`
+                    border border-purple-500 rounded-lg
+                    focus:outline-none bg-gray-100
+                    px-4 py-2 
+                    ${props.SomenteLeitura ? '' : 'focus:bg-white'}
+                `}
+                type={props.tipo ?? 'text'}
+                value={props.valor}
+                readOnly={props.SomenteLeitura}
+                onClick={e => props.valorMudou?.(e.target.value)}
+            ></input>
+        </div>
+    )
+}
+~~~
+
+    22 - Dessa forma quando formos para o nosso formulario, podemos chamar a função criada dentro de <Entrada>, passando o [setNome], reproduzindo a mesma coisa para a IDADE.
+~~~typescript
+[/components/Formulario.jsx]
+
+'
+import {useState} from 'react'
+
+interface FormularioProps {
+    client: Cliente
+}
+export default function Formulario(props: FormularioProps) {
+    const [nome, setNome] = useState(props.client?.nome ?? '')
+    const [idade, setIdade] = useState(props.client?.idade ?? 0)
+    const id = props.client?.id
+    return (
+        <div>
+            {id?
+                (<Entrada 
+                    SomenteLeitura
+                    text="Código" 
+                    valor={id}
+                />)
+                :false
+            }
+            <Entrada 
+                text="Nome" 
+                valor={nome}
+                valorMudou={setNome}
+            />
+            <Entrada 
+                text="Idade" 
+                tipo='number' 
+                valor={idade} 
+                valorMudou={setIdade}
+            />
+        </div>
+    )
+}
+~~~
+
+    23 - Agora temos os nossos dois campos, funcionando. Vamos agora estilar um pouco mais nosso formulario.
+    -> Vamos criar a possibildade dentro da interface de receber um [className:string] do tipo string. para fazermos a interpolação de uma prorpiedade de tailwindcss dentro da div.
+~~~typescript
+[/components/Entrada.tsx]
+
+interface EntradaProps {
+    text: string
+    tipo?: 'text' | 'number'
+    valor: any
+    SomenteLeitura?: boolean
+    valorMudou?: (valor:any) => void
+    className?: string
+}
+export default function Entrada(props: EntradaProps) {
+    return (
+        <div className={`
+            flex flex-col ${props.className}
+        `}>
+            <label className="mb-4">{props.text}</label>
+            <input 
+                className={`
+                    border border-purple-500 rounded-lg
+                    focus:outline-none bg-gray-100
+                    px-4 py-2 
+                    ${props.SomenteLeitura ? '' : 'focus:bg-white'}
+                `}
+                type={props.tipo ?? 'text'}
+                value={props.valor}
+                readOnly={props.SomenteLeitura}
+                onChange={e => props.valorMudou?.(e.target.value)}
+            ></input>
+        </div>
+    )
+}
+~~~
+
+    24 - Agora quando tivermos no formulario, e obviamente o {className} precisa ser opcional. No formulario especificamente no caso do nome, podemos colocar a propriedade de {className} que criamos na interface EntradaProps, para adicionar uma margem.
+    -> Vamos fazer a mesma coisa para o ID, caso ele apareça.
+~~~typescript
+[/components/Formulario.tsx]
+
+
+interface FormularioProps {
+    client: Cliente
+}
+export default function Formulario(props: FormularioProps) {
+    const [nome, setNome] = useState(props.client?.nome ?? '')
+    const [idade, setIdade] = useState(props.client?.idade ?? 0)
+    const id = props.client?.id
+    return (
+        <div>
+            {id?
+                (<Entrada 
+                    SomenteLeitura
+                    text="Código" 
+                    valor={id}
+                    className="mb-4"
+                />)
+                :false
+            }
+            <Entrada 
+                text="Nome" 
+                valor={nome}
+                valorMudou={setNome}
+                className="mb-4"
+            />
+            <Entrada 
+                text="Idade" 
+                tipo='number' 
+                valor={idade} 
+                valorMudou={setIdade}
+            />
+        </div>
+    )
+}
+~~~
+
+
+    25 - Vamos agora colocar criar os botões de salvar e de cancelar.
+    -> Dentro do [FORMULARIO.TSX] alem de ter os campo de <Entrada>, podemos colocar uma <div> e dentro dessa div, vamos utilizar o componente <Botão> que ja criamos.
+    -> Vamos falar que um dos botões irá receber a cor azul, e a outra cinza, se nao colocarmos nada, irá assumir os valores padrões.
+    -> Vamos ter o botãod e "CANCELAR" e outro botão que ira possuir uma condicional. Se tiver ID, irá "ALTERAR", se nao tiver, irá salvar.
+~~~typescript
+[/components/Botao.tsx - ESTRUTURA INICIAL]
+
+interface BotaoProps{
+    children: any
+    cor?: 'green' | 'blue' | 'grey'
+    className?: string 
+}
+
+export default function Botao(props: BotaoProps){
+    const cor = props.cor ?? 'grey'
+    return (
+        <button className={`
+            bg-gradient-to-r from-${cor}-400 to-${cor}-700
+            text-white px-4 py-2 rounded-md
+            ${props.className}
+        `}>
+            {props.children}
+        </button>
+    )
+}
+~~~
+
+~~~typescript
+[/components/Formulario.tsx]
+
+   return (
+        <div>
+            {id?
+                (<Entrada 
+                    SomenteLeitura
+                    text="Código" 
+                    valor={id}
+                    className="mb-4"
+                />)
+                :false
+            }
+            <Entrada 
+                text="Nome" 
+                valor={nome}
+                valorMudou={setNome}
+                className="mb-4"
+            />
+            <Entrada 
+                text="Idade" 
+                tipo='number' 
+                valor={idade} 
+                valorMudou={setIdade}
+            />
+            <div>
+                <Botao cor="blue">
+                    {id? 'Alterar' : 'Salvar'}
+                </Botao>
+                <Botao>
+                    Cancelar
+                </Botao>
+            </div>
+        </div>
+    )
+}
+~~~
+
+    26 - Olhando agora temos o botão de salvar e de cancelar no nosso formulario. POdemos colocar no <Botao> de salvar e alterar, um {classname} para colocarmos uma marge.
+    -> Na <div> vamoc colocar tbm uma margem usando o {className}. Vamos falar que ela é {flex} e colocar a classe {justify-end}
+~~~typescript
+[/components/Formulario.tsx]
+
+
+        <div>
+            {id?
+                (<Entrada 
+                    SomenteLeitura
+                    text="Código" 
+                    valor={id}
+                    className="mb-4"
+                />)
+                :false
+            }
+            <Entrada 
+                text="Nome" 
+                valor={nome}
+                valorMudou={setNome}
+                className="mb-4"
+            />
+            <Entrada 
+                text="Idade" 
+                tipo='number' 
+                valor={idade} 
+                valorMudou={setIdade}
+            />
+            <div className='flex justify-end mt-7'>
+                <Botao cor="blue" className="mr-2">
+                    {id? 'Alterar' : 'Salvar'}
+                </Botao>
+                <Botao>
+                    Cancelar
+                </Botao>
+            </div>
+        </div>
+    )
+}
+~~~
+
+    27 - Agora nos temos os dois botões, abaixo do <input> na esquerda do nosso formulario.
+    -> Temos que construir a logica para o botão [NOVO CLIENTE] sumir a depender, se vamos criar um novo cliente ou somente fazer uma edição de um ja existente.
+    -> Vamos fazer outra alteração em [/pages/index.tsx] que será a colocação de um cliente para ja pre-carregar e vermos se esta funcionando, vamos pegar o primeiro cliente da lista: [clientes[0]]
+~~~typescript
+[/pages/index.tsx]
+ 
+       new Cliente('Ana',34,'1'),
+        new Cliente('Bia',45,'2'),
+        new Cliente('Clara',65,'3'),
+        new Cliente('Giulia',12,'4'),
+    ]
+    function selectClient(cliente: Cliente){
+        console.log(cliente.nome)
+    }
+    function deleteClient(cliente: Cliente){
+        console.log(`Excluindo...${cliente.nome}`)
+    }
+  return (
+    <div className={`
+        flex justify-center items-center h-screen
+        bg-gradient-to-r from-blue-500 to-purple-500
+        text-white
+    `}>
+        <Layout titulo="Cadastro Simples">
+            <div className="flex justify-end">
+                <Botao 
+                    className='mb-4'
+                    cor="green"
+                >Novo CLiente</Botao>
+            </div>
+            {/* <Tabela 
+                clientes={clientList} 
+                clientSelect={selectClient}
+                clientDelete={deleteClient}
+            /> */}
+            <Formulario client={clientList[0]} />
+        </Layout>
+    </div>
+  )
+}
+~~~
+
+Na proxima aula o que iremos fazer será a alternancia entre a tabela e o formulario. Se descomentarmos a parte da tabela em [/pages/index.tsx] teremos um componente abaixo do outro, mas a logica que queremos eh, quando clicarmos novo cliente, ir para o formulario, quando formor editar, tambem ir para o formulario com os campos ja preenchidos, e quando cancelarmos voltar para a tabela.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 &nbsp;
 
