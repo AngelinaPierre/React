@@ -3433,12 +3433,115 @@ Por enquanto, ainda não conseguimos excluir os clientes, poderiamos fazer com b
 
 &nbsp;
 
-Agora, para trabalharmos com o **BACK-END** da nossa aplicação se olharmos nosso arquivo do [/next-crud/.gitignore]
+Agora, para trabalharmos com o **BACK-END** da nossa aplicação se olharmos nosso arquivo do [/next-crud/.gitignore], existe um arquivo que é ignorado, ou seja, não é versionado no **GITHUB**, chamado de [.env.local].
 
+~~~
+[/next-crud/.gitignore]
 
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
 
+# testing
+/coverage
 
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# local env files
+                                        .env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# vercel
+.vercel
+
+~~~
+
+Vamos criar uma arquivo com esse nome **/next-crud/.env.local**, e vamos colocar alguias variaveis de ambiente nesse arquivo para que a gente possa colocar algumas variaveis que são senciveis e nao podem ir para o repositorio, logo, ele não irá colocar diretamente no codigo fonte.
+
+Alem disso, vamos criar uma nova pasta **/src/backend || /src/firebase**, pode ser qualquer nome, e dentro desta pasta vamos criar um arquivo chamado [/firebase/config.ts], para fazermos a configuração do **FIREBASE**.
+
+Vamos precisar para o nosso projeto no ambiente de desenvolvimento, para podermos instalar o **FIREBASE**.
+```
+npm i firebase
+```
+
+E vamos precisar configurar o **FIREBASE** e especificamente o **FIRESTORE** para podermos acessar o banco de dados na nuvem.
+
+No **FIREBASE** vamos precsisar de  informações **{ "apikey", 'authDomain', 'projectId' }**. E vamos coloca-las no nosso arquivo **/next-crud/.env.local**, vamos transformar todos essas chaves para UPPERCASE, vamos tirar as aspas duplas, a virgula no final e no lugar dos dois pontos(:) colocamos o simbolo de igualdade (=).
+
+Especificamente no caso de **PROJETOS NEXTJS** precisamos inicializar as chaves com o nome **NEXT_PUBLIC**, pois essa é a forma que conseguimos ter acesso as chaves dentro da **APLICAÇÃO WEB**.
+
+    NEXT_PUBLIC_FIREBASE_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXX
+    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=XXXXXXXXXXXXXXXXXXXXXXXXXX
+    NEXT_PUBLIC_FIREBASE_PROJECT_ID=XXXXXXXXXXXXXXXXXXXXXXXXXX
+
+> lEMBRANDO QUE ESSAS INFORMAÇÕES SÃO SENSIVEIS , CASO O PROJETO SEJA EXCLUIDO ELAS DEIXAM DE SER VALIDAS, MAS ENQUANTO ESTIVER OPERACIONAL, ESSAS SÃO CHAVES DE ACESSO A SUA APLICAÇÃO. LOGO, NÃO COLOQUE NO REPOSITÓRIO.
+
+Uma vez que configuramos o projeto, fizemos a instalação do **FIREBASE** podemos "startar" o ambiente de desenvolvimento novamente. e vamos começar a configurar o **FIREBASE**.
+
+```
+npm run dev
+```
+
+    1 - No arquivo [/firebaseBKND/config.ts], vamos importar o FIREBASE e o FIRESTORE e vamos fazer um teste:
+    -> Vamos criar uma condicional e perguntar [firebase.apps.lenght], se o lenght for MAIOR que 0, significa que foi inicializado. Então caso seja (!), vamos inicializar [firebase.initializeApp()]
+    passando como parametro ({objeto}) um objeto com os parametros: [ 'apikey', 'authDomain', 'projectId'].
+    -> Que são exatamente os 3 valores que temos dentro do arquivo [/next-crud/.env.local]. Como valores desses parametros colocamos [process.env.].
+~~~typescript
+[/src/firebaseBKND - CONFIGURAÇÃO DO FIREBASE]
+
+import firebase from 'firebase'
+
+import 'firebase/firestore'
+
+if(!firebase.apps.lenght){
+    firebase.initializeApp({
+        apikey: process.env.,
+        authDomain: process.env.,
+        productId: process.env.,
+    })
+}
+~~~
+
+    2 - Agora pegamos as chaves que colocamos no arquivo [/next-crud/.env.local], no final de [process.env.].
+~~~typescript
+[/firebaseBKND/config.ts]
+
+import firebase from 'firebase'
+import 'firebase/firestore'
+
+if(!firebase.apps.lenght){
+    firebase.initializeApp({
+        apikey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+        authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+        productId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    })
+}
+
+export default firebase
+~~~
+
+Então, o que estamos fazendo? Se não tiver uma **APP** inicializada, ou seja, se **apps.lenght = 0**, como estamos colocando a negação, quer dizer que ele irá entrar e inicializar a aplicação. No final, exportamos por padrão o **FIREBASE** que acabamos de inicializar, chamando no IF().
 
 
 
