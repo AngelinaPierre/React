@@ -2815,33 +2815,451 @@ Na proxima aula o que iremos fazer será a alternancia entre a tabela e o formul
 
 
 
+&nbsp;
 
+---
 
+---
 
+## [Aula 113] - ALTERNANDO ENTRE TABELA E FORMULÁRIO
 
+&nbsp;
 
+Para fazermos essa alternancia entre a **TABELA** e o **formulário** vamos criar primeiramente uma **SOLUÇAO TEMPORARIA** e depois iremos evoluindo essa solução.
 
+    1 - Vamos criar no nosso [Home() -> /pages/index.tsx], um estado chamado [visivel,setVisivel].
+    -> Vamos definir um [useState()] que iremos definir dois estados.
+        -> Um será <'tabela' | 'form
+    -> E por padrão vamos inicializar esse ESTADO como 'tabela'.
+~~~typescript
+[/pages/index.tsx]
 
+'form'>('tabela')
+    function selectClient(cliente: Cliente){
+        console.log(cliente.nome)
+    }
+    function deleteClient(cliente: Cliente){
+        console.log(`Excluindo...${cliente.nome}`)
+    }
+  return (
+    <div className={`
+        flex justify-center items-center h-screen
+        bg-gradient-to-r from-blue-500 to-purple-500
+        text-white
+    `}>
+        <Layout titulo="Cadastro Simples">
+            <div className="flex justify-end">
+                <Botao 
+                    className='mb-4'
+                    cor="green"
+                >Novo CLiente</Botao>
+            </div>
+            <Tabela 
+                clientes={clientList} 
+                clientSelect={selectClient}
+                clientDelete={deleteClient}
+            />
+            <Formulario client={clientList[0]} />
+        </Layout>
+    </div>
+  )
+}
 
+~~~
 
+    2 - Vamos fazer o seguinte texte, vamos colocar o <Botao> e a <Tabela>, dentro de um FRAGMENTO <></>, pois iremos querer esconder os dois ao mesmo tempo.
+    -> Vamos tambem colocar uma renderização condicional.
+        -> Se visivel for igual a 'tabela', irá mostrar a tabela e o botao que colocamos dentro do FRAGMENTO.
+        -> Se visivel não for igual a tabela, irá mostrar o <formulario> na segunda parte.
+    -> Usamos os (parenteses) para podermos escrever na condicional mais de uma linha de codigo.
+~~~typescript
+[/pages/index.tsx]
 
+export default function Home() {
+    const clientList = [
+        new Cliente('Ana',34,'1'),
+        new Cliente('Bia',45,'2'),
+        new Cliente('Clara',65,'3'),
+        new Cliente('Giulia',12,'4'),
+    ]
+    const [visivel, setVisivel] = useState<'tabela' | 'form'>('tabela')
 
+    function selectClient(cliente: Cliente){
+        console.log(cliente.nome)
+    }
+    function deleteClient(cliente: Cliente){
+        console.log(`Excluindo...${cliente.nome}`)
+    }
+  return (
+    <div className={`
+        flex justify-center items-center h-screen
+        bg-gradient-to-r from-blue-500 to-purple-500
+        text-white
+    `}>
+        <Layout titulo="Cadastro Simples">
+            {visivel === 'tabela' ? (
+                <>
+                    <div className="flex justify-end">
+                        <Botao 
+                            className='mb-4'
+                            cor="green"
+                        >Novo CLiente</Botao>
+                    </div>
+                    <Tabela 
+                        clientes={clientList} 
+                        clientSelect={selectClient}
+                        clientDelete={deleteClient}
+                    />
+                </>
+            ) : (
+                <Formulario client={clientList[0]} />
+            )}
+        </Layout>
+    </div>
+  )
+}
+~~~
+    3 - O que iremos fazer agora para fazer a alternancia entre a TABELA e o FORMULÁRIO? 
+    -> Vamos no <Botao> de NOVO CLIENTE, vamos ter a propriedade {onClick=}.
+    -> Temos que definir essa propriedade na interface do [Botao.tsx]. Essa função, será passada de forma opcional (?:), e basicamente vamos chamar uma função retornando void, na interface.
+~~~typescript
+[/components/Botao.tsx]
+ 
+interface BotaoProps{
+    children: any
+    cor?: 'green' | 'blue' | 'grey'
+    className?: string 
+    onClick?: () => void
+}
 
+export default function Botao(props: BotaoProps){
+    const cor = props.cor ?? 'grey'
+    return (
+        <button className={`
+            bg-gradient-to-r from-${cor}-400 to-${cor}-700
+            text-white px-4 py-2 rounded-md
+            ${props.className}
+        `}>
+            {props.children}
+        </button>
+    )
+}
+~~~
 
+    4 - No <Button> onde realmente esta acontecendo o {onClick} passaamos o [props.onClick].
+~~~typescript
+[/components/Botao.tsx]
 
+export default function Botao(props: BotaoProps){
+    const cor = props.cor ?? 'grey'
+    return (
+        <button onClick={props.onClick} className={`
+            bg-gradient-to-r from-${cor}-400 to-${cor}-700
+            text-white px-4 py-2 rounded-md
+            ${props.className}
+        `}>
+            {props.children}
+        </button>
+    )
+}
+~~~
 
+    5 - Agora no <Botao> de NOVO CLIENTE, podemos passar a propriedade {onCLick=} e dentro dela vamos chamar uma função [() => ] que i´ra pegar a função [setVisivel()] tendo como valor o FORMULARIO.
+    -> Logo, quando clicarmos no botão do NOVO CLIENTE ele irá mostrar o formulario.
+~~~typescript
+[/pages/index.tsx]
 
+export default function Home() {
+    const clientList = [
+        new Cliente('Ana',34,'1'),
+        new Cliente('Bia',45,'2'),
+        new Cliente('Clara',65,'3'),
+        new Cliente('Giulia',12,'4'),
+    ]
+    const [visivel, setVisivel] = useState<'tabela' | 'form'>('tabela')
+    function selectClient(cliente: Cliente){
+        console.log(cliente.nome)
+    }
+    function deleteClient(cliente: Cliente){
+        console.log(`Excluindo...${cliente.nome}`)
+    }
+  return (
+    <div className={`
+        flex justify-center items-center h-screen
+        bg-gradient-to-r from-blue-500 to-purple-500
+        text-white
+    `}>
+        <Layout titulo="Cadastro Simples">
+            {visivel === 'tabela' ? (
+                <>
+                    <div className="flex justify-end">
+                        <Botao 
+                            className='mb-4'
+                            cor="green"
+                            onClick={() => setVisivel('form')}
+                        >Novo CLiente</Botao>
+                    </div>
+                    <Tabela 
+                        clientes={clientList} 
+                        clientSelect={selectClient}
+                        clientDelete={deleteClient}
+                    />
+                </>
+            ) : (
+                <Formulario client={clientList[0]} />
+            )}
+        </Layout>
+    </div>
+  )
+}
+~~~
 
+    6 - Agora quando clicarmos no botão de CANCELAR queremos que ele volte para a pagina inicial, mostrando a tabela.
+    -> Logo, no [Formulario.tsx] precisamos passar os eventos quando o cliente for modificado, quando clicar por exmplo, em alterar ou salvar e quando clicar em cancelar.
+    -> Então, dentro da interface do FORMULARIO, vamos esperar receber alem do {client: Cliente}uma função, por exemplo, que será chamada de [cancelado?:], onde será uma função opcional, que nao recebe nenhum parametro e nao retorna nada.
+    -> O que significa que se essa função [cancelado?:] tiver sido passada, vamos direcionar ela para o {onClick} do <Botao> de CANCELAR.
+~~~typescript
+interface FormularioProps {
+    client: Cliente
+    cancelado?: () => void
+}
+export default function Formulario(props: FormularioProps) {
+    const [nome, setNome] = useState(props.client?.nome ?? '')
+    const [idade, setIdade] = useState(props.client?.idade ?? 0)
+    const id = props.client?.id
+    return (
+        <div>
+            {id?
+                (<Entrada 
+                    SomenteLeitura
+                    text="Código" 
+                    valor={id}
+                    className="mb-4"
+                />)
+                :false
+            }
+            <Entrada 
+                text="Nome" 
+                valor={nome}
+                valorMudou={setNome}
+                className="mb-4"
+            />
+            <Entrada 
+                text="Idade" 
+                tipo='number' 
+                valor={idade} 
+                valorMudou={setIdade}
+            />
+            <div className='flex justify-end mt-7'>
+                <Botao cor="blue" className="mr-2">
+                    {id? 'Alterar' : 'Salvar'}
+                </Botao>
+                <Botao 
+                    cor='grey'
+                    onClick={props.cancelado}
+                >
+                    Cancelar
+                </Botao>
+            </div>
+        </div>
+    )
+}
+~~~
 
+    7 - Agora, na nossa pagina [/pages/index.tsx] nos temos o <Formulario> e dentro dele, passamos a função [cancelado] que criamos, passando para ela uma função [() =>] onde quando o usuario chamar a função cancelado irá, chamar a [setVisivel()] passando como valor a tabela. 
+~~~typescript
+[/pages/index.tsx]
 
+export default function Home() {
+    const clientList = [
+        new Cliente('Ana',34,'1'),
+        new Cliente('Bia',45,'2'),
+        new Cliente('Clara',65,'3'),
+        new Cliente('Giulia',12,'4'),
+    ]
+    const [visivel, setVisivel] = useState<'tabela' | 'form'>('tabela')
+    function selectClient(cliente: Cliente){
+        console.log(cliente.nome)
+    }
+    function deleteClient(cliente: Cliente){
+        console.log(`Excluindo...${cliente.nome}`)
+    }
+  return (
+    <div className={`
+        flex justify-center items-center h-screen
+        bg-gradient-to-r from-blue-500 to-purple-500
+        text-white
+    `}>
+        <Layout titulo="Cadastro Simples">
+            {visivel === 'tabela' ? (
+                <>
+                    <div className="flex justify-end">
+                        <Botao 
+                            className='mb-4'
+                            cor="green"
+                            onClick={() => setVisivel('form')}
+                        >Novo CLiente</Botao>
+                    </div>
+                    <Tabela 
+                        clientes={clientList} 
+                        clientSelect={selectClient}
+                        clientDelete={deleteClient}
+                    />
+                </>
+            ) : (
+                <Formulario 
+                    client={clientList[0]} 
+                    cancelado={
+                        () => setVisivel('tabela')
+                    }
+                />
+            )}
+        </Layout>
+    </div>
+  )
+}
+~~~
 
+Ainda estamos com valor fixo no formulario, nesse caso, quando clicarmos em novo cliente, iremos precisar passar para a tabela o cliente novo, jaja iremos fazer isso. 
 
+    8 - Outra coisa que queremos fazer, so para complementar a questão das funções é, alem de termos a funçaio {cancelado}, vamos ter uma função chamada {clienteMudou?:}, para mantermos o mesmo padrão da [Entrada.tsx] onde, na interface passamos o {valor} e o {valorMudou}.
+    -> Nessa função vamos receber como parametro o [cliente] que é do tipo {Cliente}, e essa função irá retornar o VOID. 
+    -> Isso significa que quando o usuario clicar salvar/alterar, vamos chamar o {onCLick={}} onde nele vamos chamar uma função [() =>] para retornar o cliente.
+    -> Para retornar o novo cliente, vamos instanciar o novo cliente baseado nos 3 atributos [id | alterar | salvar].
+    -> Vamos criar um condicional, onde caso existe a função [CLienteMudou()], vamos instanciar um novo cliente [new CLiente()] passando como parametro o (nome, idade, id), se existir. Caso o ID seja nulo nao tem problema ele irá conseguir criar o cliente sem problema. So para lembrarmos dos 3 parametros do Cliente:
+        new Cliente(nome:string, idade:number, id?:string).
+~~~typescript
+[/components/Formulario.tsx]
 
+interface FormularioProps {
+    client: Cliente
+    cancelado?: () => void
+    clientChange?: (client: Cliente) => void
+}
+export default function Formulario(props: FormularioProps) {
+    const [nome, setNome] = useState(props.client?.nome ?? '')
+    const [idade, setIdade] = useState(props.client?.idade ?? 0)
+    const id = props.client?.id
+    return (
+        <div>
+            {id?
+                (<Entrada 
+                    SomenteLeitura
+                    text="Código" 
+                    valor={id}
+                    className="mb-4"
+                />)
+                :false
+            }
+            <Entrada 
+                text="Nome" 
+                valor={nome}
+                valorMudou={setNome}
+                className="mb-4"
+            />
+            <Entrada 
+                text="Idade" 
+                tipo='number' 
+                valor={idade} 
+                valorMudou={setIdade}
+            />
+            <div className='flex justify-end mt-7'>
+                <Botao 
+                    cor="blue" 
+                    className="mr-2"
+                    onClick={
+                        () => props.clientChange?.(new Cliente(nome, idade, id))
+                    }
+                >
+                    {id? 'Alterar' : 'Salvar'}
+                </Botao>
+                <Botao 
+                    cor='grey'
+                    onClick={props.cancelado}
+                >
+                    Cancelar
+                </Botao>
+            </div>
+        </div>
+    )
+}
 
+~~~
 
+    9 - Agora quando clicarmos em "SALVAR" ou "ALTERAR", ele irá pegar o cliente modificado, o que significa que agora la na nossa pagina [index.tsx], podemos ter uma função chamama [saveCLient()] que irá receber um cliente do tipo cliente [client: Cliente], e dentro dela podemos colocar um console.log para vermos a modificação.
+    -> Passamos essa função criada dentro do nosso <Formulario> que será chamada sempre que o cliente tiver sido modificado [clientChange - interface FormularioProps]
+~~~typescript
+[/pages/index.tsx]
 
+export default function Home() {
+    const clientList = [
+        new Cliente('Ana',34,'1'),
+        new Cliente('Bia',45,'2'),
+        new Cliente('Clara',65,'3'),
+        new Cliente('Giulia',12,'4'),
+    ]
+    const [visivel, setVisivel] = useState<'tabela' | 'form'>('tabela')
+    function selectClient(cliente: Cliente){
+        console.log(cliente.nome)
+    }
+    function deleteClient(cliente: Cliente){
+        console.log(`Excluindo...${cliente.nome}`)
+    }
+    function saveClient(client: Cliente){
+        console.log(client)
+    }
+  return (
+    <div className={`
+        flex justify-center items-center h-screen
+        bg-gradient-to-r from-blue-500 to-purple-500
+        text-white
+    `}>
+        <Layout titulo="Cadastro Simples">
+            {visivel === 'tabela' ? (
+                <>
+                    <div className="flex justify-end">
+                        <Botao 
+                            className='mb-4'
+                            cor="green"
+                            onClick={() => setVisivel('form')}
+                        >Novo CLiente</Botao>
+                    </div>
+                    <Tabela 
+                        clientes={clientList} 
+                        clientSelect={selectClient}
+                        clientDelete={deleteClient}
+                    />
+                </>
+            ) : (
+                <Formulario 
+                    client={clientList[0]} 
+                    cancelado={
+                        () => setVisivel('tabela')
+                    }
+                    clientChange={saveClient}
+                />
+            )}
+        </Layout>
+    </div>
+  )
+}
 
+~~~
 
+Agora conseguimos no **console** ver o cliente que chegou do formulario apos a modificação.
+
+> Esta mostrando a idade como uma string, para virar um valor numerico, colocarmos no envento em que chamamos a função **clienteMudou()** o simbolo de [+idade]. Para assim ele gerar a idade como um valor numerico.
+>~~~typescript
+>Botao 
+>   cor="blue" 
+>   className="mr-2"
+>   onClick={
+>      () => props.clientChange?.(new Cliente(nome, *idade, id))
+>   }
+>
+>~~~
+
+Temos agora que fazer mais algumas correções, mas ja temos nosso formulario e tabela alternando, e a modificação do cliente mostrando no console. Temos que fazer o tratamento para quando clicarmos no botao de **Edição**, ele selecionar o elemento e carregar o formulario com os dados do objeto selecionado.
 
 
 
@@ -2851,19 +3269,44 @@ Na proxima aula o que iremos fazer será a alternancia entre a tabela e o formul
 
 ---
 
-## [Aula 113] -
+## [Aula 114] - INTEGRANDO TABELA E FORMULÁRIO
 
 &nbsp;
 
-&nbsp;
 
----
 
----
 
-## [Aula 114] -
 
-&nbsp;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 &nbsp;
 

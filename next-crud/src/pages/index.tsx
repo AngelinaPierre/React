@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Botao from "../components/Botao";
 import Formulario from "../components/Formulario";
 import Layout from "../components/Layout";
@@ -11,11 +12,15 @@ export default function Home() {
         new Cliente('Clara',65,'3'),
         new Cliente('Giulia',12,'4'),
     ]
+    const [visivel, setVisivel] = useState<'tabela' | 'form'>('tabela')
     function selectClient(cliente: Cliente){
         console.log(cliente.nome)
     }
     function deleteClient(cliente: Cliente){
         console.log(`Excluindo...${cliente.nome}`)
+    }
+    function saveClient(client: Cliente){
+        console.log(client)
     }
   return (
     <div className={`
@@ -24,18 +29,30 @@ export default function Home() {
         text-white
     `}>
         <Layout titulo="Cadastro Simples">
-            <div className="flex justify-end">
-                <Botao 
-                    className='mb-4'
-                    cor="green"
-                >Novo CLiente</Botao>
-            </div>
-            <Tabela 
-                clientes={clientList} 
-                clientSelect={selectClient}
-                clientDelete={deleteClient}
-            />
-            <Formulario client={clientList[0]} />
+            {visivel === 'tabela' ? (
+                <>
+                    <div className="flex justify-end">
+                        <Botao 
+                            className='mb-4'
+                            cor="green"
+                            onClick={() => setVisivel('form')}
+                        >Novo CLiente</Botao>
+                    </div>
+                    <Tabela 
+                        clientes={clientList} 
+                        clientSelect={selectClient}
+                        clientDelete={deleteClient}
+                    />
+                </>
+            ) : (
+                <Formulario 
+                    client={clientList[0]} 
+                    cancelado={
+                        () => setVisivel('tabela')
+                    }
+                    clientChange={saveClient}
+                />
+            )}
         </Layout>
     </div>
   )
