@@ -3543,12 +3543,9 @@ export default firebase
 
 Então, o que estamos fazendo? Se não tiver uma **APP** inicializada, ou seja, se **apps.lenght = 0**, como estamos colocando a negação, quer dizer que ele irá entrar e inicializar a aplicação. No final, exportamos por padrão o **FIREBASE** que acabamos de inicializar, chamando no IF().
 
+Vamos entrar no **FIRESTORE**, e o que iremos precisar fazer agora é definir o codigo que irá salvar, obter dados no **beck-end**, excluir e fazer outras coisas.
 
-
-
-
-
-
+Entao vamos criar uma **INTERFACE** dentro de **/src/core** e nos iremos implementar para que a gente possa interagir com o **FIREBASE**.
 
 
 
@@ -3560,9 +3557,45 @@ Então, o que estamos fazendo? Se não tiver uma **APP** inicializada, ou seja, 
 
 ---
 
-## [Aula 116] -
+## [Aula 116] - REPOSITÓRIO DE CLIENTES
 
 &nbsp;
+
+Vamos criar uma novo arquivo chamado **/core/ClientRepo.ts** que será um **INTERFACE do typescript**. Poderiamos nem utilizar essa interface, pois nao iremso utiliza-la tao diretamente, mas vamos uusa-la para mostrar que podemos definir dentro do **CORE** da aplicação uma **INTERFACE**, e trabalhariamos em termos de *interface* ou seja, dentro do **CORE** não precisamos saber que estamos trabalhando com **FIREBASE**, simplesmente podemos definir uma **INTERFACE** e a partir dessa interface usar uma **IMPLEMENTAÇÃO** que irá salvar la no **FIREBASE**.
+
+    1 - Logo vamos exportar por padrão com o nome [ ClienteRepositorio {}].
+    -> Esse cliente repositorio terá 3 METODOS:
+        1) SALVAR / SAVE -> que irá receber como propriedade um cliente do tipo Cliente. 
+        2) EXCLUIR / DELETE -> excluir
+        3) OBTERTODOS / fetchAll - nesse caso, iremos retornar um ARRAY de clientes.
+~~~typescript
+[/core/ClientRepo.ts]
+
+
+
+~~~
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 &nbsp;
 
