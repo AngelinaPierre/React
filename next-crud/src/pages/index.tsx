@@ -13,14 +13,23 @@ export default function Home() {
         new Cliente('Giulia',12,'4'),
     ]
     const [visivel, setVisivel] = useState<'tabela' | 'form'>('tabela')
+    const [cliente, setCliente] = useState<Cliente>(Cliente.vazio())
     function selectClient(cliente: Cliente){
         console.log(cliente.nome)
+        setCliente(cliente)
+        setVisivel('form')
     }
     function deleteClient(cliente: Cliente){
         console.log(`Excluindo...${cliente.nome}`)
     }
     function saveClient(client: Cliente){
         console.log(client)
+        setVisivel('tabela')
+    }
+    function newClient(cliente:Cliente){
+        console.log(cliente)
+        setCliente(Cliente.vazio())
+        setVisivel('form')
     }
   return (
     <div className={`
@@ -35,7 +44,7 @@ export default function Home() {
                         <Botao 
                             className='mb-4'
                             cor="green"
-                            onClick={() => setVisivel('form')}
+                            onClick={newClient}
                         >Novo CLiente</Botao>
                     </div>
                     <Tabela 
@@ -46,7 +55,7 @@ export default function Home() {
                 </>
             ) : (
                 <Formulario 
-                    client={clientList[0]} 
+                    client={cliente} 
                     cancelado={
                         () => setVisivel('tabela')
                     }

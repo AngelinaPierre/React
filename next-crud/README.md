@@ -3273,39 +3273,154 @@ Temos agora que fazer mais algumas correções, mas ja temos nosso formulario e 
 
 &nbsp;
 
+Outra coisa que iremos querer fazer, é quando clicarmos no botão de **ALTERAR** a pagina voltar para a **TABELA**.
+
+~~~typescript
+[/compoentns/Formulario.tsx - Interface com funções e propriedades]
+
+interface FormularioProps {
+    client: Cliente
+    cancelado?: () => void
+    clientChange?: (client: Cliente) => void
+}
+
+[/compoentns/Formulario.tsx - BOTÃO DE ALTERAR]
+<Botao 
+    cor="blue" 
+    className="mr-2"
+    onClick={
+        () => props.clientChange?.(new Cliente(nome, +idade, id))
+    }
+>
+    {id? 'Alterar' : 'Salvar'}
+</Botao>
+
+~~~
+
+Na nossa pagina [/pages/index.tsx] onde no <Formulario> criamos a função [clientChange] para chamar a outra função que criamos chamada {saveClient}, e nessa função de {saveClient}, alem de colocar o **console.log()** poderiamos chamar a função que mostra ou a tabela ou o formulario (setVisivel).
+
+~~~typescript
+[/pages/indext.tsx - <Formulario> chamando a função saveClient()] 
 
 
+{visivel === 'tabela' ? (
+    <>
+        <div className="flex justify-end">
+            <Botao 
+                className='mb-4'
+                cor="green"
+                onClick={() => setVisivel('form')}
+            >Novo CLiente</Botao>
+        </div>
+        <Tabela 
+            clientes={clientList} 
+            clientSelect={selectClient}
+            clientDelete={deleteClient}
+        />
+    </>
+    ) : (
+    <Formulario 
+        client={clientList[0]} 
+        cancelado={
+            () => setVisivel('tabela')
+        }
+        clientChange={saveClient}
+    />
+)}
 
+[/pages/indext.tsx - função de salvar o cliente]
 
+function saveClient(client: Cliente){
+    console.log(client)
+    setVisivel('tabela')
+}
 
+~~~
 
+Com essa modificação agora quando chamamos a função **ALTERAR** ele irá retornar para a tabela causando a alteração visisvel somente, por enquanto no console.log().
 
+Outra coisa que queremos que fique claro, é que podemos organizar essas coisas dentro de **HOOKS**, vamos separar essas **LÓGICAS** e colocar dentro de um HOOKS personalizado. Essa é uma das formas que temos de **REUTILIZAR** a lógicas entre os **COMPONENTES REACT**. Logo, deixar um componente cheio de logicas em seu arquivo não é algo que seria **ESTRUTURALMENTE** interessante.
 
+Por enquanto vamos deixar tudo dentro da nossa pagina [/pages/index.tsx] e depois iremos organizar e criar HOOKS personalizados para termos um pouco mais de organização. Vamos primeiro deixar tudo funcionando e depois nos preocupamos com a questão de organização.
 
+    1 - Agora precisamos criar um ESTADO para armazenar o nosso cliente, vamos fazer isso dentro de [/pages/index.tsx] por enquanto.
+    -> Vamos criar um Estado chamado [cliente, setCliente], a inicialização dele será com o tipo de dado [Cliente.vazio()] para ele ficar vazio. 
+    -> E vamos tambem informar que noss estado é para armazenar elementos do tipo <Cliente>.
+~~~typescript
+[/pages/index.tsx - criação do estado cliente]
 
+const [cliente, setCliente] = useState<Cliente>(Cliente.vazio())
+~~~
 
+    2 - Agora em vez de passarmos para o <Formulario> o valor [cliente={clientes[2]}] da lista de clientes que criamos [clientList], vamos passar o estado [cliente, setCliente] que criamos.
+~~~typescript
+[/pages/index.tsx - componente formulario]
 
+<Formulario 
+    client={cliente} 
+    cancelado={
+        () => setVisivel('tabela')
+    }
+    clientChange={saveClient}
+/>
+~~~
 
+    3 - Quando selecionarmos na tabela um cliente, ou seja, a função [selectClient()] for chamada, vamos chamar a função de alteração de estado do cliente [setCliente], passando como propriedade o cliente.
+    -> Precisamos tambem setar a visibilidade do formulario, para fazer a mudança.
+~~~typescript
+[/pages/index.tsx - função de selecionar o cliente]
 
+function selectClient(cliente: Cliente){
+    console.log(cliente)
+    setCliente(cliente)
+    setVisivel('form')
+}
 
+~~~
 
+Agora se clicarmos em novo cliente, mostrara o cadastro em branco, para digitarmos e colocar a idade, mas se selecionarmos, por exemplo, o cliente 3 (Clara), ira para a edição desse cliente.
 
+Agora quando clicamos no botão de **NOVO CLIENTE** ele esta mostrando o ultimo cliente selecionado, o que não é para acontecer. 
 
+Quando clicarmos em NOVO CLIENTE ele esta simplesmente setando o formulario como visivel.
+~~~typescript
+[/pages/index.tsx - botão NOVO CLIENTE]
 
+<div className="flex justify-end">
+    <Botao 
+        className='mb-4'
+        cor="green"
+        onClick={() => setVisivel('form')}
+    >Novo CLiente</Botao>
+</div>
 
+~~~
 
+    4 - Podemos criar uma função chamada [newClient()], onde iremos usar o [setClient()] para receber um cliente vazio [Cliente.vazio()] e depois chamando o [setVisivel()] encaminhando para o formulario.
+~~~typescript
+[/pages/index.tsx - função para setar novo cliente]
 
+function newClient(cliente:Cliente){
+    console.log(cliente)
+    setCliente(Cliente.vazio())
+    setVisivel('form')
+}
+~~~
 
+    5 - Agora iremos usar essa funçao [NewClient()] no {onClick} do botão de NOVO CLIENTE.
+~~~typescript
+[/pages/index.tsx - chamando função newClient()]
 
+<Botao 
+    className='mb-4'
+    cor="green"
+    onClick={newClient}
+>Novo CLiente</Botao>
+~~~
 
+Ja fizemos mais uma evolução no nosso formulario, mas ainda falta algumas coisas, falta começarmos a integrar nossa aplicação com a parte do **FIREBASE**.
 
-
-
-
-
-
-
-
+Por enquanto, ainda não conseguimos excluir os clientes, poderiamos fazer com base na lista de clientes que criamos [clientList], mas ja nao faz tanto sentido, podemos ja começar a trabalhar a integração com o **FIREBASE** para que a gente possa realmente, começar a inserir, salvar e ver nosso codigo funcionando com o **BACK-END** no **FIREBASE**
 
 
 &nbsp;
@@ -3314,9 +3429,27 @@ Temos agora que fazer mais algumas correções, mas ja temos nosso formulario e 
 
 ---
 
-## [Aula 115] -
+## [Aula 115] - CONFIGURANDO FIREBASE NO PROJETO
 
 &nbsp;
+
+Agora, para trabalharmos com o **BACK-END** da nossa aplicação se olharmos nosso arquivo do [/next-crud/.gitignore]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 &nbsp;
 
