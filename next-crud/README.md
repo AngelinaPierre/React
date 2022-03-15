@@ -3571,28 +3571,260 @@ Vamos criar uma novo arquivo chamado **/core/ClientRepo.ts** que será um **INTE
 ~~~typescript
 [/core/ClientRepo.ts]
 
+import Cliente from './Cliente'
 
+
+export default interface ClienteRepositorio {
+    save(cliente: Cliente): Promise<Cliente>
+    delete(cliente: Cliente): Promise<void>
+    fetchAll(cliente:Cliente):Promise<Cliente[]>
+}
 
 ~~~
 
+    2 - Dentro da nossa pasta de back-end vamos criar uma outra pasta e chama-la de [/src/firebaseBKND/db], nela, vamos criar o que seria o arquivo chamado [/src/firebaseBKND/db/ColecaoCliente.js].
+    -> Vamos exportar por padrão uma classe de nome [ColecaoCliente], ja que no FIREBASE a gente trabalha com o conceito de COLLECTION. E essa classe irá implementar o [ClienteRepositorio] que definimos, se não importar automatico, precisa fazer o import do [ClienteRepositorio].
+~~~typescript
+[/src/firebaseBKND/db/ColecaoCliente.js]
+
+import ClienteRepositorio from "../../core/ClientRepo";
+
+export default class ColecaoCliente implements ClienteRepositorio {
+    
+}
+
+~~~
+
+    3 - Dentro dessa classe, vamos precisar implementar 3 METODOS [save] que receberá como parametro um cliente do tipo de dado Cliente (client: Cliente), onde retornará uma PROMISE retornando um <Cliente>.
+    -> Vamos fazer com que esse metodo seja ASSICRONO (async).
+~~typescript
+[/src/firebaseBKND/db/ColecaoCliente.js]
+
+import Cliente from "../../core/Cliente";
+import ClienteRepositorio from "../../core/ClientRepo";
+
+export default class ColecaoCliente implements ClienteRepositorio {
+    async save(client: Cliente): Promise<Cliente> {
+        return null
+    }
+}
+~~~
+
+    4 - Depois iremos fazer o mesmo para os metodos de [delete & fetchAll].
+    -> [delete] retorna void e recebe como parametro um cliente
+    -> [fecthAll] não recebe parametro e retorna um ARRAY DE CLIENTES.
+~~~typescript
+[/src/firebaseBKND/db/ColecaoCliente.js - ESTRUTURA BASICA P/ TRABALHAR OS METODOS]
+
+import Cliente from "../../core/Cliente";
+import ClienteRepositorio from "../../core/ClientRepo";
+
+export default class ColecaoCliente implements ClienteRepositorio {
+    async save(client: Cliente): Promise<Cliente> {
+        return null
+    } 
+    async delete(client: Cliente): Promise<void>{
+        return null
+    }
+    async fetchAll(client: Cliente): Promise<Cliente[]> {
+        return null
+    }
+}
+~~~
+
+Dentro do **FIREBASE** existe um objeto chamado **CONVERSOR** que tem **2 METODOS**, e um deles é o **toFirestore()** e esse metodo recebe um cliente (do tipo CLiente) e irá devolver um **objeto que seja APTO para ser PERSISTIDO no firestore**.
+
+O nosso cliente é uma **CLASSE** e por padrão, essa classe não será convertida automaticamente para um **JSON**. Então, quando quisermos converter esse cliente para o FIRESTORE precisamos retornar alguma coisa como um objeto [return{}]. Por exemplo, {nome:cliente.nome, idade: cliente.idade}, o {id:} será gerado pelo FILESTORE, logo não precisamos nos preocupar em fazer a conversão.
+
+Estamos transformando uma classe para uma **PLAIN OBJECT** do **JAVASCRIPT**, que será interpretado pelo **firestore**, se mandarmos diretamente a **class** não irá dar certo.
+
+O **2° METODO** desse objeto (conversor) é o **fromFirestore()**, no qual, irá nos devolver um **SNAP-SHOT** e nos dará um cara chamado **OPTIONS**, podemos tambem colocar os tipos desses restornos (snapshot: firebase.firestore.QueryDocumentSnapshot), onde **firestore.QueryDocumentSnapshot** é o tipo de dado.
+
+> OBS: Fazer o "import" do firebase vindo do [/firebaseBKND/config.ts].
+
+O tipo do dado chamado **OPTION** será **firestore.snapshotOptions**. Esses são os dois tipos que recebemos do **fromFirestore()** . Ou seja, estamos recebendo os dados do **FIREBASE** e queremos retornar um cliente, logo a resposta desta função será um objeto do tipo cliente.
+
+Para isso, precisamos criar uma constante para receber os dados a partir do **snapshot.data()**, onde iremos passar o **options** como parametro. Para o retorno instanciamos um novo cliente **new Cliente()** e passamos como parametro **(dados.nome, dados.idade, snapshot.id)**, fazendo assim o ID ser gerado pelo proprio **FIREBASE**, usando o id do proprio snapshot. Vamos colocar o optional channing(?) para termos certeza que estamos tendo acesso ao dados, para no caso de eventualmente vir nulo.
+
+Esse **CONVERSOR** que pode inclusive ser privado (**#conversor**), ele irá converter uma **CLASSE** para algo que será **PERSISTIDO** no **FIRESTORE**, e nos iremos receber algo do **firestore** e vamos converter novamente para a **CLASSE** que criamos. 
 
 
+~~~typescript
+[/firebaseBKND/db/ColecaoCliente.ts ]
+
+import Cliente from "../../core/Cliente";
+import ClienteRepositorio from "../../core/ClientRepo";
+import firebase from '../config'
+
+export default class ColecaoCliente implements ClienteRepositorio {
+
+    #conversor = {
+        toFirestore(client: Cliente){
+            return {
+                nome: client.nome,
+                idade: client.idade
+            }
+        },
+        fromFirestore(snapshot: firebase.firestore.QueryDocumentSnapshot, options: firebase.firestore.SnapshotOptions){
+            const dados = snapshot.data(options)
+            return new Cliente(dados.nome, dados.idade, snapshot?.id)
+        }
+    }
 
 
+    async save(client: Cliente): Promise<Cliente> {
+        return null
+    } 
+    async delete(client: Cliente): Promise<void>{
+        return null
+    }
+    async fetchAll(client: Cliente): Promise<Cliente[]> {
+        return null
+    }
+}
 
+~~~
 
+Agora não precisamos mas nos preocupar em fazer essa logica de todas as vezes que formos utilizar as funções [save | delete | fetchAll].
 
+Vamos criar um **METODO**  chamado **colecao()**, para ser um metodo privado ou colocamos a cerquilha [#] ou a palavra **private**. Nesse metodo vamos retornar uma coleção, chamando o **firebase** depois o **firestore()**, apos, chamamos a coleção **collection('clientes'), usando clientes no plural, juntamente com o conversor que construimos acima.
 
+~~~typescript
+[METODO DA COLEÇÃO]
 
+private || #colecao(){
+    return firebase
+        .firestore()
+        .collection('clientes')
+        .withConverter(this.#conversor)
+}
 
+~~~
 
+Agora vamos retornar nossa coleção, juntamente com o conversor, e agora em cada um desses metodos [save | delete | fetchAll], em vez de termos que repetir a logica para os 3, usamos o [this.colecao()].
 
+[ **delete** ] -> Chamamos o **.doc()** a partir de **clientes.id**, pois dentro da coleção de clientes conseguimos acessar um cliente especifico que é um documento a apartir do ID dele. Podendo depois chamar o **.delete**
 
+~~~typescript
 
+async delete(client: Clientes): Promise<void>{
+    return this.colecao().doc(cliente.id).delete()
+}
 
+~~~
 
+[ **save** ] -> Para salvarmos teremos **2 CENARIOS** :
 
+- Se o **cliente.id** tiver setado, ou seja, o cliente existe, quer dizer que iremos **alterar**. Usamos o **this.colecao().doc()** peganod o cliente a partir do ID, e depois chama a função de alteração passando o cliente. Como no conversor, ele converte o cliente para objeto, nao iremos precisar fazer isso dentro desta função. No começo da função podemos colocar um **await** pois seria algo assincrono, quando setar. De retorno, caso esteja tudo certo, temos o **cliente** que passamos como parametro.
+  - this.colecao().doc(cliente.id).set(cliente) 
 
+- Se o **cliente.id** não estiver setado, significa que iremos **salvar**. Para salvar chamamos o **this.colecao()** juntamente com o **.add()** passando o cliente como parametro. No caso que estamos adicionando, será retornado para gente o que chamam de **DocumentReference**, o que seria a referencia de um documento. Vamos criar uma constante chamada **docRef** para receber esse retorno, vamos colocar um **await**, pois esse metodo vai retornar uma **PROMISE**, uma promessa de **firebase.firestore.DocumentReference<Cliente>**, logo, colocando um await, significa que isso será um **documentReference**????
+    - Depois da criação da constante iremos usar o metodo **.get()** onde ele retorna uma **PROMISE** de um snapshot de documento **firebase.firestore.DocumentSnapshot<Cliente>**. Logo como é uma promessa e queremos pegar esse snapshot, colocamos um **await**, salvando esse documento dentro de uma constante chamada **DOC**. 
+    - Com esse **doc** conseguimos pegar o cliente recebido, inclusive com **id**, no retorno usando o **doc.data()**, se colocarmos o cursos em cima, vemos que ele irá retornar um cliente.
+  
+~~~typescript
+[/firebaseBKND/db/ColecaoCliente.ts]
+
+import Cliente from "../../core/Cliente";
+import ClienteRepositorio from "../../core/ClientRepo";
+import firebase from '../config'
+
+export default class ColecaoCliente implements ClienteRepositorio {
+
+    #conversor = {
+        toFirestore(client: Cliente){
+            return {
+                nome: client.nome,
+                idade: client.idade
+            }
+        },
+        fromFirestore(snapshot: firebase.firestore.QueryDocumentSnapshot, options: firebase.firestore.SnapshotOptions){
+            const dados = snapshot.data(options)
+            return new Cliente(dados.nome, dados.idade, snapshot?.id)
+        }
+    }
+    async save(client: Cliente): Promise<Cliente> {
+        if(client?.id) {
+            await this.colecao().doc(client.id).set(client)
+            return client
+        } else {
+            const docRef = await this.colecao().add(client)
+            const doc = await docRef.get()
+            return doc.data()
+        }
+    } 
+    async delete(client: Cliente): Promise<void>{
+        return this.colecao().doc(client.id).delete()
+    }
+    async fetchAll(client: Cliente): Promise<Cliente[]> {
+        return null
+    }
+    private colecao(){
+        return firebase
+            .firestore()
+            .collection('clientes')
+            .withConverter(this.#conversor)
+    }
+}
+
+~~~
+
+Na função para obter todos **fetchAll()** vamos pegar o **this.colecao()** chamando o **.get()**, obtendo assim os dados, o retorno do **.get()** é um **.QuerySnapshot**, uma promessa disso, ja que estamos trabalhando no modo **assincrono**. Logo, criamos uma constante **query**, e a partir dela teremos acesso aos documentos, ja que irá pegar mais de um **query.docs.map()**, usando o **.docs** podemos usar a função **.map()** para pegar cada documento (doc =>) com o objeto **doc.data()**, esse objeto nos dará os proprios **clientes**, obtidos no **backend**.
+
+Ou seja, estamos pegando todos os documentos [ **query.docs.map()** ] e fazendo um mapeamento de cada documento [**doc =>** ] e transformando para [**doc.data()**]. 
+- Podemos usar uma condicional para caso a gente nao receba nada como retorno, podemos pedir que retorne um **array vazio []**;.
+
+~~~typescript
+[/firebaseBKND/db/ColecaoCliente.ts - ESTRUTURA FINAL]
+
+import Cliente from "../../core/Cliente";
+import ClienteRepositorio from "../../core/ClientRepo";
+import firebase from '../config'
+
+export default class ColecaoCliente implements ClienteRepositorio {
+
+    #conversor = {
+        toFirestore(client: Cliente){
+            return {
+                nome: client.nome,
+                idade: client.idade
+            }
+        },
+        fromFirestore(snapshot: firebase.firestore.QueryDocumentSnapshot, options: firebase.firestore.SnapshotOptions){
+            const dados = snapshot.data(options)
+            return new Cliente(dados.nome, dados.idade, snapshot?.id)
+        }
+    }
+    async save(client: Cliente): Promise<Cliente> {
+        if(client?.id) {
+            await this.colecao().doc(client.id).set(client)
+            return client
+        } else {
+            const docRef = await this.colecao().add(client)
+            const doc = await docRef.get()
+            return doc.data()
+        }
+    } 
+    async delete(client: Cliente): Promise<void>{
+        return this.colecao().doc(client.id).delete()
+    }
+    async fetchAll(client: Cliente): Promise<Cliente[]> {
+        const query = await this.colecao().get()
+        return query.docs.map(
+            doc => doc.data()
+        )
+    }
+    private colecao(){
+        return firebase
+            .firestore()
+            .collection('clientes')
+            .withConverter(this.#conversor)
+    }
+}
+
+~~~
+
+Com isso finalizamos a parte de implementação do nosso **ClienteRepositorio**, a implementação para o **FIREBASE**. O que vamos precisar fazer agora é usar esse **ClienteRepositorio** dentro do componente para fazermos as **interações** com o **firebase** e vermos se estamos conseguindo realmente persistir os dados.
 
 
 
@@ -3603,7 +3835,7 @@ Vamos criar uma novo arquivo chamado **/core/ClientRepo.ts** que será um **INTE
 
 ---
 
-## [Aula 117] -
+## [Aula 117] - INTEGRANDO CADASTRO COM O FIREBASE
 
 &nbsp;
 
