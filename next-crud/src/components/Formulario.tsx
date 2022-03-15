@@ -40,7 +40,7 @@ export default function Formulario(props: FormularioProps) {
                     cor="blue" 
                     className="mr-2"
                     onClick={
-                        () => props.clientChange?.(new Cliente(nome, idade, id))
+                        () => props.clientChange?.(new Cliente(nome, +idade, id))
                     }
                 >
                     {id? 'Alterar' : 'Salvar'}
