@@ -50,8 +50,6 @@ export default function Home() {
 }
 
 
-
-
 // const clientList = [
     // //     new Cliente('Ana',34,'1'),
     // //     new Cliente('Bia',45,'2'),
