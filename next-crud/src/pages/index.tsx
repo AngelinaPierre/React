@@ -1,33 +1,48 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Botao from "../components/Botao";
 import Formulario from "../components/Formulario";
 import Layout from "../components/Layout";
 import Tabela from "../components/Tabela";
 import Cliente from "../core/Cliente";
+import ColecaoCliente from "../firebaseBKND/db/ColecaoCliente";
 
 export default function Home() {
-    const clientList = [
-        new Cliente('Ana',34,'1'),
-        new Cliente('Bia',45,'2'),
-        new Cliente('Clara',65,'3'),
-        new Cliente('Giulia',12,'4'),
-    ]
+    // const clientList = [
+    //     new Cliente('Ana',34,'1'),
+    //     new Cliente('Bia',45,'2'),
+    //     new Cliente('Clara',65,'3'),
+    //     new Cliente('Giulia',12,'4'),
+    // ]
     const [visivel, setVisivel] = useState<'tabela' | 'form'>('tabela')
     const [cliente, setCliente] = useState<Cliente>(Cliente.vazio())
-    function selectClient(cliente: Cliente){
-        console.log(cliente.nome)
-        setCliente(cliente)
+    const [clientes, setClientes] = useState<Cliente[]>([])
+    const repo: ColecaoCliente = new ColecaoCliente()
+
+    useEffect(obterTodos, [])
+
+    function obterTodos() {
+        repo.fetchAll().then(clientes => {
+            setClientes(clientes)
+            setVisivel('tabela')
+        })
+    }
+
+    function selectClient(client: Cliente){
+        console.log(client.nome)
+        setCliente(client)
         setVisivel('form')
     }
-    function deleteClient(cliente: Cliente){
-        console.log(`Excluindo...${cliente.nome}`)
+    async function deleteClient(client: Cliente){
+        await repo.delete(client)
+        obterTodos()
     }
-    function saveClient(client: Cliente){
+    async function saveClient(client: Cliente){
         console.log(client)
-        setVisivel('tabela')
+        await repo.save(client)
+        obterTodos()
     }
-    function newClient(cliente:Cliente){
-        console.log(cliente)
+    function newClient(client:Cliente){
+        console.log(client)
         setCliente(Cliente.vazio())
         setVisivel('form')
     }
@@ -48,7 +63,7 @@ export default function Home() {
                         >Novo CLiente</Botao>
                     </div>
                     <Tabela 
-                        clientes={clientList} 
+                        clientes={clientes} 
                         clientSelect={selectClient}
                         clientDelete={deleteClient}
                     />

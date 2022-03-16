@@ -11,8 +11,8 @@ export default class ColecaoCliente implements ClienteRepositorio {
                 idade: client.idade
             }
         },
-        fromFirestore(snapshot: firebase.firestore.QueryDocumentSnapshot, options: firebase.firestore.SnapshotOptions){
-            const dados = snapshot.data(options)
+        fromFirestore(snapshot: firebase.firestore.QueryDocumentSnapshot, options: firebase.firestore.SnapshotOptions): Cliente {
+            const dados = snapshot?.data(options)
             return new Cliente(dados.nome, dados.idade, snapshot?.id)
         }
     }
@@ -29,13 +29,15 @@ export default class ColecaoCliente implements ClienteRepositorio {
     async delete(client: Cliente): Promise<void>{
         return this.colecao().doc(client.id).delete()
     }
-    async fetchAll(client: Cliente): Promise<Cliente[]> {
-        return null
+    async fetchAll(): Promise<Cliente[]> {
+        const query = await this.colecao().get()
+        return query.docs.map(
+            doc => doc.data()
+        )
     }
     private colecao(){
         return firebase
-            .firestore()
-            .collection('clientes')
+            .firestore().collection('clientes')
             .withConverter(this.#conversor)
     }
 }

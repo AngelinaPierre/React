@@ -3577,7 +3577,7 @@ import Cliente from './Cliente'
 export default interface ClienteRepositorio {
     save(cliente: Cliente): Promise<Cliente>
     delete(cliente: Cliente): Promise<void>
-    fetchAll(cliente:Cliente):Promise<Cliente[]>
+    fetchAll():Promise<Cliente[]>
 }
 
 ~~~
@@ -3597,7 +3597,7 @@ export default class ColecaoCliente implements ClienteRepositorio {
 
     3 - Dentro dessa classe, vamos precisar implementar 3 METODOS [save] que receberá como parametro um cliente do tipo de dado Cliente (client: Cliente), onde retornará uma PROMISE retornando um <Cliente>.
     -> Vamos fazer com que esse metodo seja ASSICRONO (async).
-~~typescript
+~~~typescript
 [/src/firebaseBKND/db/ColecaoCliente.js]
 
 import Cliente from "../../core/Cliente";
@@ -3613,6 +3613,8 @@ export default class ColecaoCliente implements ClienteRepositorio {
     4 - Depois iremos fazer o mesmo para os metodos de [delete & fetchAll].
     -> [delete] retorna void e recebe como parametro um cliente
     -> [fecthAll] não recebe parametro e retorna um ARRAY DE CLIENTES.
+
+
 ~~~typescript
 [/src/firebaseBKND/db/ColecaoCliente.js - ESTRUTURA BASICA P/ TRABALHAR OS METODOS]
 
@@ -3626,7 +3628,7 @@ export default class ColecaoCliente implements ClienteRepositorio {
     async delete(client: Cliente): Promise<void>{
         return null
     }
-    async fetchAll(client: Cliente): Promise<Cliente[]> {
+    async fetchAll(): Promise<Cliente[]> {
         return null
     }
 }
@@ -3839,15 +3841,467 @@ Com isso finalizamos a parte de implementação do nosso **ClienteRepositorio**,
 
 &nbsp;
 
+Agora iremos dentro da nossa pagina [/pages/index.tsx], nos vamos criar uma constante chamada **repo:** que será do tipo **ClienteRepositorio**, e vamos **INSTANCIAR** uma nova coleção de clientes **colecaoCliente()**. 
+
+> Se tivessemos outras classes  para implementar as regras, poderiamos evoluir o **/Core** para que ele ficasse independente de **framework** ser so a parte que representa o **negocio** da aplicação. Evenmtualmente podemos serparar o que é puramente do negocio, daquilo que tem haver com o **framework** que seria os arquivos de **/componentes & /firestoreBKND**
+
+~~~typescript
+[/pages;index.ts - criação da constante do repositorio]
+
+const repo: ClienteRepositorio - new ColecaoCliente()
+
+~~~
+
+A partir do repositorio **repo: ClienteRepositorio** podemos obter a lista de clientes, logo, em vez de ter os clientes na forma de **clientList=[]**, vamos criar um **ESTADO [clientes,setClientes]**, onde vamos colocar inicialmente uma lista vazia, ja que iremos ter um ARRAY de clientes[].
+
+~~~typescript
+[/pages;index.ts - criação da constante de estado clientes]
+
+const [clientes, setClientes] = useState<Cliente[]>([])
+
+~~~
+
+
+Vamos utilizar o **useEFFect()** para que a gente possa alterar o **estado** na inicialização do nosso componente. Quando o componente for inicializado, vamos usar o **repo.fetchALL()**. Quando receber todos, ele irá retornar uma **PROMISE**, onde depois iremos fazer um **.then()** para recebermos os clientes, logo, dentro de **.then()** chamamos a funçao de alteração de estado **setClientes()**, quando ele terminar de obter todos os clientes. Dessa forma atualizamos a nossa tabela.
+
+~~~typescript
+[/pages/index.tsx]
+
+import { useEffect, useState } from "react";
+import Botao from "../components/Botao";
+import Formulario from "../components/Formulario";
+import Layout from "../components/Layout";
+import Tabela from "../components/Tabela";
+import Cliente from "../core/Cliente";
+import ColecaoCliente from "../firebaseBKND/db/ColecaoCliente";
+
+export default function Home() {
+    const [visivel, setVisivel] = useState<'tabela' | 'form'>('tabela')
+    const [cliente, setCliente] = useState<Cliente>(Cliente.vazio())
+    const [clientes, setClientes] = useState<Cliente[]>([])
+    const repo: ColecaoCliente = new ColecaoCliente()
+
+    useEffect(() => {
+        repo.fetchAll().then(setClientes)
+    }, [])
+
+    function selectClient(cliente: Cliente){
+        console.log(cliente.nome)
+        setCliente(cliente)
+        setVisivel('form')
+    }
+    function deleteClient(cliente: Cliente){
+        console.log(`Excluindo...${cliente.nome}`)
+    }
+    function saveClient(client: Cliente){
+        console.log(client)
+        setVisivel('tabela')
+    }
+    function newClient(cliente:Cliente){
+        console.log(cliente)
+        setCliente(Cliente.vazio())
+        setVisivel('form')
+    }
+  return (
+    <div className={`
+        flex justify-center items-center h-screen
+        bg-gradient-to-r from-blue-500 to-purple-500
+        text-white
+    `}>
+        <Layout titulo="Cadastro Simples">
+            {visivel === 'tabela' ? (
+                <>
+                    <div className="flex justify-end">
+                        <Botao 
+                            className='mb-4'
+                            cor="green"
+                            onClick={newClient}
+                        >Novo CLiente</Botao>
+                    </div>
+                    <Tabela 
+                        clientes={clientList} 
+                        clientSelect={selectClient}
+                        clientDelete={deleteClient}
+                    />
+                </>
+            ) : (
+                <Formulario 
+                    client={cliente} 
+                    cancelado={
+                        () => setVisivel('tabela')
+                    }
+                    clientChange={saveClient}
+                />
+            )}
+        </Layout>
+    </div>
+  )
+}
+~~~
+
+Com relação a salvar o novo cliente **newClient()**, quando clicamos em **newClient()**, ele irá para a tela, e por enquanto na função [saveClient()], esta sendo mostrado no **console.log**.
+
+Em **saveClient()** podemos fazer **repo.save(cliente)**, chamamos o repositorio e a função de salvar passando o cliente.
+
+~~~typescript
+[/pages/index.tsx]
+
+function saveClient(client: Cliente){
+    console.log(client)
+    repo.save(cliente)
+    setVisivel('tabela')
+}
+~~~
+
+Em vez de setarmos a tela com o **setVisivel()**, vamos criar um metodo chamado **obterTodos()** e vamos jogar o **repo.fetchAll().then(setClientes)**. No **then()** iremos fazer o seguinte:
+- Quando ele obter os clientes **[ clientes => {}]**, vamos chamar o *setClientes)** passando os clientes que recebemos, e vamos chamar tambem o **setVisivel()** para setar a **tabela**.
+- Vamos chamar o **obterTodos()** dentro do **useEffect()**, passando somente a referencia da função.
+
+~~~typescript
+[/pages/index.tsx]
+
+useEffect(obterTodos, [])
+
+function obterTodos() {
+    repo.fetchAll().then(clientes => {
+        setClientes(clientes)
+        setVisivel('tabela')
+    })
+}
+~~~
+
+Depois que salvarmos **saveClient()**, e podemos colocar esse metodo como **async**, vamos colocar um **await** na chamada do repositorio, e depois que salvar, chamamos a função que criamos acima **obterTodos()**. Essa função irá obter todos os clientes, depois irá setar os clientes e coloca a tabela como visivel.
+
+Vamos criar um novo cliente como exemplo "Angelina | 30 ". Como o alterar é o mesmo metodo de salvar, tambem esta funcionando. Vamos fazer a implementação de exclusão agora. Para excluir, podemos fazer mais ou menos a mesma estrategia do **saveClient** trocando o *save()* por **delete()**.
+
+~~~typescript
+[/pages/index.tsx]
+
+async function deleteClient(client: Cliente){
+    await repo.delete(client)
+    obterTodos()
+}
+~~~ 
+
+O cadastro em si ja esta funcional, ja conseguimos adicionar, excluir e alterar os clientes. Do ponto de vista da funcionalidade, esta tudo certo. O que faremos a seguir, será **ORGANIZAR** um pouco mais o nosso componentes.
+
+Vamos criar **HOOKS** para organizar a logica e deixar as coisas separadas, ou seja, a parte visual ficará dentro do nosso componente **home()** - **/pages/index.tsx**. E a parte da logica, chamada de funções acesso ao repositorio, vamos colocar dentro de um **HOOK** para vermos como podemos organizar nossas aplicações **REACT/NEXT**.
+
+
 &nbsp;
 
 ---
 
 ---
 
-## [Aula 118] -
+## [Aula 118] - ORGANIZANDO O CÓDIGO COM HOOKS
 
 &nbsp;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 &nbsp;
 
