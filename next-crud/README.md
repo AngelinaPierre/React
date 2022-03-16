@@ -3998,307 +3998,374 @@ Vamos criar **HOOKS** para organizar a logica e deixar as coisas separadas, ou s
 
 &nbsp;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Agora que temos nosso **CADASTRO** integrando junto ao **FIREBASE**, vamos organizar nosso codigo de uma maneira que fique viavel a escalabilidade no futuro e a compreensão por parte de outros desenvolvedores.
+
+### ESTRUTURA ATUAL DO DIRETORIO
+
+```text
+|--- |src
+|--- |--- |backend (firebaseBKND)
+|--- |--- |--- |db
+|--- |--- |--- |---|ColecaoCliente.ts
+|--- |--- |--- |config.ts
+|--- |--- |components
+|--- |--- |---|Botao.tsx
+|--- |--- |---|Entrada.tsx
+|--- |--- |---|Formulario.tsx
+|--- |--- |---|Icones.tsx
+|--- |--- |---|Layout.tsx
+|--- |--- |---|Tabela.tsx
+|--- |--- |---|Titulo.tsx
+|--- |--- |core
+|--- |--- |---|Cliente.ts
+|--- |--- |---|ClientRepo.ts
+|--- |--- |hook
+|--- |--- |pages
+|--- |--- |--- |api
+|--- |--- |--- |---|hello.js
+|--- |--- |--- |app.js
+|--- |--- |--- |index.tsx
+
+```
+
+Vamos criar uma pasta chamada **/hooks**, onde vamos fazer a implementação de alguns [**HOOKS PERSONALIZADOS**](https://pt-br.reactjs.org/docs/hooks-custom.html). 
+
+> Criar seus próprios Hooks permite que você extraia a lógica de um componente em funções reutilizáveis.
+
+    1 - O primeiro hooke que iremos criar será chamado de [ useClientes.ts]. Pode ser qualquer nome.
+    -> Vamos colocar, as cosntantes, o useEffect() e as funções dentro desse HOOK. Irá dar problema, jaja iremos começar a fazer os ajustes.
+    -> Vamos precisar importar o {CLiente, useState, ColecaoCliente, ClienteRepositorio, useEffect}
+~~~typescript
+[/hooks/useClientes.ts]
+
+import { useEffect, useState } from "react"
+import Cliente from "../core/Cliente"
+import ColecaoCliente from "../firebaseBKND/db/ColecaoCliente"
+
+
+export default function useClientes() {
+    const [visivel, setVisivel] = useState<'tabela' | 'form'>('tabela')
+    const [cliente, setCliente] = useState<Cliente>(Cliente.vazio())
+    const [clientes, setClientes] = useState<Cliente[]>([])
+    const repo: ColecaoCliente = new ColecaoCliente()
+
+    useEffect(obterTodos, [])
+
+    function obterTodos() {
+        repo.fetchAll().then(clientes => {
+            setClientes(clientes)
+            setVisivel('tabela')
+        })
+    }
+
+    function selectClient(client: Cliente){
+        console.log(client.nome)
+        setCliente(client)
+        setVisivel('form')
+    }
+    async function deleteClient(client: Cliente){
+        await repo.delete(client)
+        obterTodos()
+    }
+    async function saveClient(client: Cliente){
+        console.log(client)
+        await repo.save(client)
+        obterTodos()
+    }
+    function newClient(client:Cliente){
+        console.log(client)
+        setCliente(Cliente.vazio())
+        setVisivel('form')
+    }
+}
+~~~
+
+    2 - Em [/pages/index.tsx] vamos precisar de algumas propriedades e funções {visivel, novoCliente}. Para isso, temos que exportar as funções e consntantes que colocamos dentro de /hooks/useClientes.ts.
+    -> Usamos o return para isso.
+~~~typescript
+
+[/hooks/useClientes.ts]
+import { useEffect, useState } from "react"
+import Cliente from "../core/Cliente"
+import ColecaoCliente from "../firebaseBKND/db/ColecaoCliente"
+
+
+export default function useClientes() {
+    const [visivel, setVisivel] = useState<'tabela' | 'form'>('tabela')
+    const [cliente, setCliente] = useState<Cliente>(Cliente.vazio())
+    const [clientes, setClientes] = useState<Cliente[]>([])
+    const repo: ColecaoCliente = new ColecaoCliente()
+
+    useEffect(obterTodos, [])
+
+    function obterTodos() {
+        repo.fetchAll().then(clientes => {
+            setClientes(clientes)
+            setVisivel('tabela')
+        })
+    }
+
+    function selectClient(client: Cliente){
+        console.log(client.nome)
+        setCliente(client)
+        setVisivel('form')
+    }
+    async function deleteClient(client: Cliente){
+        await repo.delete(client)
+        obterTodos()
+    }
+    async function saveClient(client: Cliente){
+        console.log(client)
+        await repo.save(client)
+        obterTodos()
+    }
+    function newClient(client:Cliente){
+        console.log(client)
+        setCliente(Cliente.vazio())
+        setVisivel('form')
+    }
+
+    return {
+        newClient,
+        saveClient,
+        deleteClient,
+        selectClient,
+        obterTodos,
+    }
+}
+~~~
+
+    3 - Agora em [/pages/index.tsx] vamos criar uma constante para podermos usar o HOOK que criamos.
+    -> Dentro das {} iremos conseguir selecionar alguns metodos que ja importamos do nosso HOOK personalisado.
+~~~typescript
+[/pages/index.tsx]
+
+const {selectClient, deleteClient} = useClientes()
+~~~
+
+    4 - Vamos precisar do proprio CLIENTE em si, então no nosso HOOK PERSONALIZADO exportamos o cliente.
+~~~typescript
+[/hooks/useClientes.ts]
+
+return {
+    cliente,
+    newClient,
+    saveClient,
+    deleteClient,
+    selectClient,
+    obterTodos,
+}
+[/pages/index.tsx]
+
+const {cliente,selectClient, deleteClient} = useClientes()
+
+~~~
+
+    5 - Precisamos tambem a lista de clientes, o que seria os [clientes].
+    -> Vamos tambem aproveitar e ja exportar o [novoCliente], e as outras funções que faltam.
+~~~typescript
+[/hooks/useClientes.ts]
+return {
+    cliente,
+    clientes,
+    newClient,
+    saveClient,
+    deleteClient,
+    selectClient,
+    obterTodos,
+    }
+[/pages/index.tsx]
+
+const {
+        cliente,
+        clientes,
+        selectClient,
+        deleteClient,
+        newClient,
+        saveClient,
+    } = useClientes()
+
+~~~
+
+    6 - Falta agora trabalharmos com a questão da visibilidade. Podemos criar outro HOOK P  ERSONALIZADO, para trabalhar somente com essa questão da visibilidade, vamos chama-lo de [useTabelaOuForms.ts].
+    -> Vamos exporta-lo por padrão, usando o mesmo nome, e dentro da função  vamos criar um ESTADO [visivel, setVisivel], que irá inicialmente começar como ('tabela'), mas que terá dois estados <'tabela' | 'form'>.
+    -> No retorno, vamos retornar esse estado, mas não das formas anteriores. Vamos criar uma variavel chamada [formularioVisivel: visivel === 'form'].
+    -> Vamos tambem criar outra variavel chamada [tabelaVisivel: visivel === 'tabela'].
+    -> Vamos tambem criar duas funções para fazer a alteração. A primeira chamada [exibirTabela() - arrow function ], e vamos atribuir o [setVisivel('tabela')] a ela. Vamos usar o mesmo principio para o formulario.
+    -> Agora nos podemos exportar essas duas funções, isolando assim uma logica da nossa aplicação dentro de um HOOK.
+~~~typescript
+[/hooks/useTabelaOuForm.ts]
+
+import { useState } from "react";
+
+export default function useTabelaOuForm() {
+    const [visivel, setVisivel] = useState<'tabela' | 'form'>('tabela')
+
+    const showTable = () => setVisivel('tabela')
+    const showForm = () => setVisivel('form')
+
+    return {
+        formularioVisivel: visivel === 'form',
+        tabelaVisivel: visivel === 'tabela',
+        showTable,
+        showForm,
+    }
+}
+
+~~~
+
+    7 - Agora dentro do nosso outro HOOK personalizado [useClientes.ts] podemos excluir essa variavel, e importar um HOOK dentro dele.
+~~~typescript
+[/hooks/useClientes.ts]
+
+const {
+    tabelaVisivel,
+    formularioVisivel,
+    showForm,
+    showTable,
+} = useTabelaOuForm()
+~~~
+
+    8 - Agora, na função, [obterTodos()] em vez de colocarmos o [setVisivel('tabela')], colocamos o [showTable()], e analogamente, fazemos o mesmo para o formulario.
+~~~typescript
+[/hooks/useClientes.ts]
+
+function obterTodos() {
+    repo.fetchAll().then(clientes => {
+        setClientes(clientes)
+        showTable()
+    })
+}
+
+function selectClient(client: Cliente){
+    console.log(client.nome)
+    setCliente(client)
+    showForm()
+}
+
+function newClient(client:Cliente){
+    console.log(client)
+    setCliente(Cliente.vazio())
+    showForm()
+}
+~~~
+
+    9 - Nos podemos retornar o que precisamos dentro do nosso componente [/pages/index.tsx], para isso, no [useClientes.tsx], precisamos retornar a propriedade [tabelaVisivel]. Retornando ela no hook, no componente, podemos obter essa propriedades na chamada do hook e substituir o visivel pela propriedade.
+    -> Vamos tambem precisar fazer o mesmo processo para a função que irá exibir a tabela.
+~~~typescript
+[/hooks/useClientes.ts]
+
+import { useEffect, useState } from "react"
+import Cliente from "../core/Cliente"
+import ColecaoCliente from "../firebaseBKND/db/ColecaoCliente"
+import useTabelaOuForm from "./useTabelaOuForm"
+
+
+export default function useClientes() {
+    const [cliente, setCliente] = useState<Cliente>(Cliente.vazio())
+    const [clientes, setClientes] = useState<Cliente[]>([])
+    const repo: ColecaoCliente = new ColecaoCliente()
+
+    const {
+        tabelaVisivel,
+        formularioVisivel,
+        showForm,
+        showTable,
+    } = useTabelaOuForm()
+
+    useEffect(obterTodos, [])
+
+    function obterTodos() {
+        repo.fetchAll().then(clientes => {
+            setClientes(clientes)
+            showTable()
+        })
+    }
+
+    function selectClient(client: Cliente){
+        console.log(client.nome)
+        setCliente(client)
+        showForm()
+    }
+    async function deleteClient(client: Cliente){
+        await repo.delete(client)
+        obterTodos()
+    }
+    async function saveClient(client: Cliente){
+        console.log(client)
+        await repo.save(client)
+        obterTodos()
+    }
+    function newClient(client:Cliente){
+        console.log(client)
+        setCliente(Cliente.vazio())
+        showForm()
+    }
+
+    return {
+        cliente,
+        clientes,
+        newClient,
+        saveClient,
+        deleteClient,
+        selectClient,
+        obterTodos,
+        tabelaVisivel,
+        showTable,
+    }
+}
+~~~
+
+~~~typescript
+[/pages/index.tsx]
+
+export default function Home() {
+    const {
+        cliente,
+        clientes,
+        selectClient,
+        deleteClient,
+        newClient,
+        saveClient,
+        tabelaVisivel,
+        showTable,
+    } = useClientes()
+  return (
+    <div className={`
+        flex justify-center items-center h-screen
+        bg-gradient-to-r from-blue-500 to-purple-500
+        text-white
+    `}>
+        <Layout titulo="Cadastro Simples">
+            {tabelaVisivel ? (
+                <>
+                    <div className="flex justify-end">
+                        <Botao 
+                            className='mb-4'
+                            cor="green"
+                            onClick={newClient}
+                        >Novo CLiente</Botao>
+                    </div>
+                    <Tabela 
+                        clientes={clientes} 
+                        clientSelect={selectClient}
+                        clientDelete={deleteClient}
+                    />
+                </>
+            ) : (
+                <Formulario 
+                    client={cliente} 
+                    cancelado={showTable}
+                    clientChange={saveClient}
+                />
+            )}
+        </Layout>
+    </div>
+  )
+}
+~~~
+
+Agora possuimos uma estrutura muito mais organizada e refatorada.
 
 
 
