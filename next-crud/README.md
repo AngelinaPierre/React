@@ -4380,6 +4380,25 @@ Agora possuimos uma estrutura muito mais organizada e refatorada.
 
 &nbsp;
 
+Para finalizarmos vamos entrar dentro do **FIRESTORE**, e vamos excluir o projeto. Pois durante a implementação do projeto fimos, algumas informações sensiveis, que deixam esse repositorio com falhas na segurança.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <!-- This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
