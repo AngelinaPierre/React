@@ -84,3 +84,166 @@ Tanto o **node restful** voce percebe que possui essa questão dos middlewares, 
 
 &nbsp;
 
+Acabamos de ver o principal conceito do **express**, que é justamente um PADRÃO que ele implementa (**chain of responsability**), que tambem dentro do contexto do **express** é conhecido como **MIDDLEWARE**. Vamos ver agora na pratica, como fazer, a partir de uma serie de exercicios para que possamos entender os principais conceitos do **express**, e quando for para a aplicação que fique bem tranquilo o seu uso pois esse conceito ja foi visto tanto na teoria, como visto na pratica, a implementação desses padrões.
+
+    1 - A primeira coisa que iremos fazer eh criar uma pasta para esses exercicios chamada [/FundamentosMEAN].
+    -> Dentro desta pasta iremos criar outra chamada [/express].
+    -> Feito isso, vamos rodar o comando [ npm ini], pois precisaremos instalar o EXPRESS para conseguir usar ele.
+    -> Vamos primeiro criar o PACKAGE.JSON e depois vamos instalar o EXPRESS.
+~~~
+npm init
+~~~
+
+    2 - Vamos mudar o nome do projeto para [exercicios_express], o resto das perguntas ficara como padrão, mas no author podemos colocar nosso nome.
+~~~json
+{
+  "name": "exercicios_express",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Angelina Pierre",
+  "license": "ISC"
+}
+~~~
+
+    3 - Apos criado o package.json, vamos instalar o EXPRESS.
+    -> No comando abaixo estamos informando (i - install) e o (--save) é para ele salvar a referencia do express dentro do package.json que acabamos de criar.
+~~~
+npm i --save express
+~~~
+
+    4 - Agora vamos abrir o atom nessa pasta do /express, ele será o editor que iremos utilizar para executar os nossos exemplos.
+~~~
+atom .
+~~~
+
+    5 - Com o atom aberto, vamos criar uma novo arquivo chamado [/express/ex01.js].
+    -> A primeira coisa que iremos fazer dentro do nosso arquivo, é criar uma constante chamada [express] para declararmos o mesmo. Ja vimos como faz isso no node, como importar uma biblioteca que ja instalamos, é simplesmente colocar o nome da biblioteca/modulo e referencia ela a partir de uma variavel/constante.
+~~~javascript
+[/express/ex01.js]
+
+const express = require('express')
+~~~
+
+    6 - Depois iremos criar uma constante chamada [server] onde iremos armazenar uma INSTANCIA do express().
+    -> Algumas pessoas chamam essa constante de app, mas vamos chama-la de server.
+~~~javascript
+[/express/ex01.js]
+
+const express = require('express')
+const server = express()
+~~~
+
+    7 - Feito isso, vamos mapear para a URL RAIZ da aplicação, pro metodo get() uma funcionalidade, vamos associar uma função/middleware na raiz da aplicação, a partir do metedo get().
+    -> Vamos mapear essa rota, apontar para um middleware, e dentro desse middleware vamos fazer algum processamento.
+    -> Vamos pegar [server.get()], entre aspas como primeiro parametro do get() vamos colocar o [/], para representar a raiz da aplicação. Pegar o [server] que representar uma instancia do express, o metodo get() é um verbo do HTTP. O primeiro parametro do get() é a URL que queremos mapear, o segundo é justamente uma função MIDDLEWARE.
+    -> Entao vamos declarar uma função [function()] que nesse exemplo irá receber dois parametros:
+        - Requisição(req)
+        - Resposta (res)
+    -> No corpo da função vamos mandar uma resposta bem simples para o browser colocando [res.send()] e dentro do sen() vamos colocar uma html. Obviamente esse send() era para mandar um HTML completo com body, head, html, com as tags completas.
+~~~javascript
+[/express/ex01.js]
+
+const express = require('express')
+const server = express()
+server.get('/', function(req,res){
+    res.send('<h1>Index!</h1>)
+})
+~~~
+
+    8 - Para finalizar o exemplo, vamos alocar uma porta, vamos dizer que esse servidor do EXPRESS irá "escutar" a porta 3000 e sempre que chegar uma requisição na 3000 ele ira mapear para todas as rotas que foram definidas para a aplicação.
+    -> Vamos user o [server.listen()] passando uma porta, no caso, 3000. E vamos chamar uma função CALLBACK(arrow function) so para imprimir no console, para dizer que deu tudo certo. Irá servir para termos um indicativo visual de que o servidor esta rodando.
+~~~javascript
+[/express/ex01.js]
+
+const express = require('express')
+const server = express()
+
+server.get('/',function(req,res) {
+  res.send('<h1>Index!</h1>')
+})
+
+server.listen(3000, () => console.log('BACKEND is running...'))
+~~~
+
+    9 - Vamos usar o comando [alt+r] para executar o [atom-runner], e vamos abrir o browser usando o comando [ctrl+alt+o].
+    -> Vamos colocar a URL LOCALHOST:3000 no browser que acabou de abrir para podermos visualizar o <h1> que criamos. Perceba que ele esta justamente mostrando o [index] que é o conteudo mapeado para a url [/], que eh a raiz da aplicação.
+
+    10 - Existe outras formas alem do get(), para fazer o mapeamento como por exemplo, o [server.all()], ou seja, queremos que qualquer verbo do HTTP, qualquer tipo de requisição que seja para a url [/test], independente do metodo, se é get(), se é push() ou delete(), ele chame a função que iremos criar.
+~~~javascript
+[/express/ex01.js]
+
+const express = require('express')
+const server = express()
+
+server.get('/',function(req,res) {
+  res.send('<h1>Index!</h1>')
+})
+
+server.all('/teste', function(req,res){
+    res.send('<h1>Teste!</h1>')
+})
+
+server.listen(3000, () => console.log('BACKEND is running...'))
+
+
+~~~
+
+    11 - Da mesma forma que mapeamo o get(), estamos mapeando o [/teste] para todos os metodos, então como nosso servidor esta executando apenas para o get() vamos ter que dar uma RESTART na aplicação para ele poder ler esse novo metodo, basta usar o comando [alt+r] que automaticamente ele restarta.
+    -> Entao se no browser colocarmos no final o /teste, ele irá nos mostrar o conteudo.
+~~~javascript
+[/express/ex01.js]
+
+const express = require('express')
+const server = express()
+
+server.get('/',function(req,res) {
+  res.send('<h1>Index!</h1>')
+})
+
+server.all('/teste', function(req,res) {
+  res.send('<h1>Teste!</h1>')
+})
+
+server.listen(3000, () => console.log('BACKEND is running...'))
+~~~
+
+Para fazer testes de POST, PUT, DELETE, outros metodos, usamos o POSTMAN, colocando o localhost:3000/teste.
+-> Se fizermos um POST para a raiz da aplicação [localhost:3000], ele não irá funcionar pois o POST não foi mapeada para a raiz da aplicação.
+
+    12 - Vamos colocar mais uma forma de mapear a url, existem outras, vamos so colocar mais uma para podermos entender o poder que temos para mapear nossas URLs dentro do EXPRESS.
+    -> Vamos usar o server.get() e no lugar de colocar uma string, vamos colocar uma experssão regular que diz que sempre que na URL tiver [api], ele irá chamar a função(req,res) que vai receber o requeste e o response, e que ira fazer o processamento de [resp.send()], dentro do send() vamos fazer da mesma forma que nos outros.
+    -> Se colocarmos a API com outras palavras na url, ele irá fazer o reqeust do mesmo jeito. se mudar para maiuscula ou minuscula nao irá chamar.
+~~~javascript
+[/express/ex01.js]
+
+const express = require('express')
+const server = express()
+
+server.get('/',function(req,res) {
+  res.send('<h1>Index!</h1>')
+})
+
+server.all('/teste', function(req,res) {
+  res.send('<h1>Teste!</h1>')
+})
+
+server.get(/api/, function(req,res){
+    res.send('<h1>API!</h1>')
+})
+
+server.listen(3000, () => console.log('BACKEND is running...'))
+~~~
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 304] - EXERCICIO 02: CADEIA DE MIDDLEWARES
+
+&nbsp;
