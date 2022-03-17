@@ -4385,13 +4385,68 @@ Para finalizarmos vamos entrar dentro do **FIRESTORE**, e vamos excluir o projet
 
 
 
+# ==== [Seção 7 - TODO APP (backend) ] ====
 
 
 
 
+&nbsp;
+
+---
+
+---
+
+## [Aula 120] - VISÃO GERAL
+
+&nbsp;
+
+Vamos construir outra aplicação, é uma aplicação simples que iremos preparar para no final edsenvolvermos uma aplicação um pouco mais complexa.
+
+Um dos aspectos interessantes desse aplicaão, é que a primeira versão que iremos desenvolver será utilizando apenas o **REACT**. Não vamos usar o **redux**, nem nada relacionado ao controle de estado que o redux prove.
 
 
 
+É uma aplicação bem simples, de cadastro de tarefas, onde vamos colocar como exemplo , uma tarefa,*estudar react/redux*, podemos adicionar a partir do botão de (+) ou usando o enter. Vamos cadastrar algumas atividades , para que possamos depois ver  botão de pesquisar (lupa).
+
+Nas atividades cadastradas, podemos marcar uma atividade como concluida, uma vez feito isso, visualmente, ele mostra a tarefa com uma linha sobescrita, jutamente com mais dois botoões, um para restaurar a ativade e outra para a exclusão da mesma.
+
+Outra coisa que podemos fazer é uma consulta, onde digitamos por exemplo (do) e apertamos shift+enter. Assim ele irá consultar todas as atividades que possuem o (do) na sua descrição. Na lista que pesquisamos, se fizermos alguma ação, como por exemplo, excluir um item, ele ainda irá manter o filtro. Para limparmos o mesmo, usam o botão de (x), e ele tras todas as outras atividades.
+
+
+Outra coisa importante é que iremos criar duas telas [tarefa & sobre], elas foram criadas para podermos fazer a navegação, trazer para dentro da aplicação a questão da navegação que é um assunto muito improtante, e precisamo fixar melhor. Quando clicamos no simbolo da aplicação (TodoApp) ele volta para a tela do **todo list**, e qualquer outra **URL** que digitarmos no browser e apertar enter, será direcionado para essa **todo list** que é a tela principal do sistema.
+
+O que temos como extra, vamos ter o **MONGODB** inicializado para rodar a aplicação. Vamos ter tambem o **BACKEND - node**, o backend foi colocado usando o PM2, que é uma ferramenta mais quando estamos trabalhando em produção. Vamos construir o beckend, no final do curso, temos umas aulas extras que possuem exercicios relacionados ao backend. Falando um pouquinho sobre o **EXPRESS**, **MONGODB**, **NODERESTFUL**.
+
+Fazer uma aplicação **FULL-SCTACK** em javascript é um conhecimento extremamente importante. Assim construimos a aplicação de ponta-a-ponta , desde o beck-end ate o front-end usando o **REACT/REDUX** .
+
+Nesas aplicação não iremos utilizar o *redux form*, vamos construi-la em **REACT** e depois fazer a migração para a utilização do **REDUX**. Assim iremos construir um conhecimento gradativo, pegando primeiro o **REACT** e depis o **REDUX**. Para assim quando formos para aplicações mais complexas termos uma certa facilidade no seu desenvolvimento.
+
+A visão geraldo do projeto é a seguinte.
+- Temos uma pasta chamada **/public**, que possui apenas o **index.html**, que seria nossa SPA - Single Page Aplication.
+  - Unica pagina onde temos a aplicação inteira, possui referencia para um arquivo css (App.css) e um arquivo javascript.
+- Vamos fazer o build do nosso sistema com o **web-pack**.
+- No **packge.json** podemos ver, que temos dependencias apenas para o react.
+- Temos nossa pasta do codigo fonte que seria a **/src**, onde temos o **index.jsx** para inicializar nossa aplicação.
+- Temos uma pasta chamada **/todo** que é exatamente a **todo list**, que será separada em **todoForm.jsx & todoList.jsx**. Form, input de pesquisa com os 3 botçoes, e a todolist sendo a lista mostrada abaixo.
+  - Teremos outro arquivo chamado **todo.jsx** que irá controlar tudo.
+- Temos uma pasta chamada **/templates**, onde temos alguns arquivos como **custom.css | grid.jsx | iconButton.jsx | if.jsx | menu.jsx | pageHeader.jsx**, coisas que tem haver co**template**
+- Na pasta **/main**, teremos um arquivo com a defenição da nossa aplicação **app.js**, possuindo os componentes [Menu] e [Routes]. 
+  - [Routes] -> são as rotas que ficaram navegando entre as duas paginas [tarefas e sobre], quem irá controlar isso será a **API** de rotas que é o **REACT Route**.
+- Temos tambem uma pasta chamada **/about** , com um arquivo jsx de mesmo nome so para termos um conteudo a mostrar para a parte da navegação.
+
+É importante ter uma visão geral sobre o que iremos construir para que não fique tão vago durante o processo.
+
+
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 121] - 
+
+&nbsp;
 
 
 
