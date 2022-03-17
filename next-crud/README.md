@@ -4444,9 +4444,186 @@ A visão geraldo do projeto é a seguinte.
 
 ---
 
-## [Aula 121] - 
+## [Aula 121] - CONFIGURAÇÃO E INSTALAÇÃO
 
 &nbsp;
+
+Agora iremos começar nosso projeto do **TODO APP** com o **BACKEND** da nossa aplicação. Como esse é um curso voltado para **REACT**, eventualmente voce pode querer o backend pronto e simplesmente ir para a parte do **FRONTEND**.
+
+Para isso, dentro do [repositorio](https://github.com/cod3rcursos/curso-react-redux) do curso, temos todos os exercicios feitos ate agora, inclusive, os projetos antigos incluindo as novas versões do **REACT**.
+
+    1 - Para começar, vamos criar uma nova pasta para o nosso projeto chamada todo-app.
+~~~
+mkdir todo-app && cd todo-app
+~~~
+
+    2 - Dentro da pasta /todo-app vamos criar dois projetos:
+    -> Um projeto BACKEND (esta aula), e outro projeto FRONTEND (proxima aula).
+~~~
+mkdir backend && cd backend
+
+~~~
+
+    3 - Apos criada a pasta do /beckend vamos criar o nosso arquivo PACKAGE.JSON.
+    -> Um arquivo que terá nossas dependencias cadastradas, alguns scripts que iremos executar para startar a aplicação.
+    -> npm init, ja criaria o arquivo, o -y, serve para ele responder todas as perguntas de forma padrão.
+~~~
+npm init -y 
+
+[saida]
+
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
+~~~
+
+Uma vez criado o package.json, vamos agora declarar as nossas depedencias, temos duas formas: 
+
+    - Ou colocamos as dependencias diretamente no terminal.
+    - Ou podemos abrir o arquivo package.json, e simplesmente copiar o que temos no repositorio. E depois executa o comando NPM I
+Vamos instalar pelo terminal para aprendermos os comandos e explicarmos qual a funcionalidade de cada uma das dependencias.
+
+    4 - Vamos usar o comando [ --save ], pois as dependecias no modulo da aplicação backend, serão necessarias tanto no ambiente de desenvolvimento, quanto no ambiente de produção.
+    -> Diferente do FRONTEND, quando formos trabalhar com a aplicação REACT, as dependecias serão necessarias apenas no momento em que estivermos desenvolvendo. Pois o build será responsavel por gerar dois arquivos, uma arquivo de CSS e um de javascript ou html, e esses arquivos irão conter a aplicação sem ter a necessidade de, por exemplo, ter o node instalado, sem ter necessidade de ter a pasta /node_modules configurada dentro do servidor.
+    -> Simplesmente esses arquivos gerados podem ser copiados para qualquer servidor web, APACHE, ENGINE NEXT?, NODE.
+    -> Ja o BACKEND, ele é totalmente dependente do NODE, e ele espera que tenha a pasta /node_modules com todas as dependencias instaladas.
+    -> Nesse caso vamos usar o comando npm, que é o gerenciador de pacotes do nodo.
+    -> Vamos tambem usar uma FLAG(-E), para instalar a versão EXATA, para termos o maior nivel de compatibilidade possivel.
+    -> O primeiro pacote que iremos instalar eh o BODY-PARSER na versão 1.15.2. Ele é responsavel por fazer o "parse" do "body" da requisição. Quando a requisição chega, ela chega no formato de string, por exemplo os parametros da requisição e as vezes, dentro dos parametros da requisição, vem um objeto no formato JSON. Ele será responsavel por ler esses parametros e converter por exemplo para um objeto em JAVASCRIPT, para que a gente possa acessar esses dados nao como string, mas como objeto do javascript. Alem do JSON, o BODY-PARSE será importante para fazer "parse" quando vinher os dados de um formulario.
+    -> A proxima dependencia será o EXPRESS V4.14.0, que é o FRAMEWORK WEB que iremos trabalhar no nosso backend.
+    -> Vamos tambem instalar o MONGOOSE V4.7.0 que é a BIBLIOTECA que será responsavel por acessar o banco de dados. Tem tanto a parte de conexão com o banco de dados como tambem possui um framework que faz o mapeamento entre os objetos javascript em documentos do mongo. Entao vamos criar uma esquema, e esse esquema fará o mapeamento entre os objetos do javascript e os documentos que serão persistidos no mongo, alem de ter validações e outras coisas mais.
+    -> Para que nossa API possa sair de uma forma mais simples e otimizada, ja que é um curso voltado para o frontend-react, vamos usar o NODE-RESTFULL V0.2.5, onde vamos observar como ele irá simplificar a construção da nossa API. Logo, de uma forma muito simples iremos disponibilizar uma API que faz todo o cadastro, inserção, alteração, inclusão, consultas, filtros e coisas do tipo, ja vem tudo implementado no NODE-RESTFULL. (olhar repositorio do node-restfull).
+    -> Vamos tambem fazer a instalaçao do PM2 V2.1.5, que é um LAUCHER, responsavel por iniciar nossa aplicação. Eventualmente quando formos iniciar uma aplicação em node, basta voce chamar o comando "node" e o primeiro arquivo da sua aplicação que ela será inicializada, so que isso torna a aplicação muito fragil, pois com qualquer erro, o node sai, e sua aplicação para de funcionar. O pm2, é um "disparador" que irá inicializar nossa aplicação na PRODUÇÃO, fazendo com que ele monitore a memoria, o consumo de processador, ver quantos processos estão sendo executados dentro do pm2, se acontecer um erro, ele se responsabiliza por startar a aplicação novamente e deixar ela no ar. Na parte de desenvolvimento, vamos instalar o node mon?, que é uma parte mais simples.
+~~~
+npm i --save -E body-parser@1.15.2 express@4.14.0 mongoose@4.7.0 node-restfull@0.2.5 pm2@2.1.5
+~~~
+
+
+    5 - Agora que a primeira parte das configurações foi concluida, vamos rodar agora o comando [npm i --save-dev -E], para instalarmos dependencias necessarias apenas quando estivermos no modo de desenvolvimento.
+    -> Vamos instalar o [ NODEMON V1.11.0] , essa é a unica dependencia de desenvolvimento que iremos precisar, todas as outras serão necessarias tambem na produção.
+~~~
+npm i --save-dev nodemon@1.11.0
+~~~
+
+    6 - Vamos agora abrir a pasta do backend na nossa IDE, para começarmos a desenvolver o codigo.
+    -> Vamos abrir o PACKAGE.JSON gerado e vamos fazer algumas mudanças.
+    -> Perceba que as dependencias foram instaladas de forma fixa, pois usamos a flag -E, e temos 5 dependencias que serão necessarias em desenvolvimento e em produção e nodemon, necessaria apenas quando tivermos no ambiente de desenvolvimento.
+~~~
+[/backend/package.json - ESTRUTURA INICIAL]
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "1.15.2",
+    "express": "4.14.0",
+    "mongoose": "4.7.0",
+    "node-restful": "0.2.5",
+    "pm2": "2.1.5"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
+  }
+}
+~~~
+
+    7 - A primeira coisa que iremos mudar será o arquivo inicial ["main":"index.js"], vamos muda-lo para "src/loader.js" (vamos criar esse arquivo).
+    -> Vamos tambem mudar os "scripts", retirando o "test" e criando outros dois: "dev" chamando o nodemon, "production" chamando o pm2 para startar usando o src/loader.js, e dentro do pm2, vamos chamar a aplicação de todo-app.
+> Note que a forma que temos para inicializar a aplicação são duas:
+>  - Usando npm run dev -> chamando assim o nodemon, que tambem é um launcher.
+>  - E temos um outro laucher mais apropriado para a produção que é o pm2.
+
+~~~json
+[/backend/package.json]
+
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/loader.js",
+  "scripts": {
+    "dev": "nodemon",
+    "production":"pm2 start src/loader.js --name todo-app"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "1.15.2",
+    "express": "4.14.0",
+    "mongoose": "4.7.0",
+    "node-restful": "0.2.5",
+    "pm2": "2.1.5"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
+  }
+}
+
+~~~
+
+    8 - Vamos criar dentro do BACKEND, um outro arquivo chamado .gitignore.
+    -> Esse arquivo servirá para configurarmos o que não queremos que seja persistido no repositorio, caso eventualmente voce queira salvar os codigos dentro do github.
+    -> Não vamos querer enviar a pasta /node_modules e nem arquivos com a extensão [.log].
+~~~.gitignore
+[/backend/.gitignore]
+node_modules
+*.log
+~~~
+
+    9 - Se voce quiser instalar novamente a pasta /node_modules, como ja temos o nosso package.json, ja configurado, dizendo exatamente as dependencias que precisamos em desenvolvimento e em produção, temos os scripts prontos, e para restaurar essas pasta é simples.
+~~~
+npm i
+~~~
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
