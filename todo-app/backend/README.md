@@ -310,7 +310,7 @@ server.use(bodyParser.urlencoded({
 server.use(bodyParse.json())
 ~~~
 
-> Ver aulas sobre express apos o termino dessa aula [express](https://www.udemy.com/course/react-redux-pt/learn/lecture/6513140#content).
+> Ver aulas sobre express apos o termino dessa aula [express](https://www.udemy.com/course/react-redux-pt/learn/lecture/6513140#content) -> [Resumo express](../../../../FundamentosMEAN/express/README.md).
 
     8 - Vamos registrar a porta que declaramos na constante PORT. Criando uma função, caso ocorra tudo bem, tenha conseguido registrar na porta, irá aparecer uma mensagem no console que o backend esta executando na porta declarada.
 ~~~javascript
@@ -371,3 +371,4 @@ server.listen(port, function() {
 ## [Aula 123] - CONEXÃO COM O BANCO DE DADOS.
 
 &nbsp;
+

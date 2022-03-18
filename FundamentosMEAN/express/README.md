@@ -786,7 +786,7 @@ No exemplo do backend vamos usar um router() que irá mapear todos os metodos da
 
 Vimos tambem nesse exemplo a possibilidade de passar um parametro para nossas rotas usando o (:id). Poderiamos tambem passar outros parametros como o [/clientes/:id/:name], passando o nome e o id na url.
 
-~~~~javascript
+~~~javascript
 [/express/ex05_routes.js]
 router.get('/clientes/:id/:name', (req, res) => {
     res.json({
@@ -809,3 +809,88 @@ A unica cosia q foi feita diferente foi chamar as **ARROW FUNCTION** dentro do a
 ## [Aula 308] - EXERCICIO 06: EXPRESS E ROUTER SÃO SINGLETONS?
 
 &nbsp;
+
+Agora para esse exercicios vamos apenas relembrar um conceito que nos acabamos vendo na parte do node que seria o conceito de **SINGLETON**, quando voce faz uma **referencia** para o modulo do **express** por exemplo, que voce da no require, voce irá sempre receber uma mesma referencia daquele modulo.
+
+Isso não irá acontecer quando voce usa uma ** instancia do express || router**, queremos mostrar nesse exemplo que ali não esta sendo retornado um **SINGLETON** mas sim, simplesmente uma **instancia** tanto do **router()** como do **express**.
+
+    1 - Vamos criar uma novo arquivo chamado [/express/ex06.js], onde vamos inicialmente criar uma referencia para o EXPRESS [express1], depois iremos fazer outra referencia para o express chamada de [express2] e depois iremos com o console.log() fazer uma comparação entre o essas instancias criadas, verem se tratam da mesma instancia.
+    -> Para executar basta [alt+r]. O valor retornado TRUE nos diz que se trata da mesma INSTANCIA.
+~~~javascript
+[/express/ex06.js]
+
+const express1 = require('express')
+const express2 = require('express')
+// comparação em todos os senidos.
+console.log(express1 === express2)
+
+~~~
+
+    2 - Continuando o exemplo, vamos criar o SERVER1 e colocar uma INSTANCIA do express (1 ou 2), dentro deste server, no caso, EXPRESS1. Vamos fazer o mesmo procedimento para o SERVER2.
+    -> Não vamos usar o EXPRESS2, somente o EXPRESS1 para que a gente possa realmente retificar que se ele esta retornando a mesma instancia do express ou nao. Chamamos EXPRESS1 duas vezes, e armazenamos em duas constante SERVER1 E SERVER2 e vamos comparalos.
+~~~javascript
+[/express/ex06.js]
+
+const express1 = require('express')
+const express2 = require('express')
+// comparação em todos os senidos.
+console.log(express1 === express2)
+// colocando as instancias do express1 dentro de dois servers
+const server1 = express1()
+const server2 = express1()
+console.log(server1 === server2)
+
+~~~
+
+Agora o resultadoque dará será o de **FALSE**, mostrando que são duas instancias diferentes, quando criamos uma instancia do **express**, *const server1 = express1()*, **ele sempre irá retornar uma INSTANCIA NOVA e não usar a mesma**. O que é diferente quando usamos o **require()**, aqui ele sempre irá retornar uma instancia diferente.
+
+Para concluir a investigação, vamos fazer a mesma coisa com o **Router()**.
+
+    1 - Vamos criar o [router1], chamando o [express1.Router()], fazer o mesmo para [router2], chamando o mesmo que [router1].
+    -> Depois faz a comparação. Percebendo que não são iguais.
+~~~javascript
+[/express/ex06.js]
+
+const express1 = require('express')
+const express2 = require('express')
+// comparação em todos os sentidos.
+console.log(express1 === express2)
+// colocando as instancias do express1 dentro de dois servers
+const server1 = express1()
+const server2 = express1()
+console.log(server1 === server2)
+
+//comparação do Router
+const router1 = express1.Router()
+const router2 = express1.Router()
+console.log(router1 === router2)
+~~~
+
+Quando trabalhamos com o **required()** do node, em cima de um modulo do node, ele sempre irá retornar para voce uma unica instancia. Esse é um padrão que ja vimos no node e temos que ter ciencia disso. So que quando criamos uma **instancia do express**, no caso 2, estamos trabalhando com *instancias diferentes*.
+
+Da mesma forma quando criamos uma instancia do **Router()**, estaremos trabalhando com *instancias diferentes*. Então se quisermos criar *instancias* do **Router()** em um determinado modulo da sua aplicação e queremos re-usar essa *instancia* em outro modulo, temos que passar ela de alguma forma de um modulo para o outro, ou exportando o *Router() -> EX05*, ou passando ele o **Router()** como *PARAMETRO* para outro modulo.
+
+O fato é, se dermos um **require()** no *express*, teremos o mesmo *express*, então não podemos **cair na armadilha**, que embora a gente vá exportar o *express* ele retorne o mesmo - a mesma referencia do modulo,quando criamos uma **instancia -> ROUTER || EXPRESS**, é uma instancia nova e diferente. 
+
+Então se criarmos o *Router()* em um determinado modulo e quiser *re-usar* esse **ROUTER1 || 2** em outro lugar, terá que passar ele de alguma forma de um modulo para o outro.
+
+~~~javascript
+[/express/ex06.js - ESTRUTURA FINAL]
+
+// chamada do modulo?
+const express1 = require('express')
+const express2 = require('express')
+
+//comparação em todos os sentidos
+console.log(express1 === express2) // true
+
+// instancias
+const server1 = express1()
+const server2 = express1()
+console.log(server1 === server2) // false
+
+const router1 = express1.Router()
+const router2 = express1.Router()
+console.log(router1 === router2) // false
+
+~~~
