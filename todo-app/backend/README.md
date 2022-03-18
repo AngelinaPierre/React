@@ -260,7 +260,7 @@ const bodyParser = require('body-parser')
 const express = require('express)
 ~~~
 
-    6 - Vamos criar outra constante, para startar o express(). Vamos criar uma instancia do express associando a variavel/const "server".
+    6 - Vamos criar outra constante, para startar(criar uma instancia) o express(). Vamos criar uma instancia do express associando a variavel/const "server".
 ~~~javascript
 [/src/config/server.js]
 
@@ -287,9 +287,9 @@ server.use(bodyParser.urlencoded({
 
 > Questão importante sobre os MIDDLEWARES, o express ele é muito fortemente baseado em um padrão chamado CHAIN OF RESPONSIBILITY, que é tambem conhecido como middleware, é como se voce tivesse uma cadeia de middlewares, uma cadeia de funções que vão estar trabalhando com a requisição.
 >
-> Quando estamos falando, servidor use [serve.use()], o BODYPARSER da maneira que colocamos acima, ele irá usar para todas as requisições que chegarem no servidor, independente da URL, irá passar por esse middleware.
+> Quando estamos falando, servidor use [serve.use()], o BODYPARSER da maneira que colocamos acima, ele irá usar para todas as requisições que chegarem no servidor, independente da URL[metodo use()], irá passar por esse middleware.
 > >
-> Quando declararmosum outro middleware, por exemplo, fazer o BODYPARSE de .json(). Este será um outro middleware que será aplicado para todas as requisições que chegarem no servidor.
+> Quando declararmos um outro middleware, por exemplo, fazer o BODYPARSE de .json(). Este será um outro middleware que será aplicado para todas as requisições que chegarem no servidor[metodo use()].
 > ~~~javascript
 > server.use(bodyParse.urlencoded({extended: true}))
 > server.use(bodyParse.json())
@@ -310,7 +310,7 @@ server.use(bodyParser.urlencoded({
 server.use(bodyParse.json())
 ~~~
 
-> Ver aulas sobre express apos o termino dessa aula [express](https://www.udemy.com/course/react-redux-pt/learn/lecture/6513140#content) -> [Resumo express](../../../../FundamentosMEAN/express/README.md).
+> Ver aulas sobre express apos o termino dessa aula [express](https://www.udemy.com/course/react-redux-pt/learn/lecture/6513140#content) -> [Resumo express]().
 
     8 - Vamos registrar a porta que declaramos na constante PORT. Criando uma função, caso ocorra tudo bem, tenha conseguido registrar na porta, irá aparecer uma mensagem no console que o backend esta executando na porta declarada.
 ~~~javascript
@@ -326,8 +326,10 @@ server.use(bodyParser.urlencoded({
 }))
 server.use(bodyParse.json())
 server.listen(port, function() {
-    console.log(`BECKEND is running on | PORT: ${port} |.)
+    console.log(`BECKEND is running on | PORT: ${port} |.`)
 })
+ou
+server.listen(port, () => console.log(`BECKEND is running on | PORT: ${port} |.`))
 ~~~
 
 Agora se quisermos ir no console, e dentro da pasta /backend rodar o comando **npm run dev**. 
@@ -361,7 +363,6 @@ server.listen(port, function() {
 
 
 
-
 &nbsp;
 
 ---
@@ -372,3 +373,92 @@ server.listen(port, function() {
 
 &nbsp;
 
+Agora que configuramos o basico do servidor (express), e ele esta executando, vamos criar agora um arquivo de condifuração chamadado **/config/database.js**, onde nos iremos fazer a configuração com o **MONGO**.
+
+    1 - Vamos começar fazendo o import/require() do mongoose. Ele irá servir tanto para fazer o MAPEAMENTO dos nossos OBJETOS em JS, para os documentos que irão para o MONGO, como ele tambem serve para fazer a questão da conexão, abrir uma conexão com o mongo e ir mandando os comandos de [inserção | atualização |exlclusao | agregação], para la.
+    -> O MONGOOSE tem uma API, que reflete a API do MONGO, e assim temos uma facildiade muito grande para utilizar.
+~~~javascript
+[/src/config/database.js]
+
+const mongoose = require('mongoose')
+~~~
+
+    2 - Vamos colocar uma SUBSTITUIÇÃO, dizendo que o MONGOOSE irá usar a API de PROMISSES, do proprio NODE.
+    -> Pois aparece uma mensagem de advertencia informando que a API do MONGOOSE esta DEPRECATED.
+~~~javascript
+[/src/config/database.js]
+
+const mongoose = require('mongoose')
+mongoose.Promise = global.Promise // retirar msg de advertencia
+~~~
+
+    3 - Vamos fazer o export do mongoose, usando o MODULE.EXPORTS, passando para ele o mongoose juntamente com um middleware chamado [.connect()], onde iremos passar para ele [mongodb://localhost/todo], o nosso banco será o TODO.
+~~~javascript
+[/backend/config/database.js]
+
+const mongoose = require('mongoose')
+mongoose.Promise = global.Promise // retirar msg de advertencia
+module.exports = mongoose.connect('mongodb://localhost/todo')
+~~~
+
+    4 - Para finalizar a aula, vamos entrar no nosso arquivo [/src/loader.js] e vamos colocar a referencia para o arquivo [/src/config/database] que criamos usando o REQUIRE.
+> Estamos sempre usando o *Relative Path*, para sair de uma pasta para outra **../**, e assim vamos navegando de forma relativa entre os modulos.
+
+~~~javascript
+[/src/loader.js]
+require('./config/server')
+require('./config/database')
+~~~
+
+    5 - Apos salvar, será gerado um erro no console que iremos precisar tratar. Não estamos ainda com o mongo startado, para isso no terminal colocamos o comando:
+~~~
+mongod
+~~~
+
+    6 - Apos startar o banco de dados, voltamos no NODEMON e digitamos um [rs] para REINICIALIZAR O SERVIDOR.
+~~~
+rs
+~~~
+
+A instalação do **MONGODB** é muito simples, a unica coisa que precisamos ficar atentos é que temos que criar uma pasta na *RAIZ DO SISTEMA OPERACIONAL*, CHAMADA **/data** e dentro desta pasta temos que criar uma pasta chamada **/data/db**. Ai o mongo precisa ter permissão de escrita nesta pasta.
+
+A partir do momento que colocamos o banco de dados para ser carregado a partir do [/src/loader.js]   e criamos uma conexão o mongo precisa estar startado.  Sempre que formos usar essa aplicação precisamos startar o mongoDB, se nao a aplicação não irá funcionar.
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 124] - AVISOS NO TERMINAL SOBRE MONGODB
+
+&nbsp;
+
+Fala, pessoal!
+
+Nessa seção, alguns alunos tem reportado algumas mensagens no terminal, referentes a conexão com MongoDb, ao rodar a aplicação.
+aso você esteja passando pela mesma coisa, pode ficar tranquilo. Trata-se apenas de uma mensagem de aviso, ou como chamamos um Warning, informando que algumas propriedades usadas na conexão com o banco serão descontinuadas no futuro.
+
+Solução
+A mensagem apenas recomenda atualizar passando novos parâmetros para a conexão. Sendo assim, basta passar os seguintes parâmetros juntamente do comando de conexão com o Mongo:
+~~~javascript
+MongoClient.connect("mongodb://localhost:27017/todo", {
+   useNewUrlParser: true,
+   useUnifiedTopology: true
+ });
+ ~~~
+Com isso, os Warnings devem sumir! 😃
+
+Esperamos que essa aula artigo tenha te ajudado! Caso tenha mais dúvidas, não hesite, entra em contato conosco na seção de perguntas e respostas 😉
+
+Bons estudos!
+
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 125] - ODM E CRIAÇÃO DA API REST
+&nbsp;
