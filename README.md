@@ -247,3 +247,183 @@ server.listen(3000, () => console.log('BACKEND is running...'))
 ## [Aula 304] - EXERCICIO 02: CADEIA DE MIDDLEWARES
 
 &nbsp;
+
+
+Agora vamos fazer um teste, para que a gente possa perceber de uma forma muito clara, justamente essa questão de **chain of responsability**, que é voce ter uma cadeia de middlewares para atender a uma determinada requisição.
+
+    1 - Vamos duplicar o exercicio 1 e mudar o nome para 2. Vamos deletar as funções e deixar somente as constantes e o final para escutar a porta 3000.
+~~~javascript
+[/express/ex02.js]
+
+const express = require('express')
+const server = express()
+
+
+server.listen(3000, () => console.log('BACKEND is running...'))
+
+~~~
+
+    2 - Para começar nosso exercicio vamos utillizar o server.get(), mapeando para a URL padrão/raiz [/], e dentro da url barra, vamos chamar uma função que terá 3 parametros, que é exatamente a função middleware completa [req,res,next].
+> OBS no ex01, chamamos uma funçao que so recebia (request e response), no javascript, podemos suprimir alguns parametros de uma função, mesmo que ela receba por padrão um determinado conjunto de parametros, não somos obrigados a passar todos os parametros, mas de qualquer forma se vc for suprimir os parametros perecisam ser os ultimos.
+
+~~~javascript
+[/express/ex02.js]
+
+const express = require('express')
+const server = express()
+
+server.get('/', function(req,res){
+    console.log('Inicio..')
+    next()
+    console.log('Fim...')
+})
+
+server.listen(3000, () => console.log('BACKEND is running...'))
+
+~~~
+
+    3 - Vamos mapear usando o server.get() para a mesma url [/], e vamos colocar que a função vai receber uma requisição e uma resposta. Dentro da função vamos chamar o console.log(), e depis vamos enviar um codigo html usando res.send().
+~~~javascript
+[/express/ex02.js]
+
+const express = require('express')
+const server = express()
+
+server.get('/', function(req,res){
+    console.log('Inicio..')
+    next()
+    console.log('Fim...')
+})
+
+server.get('/', function(req,res){
+    console.log('Resposta...')
+    res.send('<h1> Olá Express </h1>')
+})
+
+server.listen(3000, () => console.log('BACKEND is running...'))
+
+~~~
+
+Perceba que no console foi impresso o que colocamos no console.log(). O que temos é uma cadeia de responsabilidade, ou uma cadeia de MIDDLEWARE, temos na verdade dois mapeamentos para a mesma URl [/ = raiz]. Quando a requisição chega, ira chegar primeiro para o middleware1, que foi a primeira função a ser associada a essa url.
+
+~~~javascript
+server.get('/', function(req,res,next){
+  console.log('Inicio...')
+  next()
+  console.log('Fim...')
+})
+~~~
+
+Quando entro do corpo da função chamamos o next(), estamos utilizando o conceit da **chain of responsability**. Quando invocamos essa função, estamos dizendo que nesse ponto, desse middleware, queremos que voce continue invocando a cadeia, passe para o proximo middleware da cadeia, e quanto terminar a execução de todos os middlwares, ele irá voltar para a proxima linha, no caso, console.log().
+
+Normalmente se coloca a função next(), no final, mas podemos colocar em qualquer lugar. Veja que primeiro foi impresso o INICIO, depois a RESPOSTA, ja que chamamos o next(), ele chamou o proximo middleware, e ao finalizar, voltou para terminar o middleware que colocamos o next().
+
+~~~javascript
+[/express/ex02.js]
+const express = require('express')
+const server = express()
+
+// midlware 1 - mapeamento raiz
+server.get('/', function(req,res,next){
+  console.log('Inicio...')
+  next()
+  console.log('Fim...')
+})
+// midlware 2 - mapeamento raiz
+server.get('/', function(req,res){
+  console.log('Resposta...')
+  res.send('<h1> Olá Express!</h1>')
+})
+
+server.listen(3000, () => console.log('BACKEND is running...'))
+~~~
+
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 305] - EXERCICIO 03: MÉTODO USE
+
+&nbsp;
+
+Agora iremos ver uma outra forma de mapearmos a URL, e uma outra forma de se criar cadeias de responsabilidade usando o **express**. Vamos duplicar o exercicio 2 para fazer o 3.
+
+~~~javascript
+[/express/ex03.js - ESTRUTURA INICIAL]
+
+const express = require('express')
+const server = express()
+
+// midlware 1 - mapeamento raiz
+server.get('/', function(req,res,next){
+  console.log('Inicio...')
+  next()
+  console.log('Fim...')
+})
+// midlware 2 - mapeamento raiz
+server.get('/', function(req,res){
+  console.log('Resposta...')
+  res.send('<h1> Olá Express!</h1>')
+})
+
+server.listen(3000, () => console.log('BACKEND is running...'))
+
+~~~
+
+    1 - Vamos substituir os metedodos [get()] pelo metodo [use()]. No lugar da URL raiz, vamos colocar o [/api].
+    -> Para finalizar vamos substituir o [Ola express], por [api].
+~~~javascript
+[/express/ex03.js]
+const express = require('express')
+const server = express()
+
+// midlware 1 - mapeamento raiz
+server.use('/api', function(req,res,next){
+  console.log('Inicio...')
+  next()
+  console.log('Fim...')
+})
+// midlware 2 - mapeamento raiz
+server.use('/api', function(req,res){
+  console.log('Resposta...')
+  res.send('<h1>API!</h1>')
+})
+
+server.listen(3000, () => console.log('BACKEND is running...'))
+~~~
+
+    2 - Dando [alt+r - reinicia a aplicação], se entrarmos em [lh3000/api], ele irá mostrar o <h1> que criamos.
+
+A diferença dentre e o **use()** e o **get()**, alem do fato de que se pegarmos a url **http://localhost:3000/api** e colocarmos ela no **POSTMAN**, fazendo um **post|get|put**, ele irá trazer a resposta para todos os metodos. OU seja, alem do fato de **MAPEARMOS A URL PARA TODOS OS METODOS HTTP**, podemos colocar **http://localhost:3000/api/blablabla** no browser que ainda assim ele irá funcionar.
+
+    3 - Se voltarmos o metodo [use()] para o [get()], e colocarmos no browser para acessar essa URL (http://localhost:3000/api/blablabla), ele nao irá conseguir acessar.
+> Cannot GET /api/blablaba
+
+Ele não consegue acessar pois, quando estamos utilizando o metodo **get()** estamos dizendo **EXATAMENTE** qual a url que queremos chamar. Quando usamos o **use()** ele recebe o parametro, por exemplo, **/api** como sendo o inicio da sua requisição, logo, nao podemos, por exemplo colocar **http://localhost:3000/aapi** que ele tambem nao irá conseguir acessar, pois precisa começar com **/api/alguma_coisa**. Outro exemplo que tambem não irá funcionar, **http://localhost:3000/teste/api**, não chama essa URL pois não começou com o **/api**.
+
+O **use()** tanto mapeia todos os metodos *http*, como tambem define o inicio da URL ** seu pre-fixo**. Sempre que a URL tiver o *pre-fixo* **/api ou /api/qualquer_coisa**, ele irá passar por esse **middleware**.
+
+Vamos utiliza-lo em varios cenários, como por exemplo, quando formos usar o **bodyParser**, vamos anexar um **middleware** que expoe a parte do **use()**. 
+
+O metodo **use()** tambem recebe como *primeiro parametro* uma **url** e como *segundo parametro* uma **função middleware** da mesma forma que o *get()*. Se voce quiser usar um determinado middleware para toda sua aplicaçao, independente do que seja, independete de qual URL queremos usar para tudo, podemos simplesmente suprimir a **url**, deixando somente a **função middleware**.
+
+Quando reiniciar, conseguimos ver que ele irá mostrar nosso [h1] da **api**, não importando a URL que colocarmos, ate mesmo na raiz da aplicação, ou seja, todo o nosso sistema, tudo que esta sendo requisitado para a nossa aplicação esta rodando na porta 3000, vai passar pelos dois middlewares que criamos, pois passamos o **server.use()** juntamente com a função middleware, colocando eles assim na cadeia de execução para atender qualquer requisição da sua aplicação.
+
+~~~javascript
+[/express/ex03.js - ESTRUTURA FINAL]
+
+~~~
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 306] - EXERCICIO 04:MÉTODO ROUTE
+
+&nbsp;
+
