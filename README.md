@@ -563,3 +563,249 @@ server.listen(3000, () => console.log('BACKEND is running...'))
 O **route()** é uma forma interessante que temos de mapiar varios metodos para uma mesma URL, não precisando repetir ela sempre que chamamos uma metodo novo. Achamaos o **route()** e a partir dela encadeamos uma chamada apos a outra, n caso, passamos uma função bem simples para retornar um texto, mas poderiamos fazer um tratamento mais adequado para esse tipo de mapeamento.
 
 
+&nbsp;
+
+---
+
+---
+
+## [Aula 307] - EXERCICIO 05: EXPRESS ROUTER
+
+&nbsp;
+
+Agora vamos ver duas cosias interessanets, uma é um metodo chamado **router()**, na aula passada falamos sobre o *route()*, a segunda coisa é que iremso ver como passar **parametros a partir da sua requisição**, muitas vezes queremos fazer uma requisição em **/clientes/1**, que seria o codigo do cliente para obter o codigo 1. Então iremos ver como podemos mapear uma URl que recebe um parametro e como podemos pegar esse parametro e fazer algo util com ele.
+
+Nesse exemplo, vamos criar dois arquivos, um para fazermos as declarações de nossas **ROTAS**, e outro para importar e pegar o resultado dessas rotas e anexar essas rotas dentro de uma URL.
+
+    1 - Vamos criar o primeiro arquivo chamado [/express/ex05_routes.js]
+    -> Dentro do arquivo vamos fazer o require do express e nesse arquivo vamos pegar o ROUTER. A criação da INSTANCIA DO EXPRESS (server) vamos criar em outro arquivo.
+    -> Vamos definir o router, colocar nossas rotas e utilizar ele no outro arquivo.
+    -> Criamos uma constante chamada (router) que irá receber o [express.router()].
+~~~javascript
+[/express/ex05_routes.js]
+
+const express = require('express')
+const router = express.Router()
+~~~
+
+    2 - Em cima das rotas vamos usar o metodo [use()], que irá receber uma requisição e uma resposta e o next, chamando uma arrow function, poderiamos tambem colocar uma função normal.
+    -> Sabemos que o [use()] irá mapear para qualquer VERBO do HTTP. (get,post,put,delete). Chamando esse middleware, uma função com parametros (sem nome).
+    -> Esse middleware será chamado sempre que nosso [router()] for acionado. Essa arrow function é um MIDDLEWARE GLOBAL dentro de [router()].
+    -> O [router()] é como se fosse uma miniaplicação, onde podemos mapear dentro dela do mesmo jeito que mapeamos direto no express. Quando chamamos o [express.router()] recebemos uma INSTANCIA de um router(), a partir dessa INSTANCIA conseguimos colocar varios serviços dentro, como por exemplo, [router.get()] e mapear uma determinada função para ele, podemos usar o [use()], assim vamos mapeando nossas rotas e colocando os middlewares, dentro deste router(), e no final, colocamos o router() dentro do EXPRESS a partir de uma determinada URL.
+    -> A API do router é muito semelhante a API do express, so que vamos criando como se fosse um agrupamento em cima do router() e podemos ter na nossa aplicação varias instancias de router(), um so para url baseada na api de cliente, outro para api de produto, criando assim varios router().
+~~~javascript
+[/express/ex05_routes.js]
+
+const express = require('express')
+const router = express.Router()
+
+router.use(
+    (req,res,next) => 
+)
+
+~~~
+
+    3 - Nesse middleware global vamos tentar criar um middleware que será chamado sempre para qualquer rota que esteja dentro desse router, e esse middlware vai tentar calcular o tempo da duração da requisição.
+    -> Vamos criar uma constante chamada [init] que pega a hora atual em milisegundos.
+    -> Depois de pegar essa hora inicial, vamos chamar o [next()], que irá invocar o resto dos middlewares da cadeia.
+    -> E depois da execução dos middlewares da cadeia, vamos jogar um console.log(), usando uma TEMPLATE STRING, onde vamos colocar o tempo de duração do processo.
+    -> Como estamos usando o [use()] ele irá executar esse middleware para todas as requisições e como não ha um ARRAY para nenhuma URL EXPECIFICA, para todas as chamadas dentro do router vai passar por esse middleware.
+~~~javascript
+[/express/ex05_routes.js]
+
+const express = require('express')
+const router = express.Router()
+
+router.use(
+    (req,res,next) => {
+        const init = Date.now()
+        next()
+        console.log(`Tempo = ${Date.now() - init} ms.`)
+    }
+)
+~~~
+
+    4 - Vamos criar um [router.get()] chamando o ['/produtos'], e vamos passar um parametro nessa url. Para isso colocamos ['/produtos/:id',] o dois pontos (:).
+    -> Colocando os [:id] o express irá reconhecer como algo variavel, no lugar de id terá algum codigo (numero ou texto), naõ importando, sabendo somente que é um valor variavel dentro da URL.
+    -> Seguindo o padrão vamos colocar uma função MIDDLEWARE para ser chamada a partir desta URL() passando como parametro (req,res). Lembrando que não precisa confundir muito o fato de estarmos usando uma função arrow aqui, é a mesma coisa que estamos fazendo antes nos outros metodos. Simplesmente chamamos o get para a url e chamamos a função/middleware.
+~~~javascript
+router.get('/produtosq:id', (req,res) =>{
+
+})
+~~~
+
+    5 - No corpo da função, vamos colocar o metodo [res.json()], alem de voce mandar o [res.send()] que ja usamos para mandar um conteudo HTML por exemplo, mandando o [res.json()], estamos informando que o que colocarmos dentro, o objeto que passarmos será convertido para json e enviado para o browser como um json.
+    -> Vamos criar um objeto que possui a propriedade {id:}, e queremos pegar justamente esse {id} que foi passado como parametro. 
+    -> Esse {id} que foi passado como parametro estará dentro da requisição, pois o parametro vem da requisição. Logo chamamos o objeto requisição (req), depois os parametros (params) e depois a ID, para ser o valor da propriedade que iremos converter para JSON.
+~~~javascript
+[/express/ex05_routes.js]
+const express = require('express')
+const router = express.Router()
+
+router.use(
+  (req,res,next) => {
+    const init = Date.now()
+    next()
+    console.log(`Tempo: ${Data.now() - init} ms.`)
+  }
+)
+router.get('/produtos/:id',(req,res) => {
+  res.json(
+    {
+      id: req.params.id,
+    }
+  )
+})
+
+~~~
+
+    6 - Continuando o OBJETO vamos colocar um valor fixo de produto, criando a propriedade {name:}
+~~~javascript
+[/express/ex05_routes.js]
+
+const express = require('express')
+const router = express.Router()
+
+router.use(
+  (req,res,next) => {
+    const init = Date.now()
+    next()
+    console.log(`Tempo: ${Data.now() - init} ms.`)
+  }
+)
+router.get('/produtos/:id',(req,res) => {
+  res.json(
+    {
+      id: req.params.id,
+      name: 'Caneta',
+    }
+  )
+})
+
+~~~
+
+    7 - Vamos agora fazer exatamente um outro serviço, exatamente igual o que acabamos de fazer, que irá servir para treinarmos um pouco mais a escrita e sedimentar mais o conhecimento.
+    -> Vamos criar uma nova rota usando [get()] para API de clientes, onde tambem iremos passar um ID como parametro, e vamos passar uma função middleware usando a anotação ARROW (mesma coisa de uma função). E vamos usar o json(), passando um objeto, agora com o nome do cliente sendo Angelina.
+~~~javascript
+[/express/ex05_routes.js]
+
+const express = require('express')
+const router = express.Router()
+
+router.use(
+  (req,res,next) => {
+    const init = Date.now()
+    next()
+    console.log(`Tempo: ${Data.now() - init} ms.`)
+  }
+)
+router.get('/produtos/:id',(req,res) => {
+  res.json(
+    {
+      id: req.params.id,
+      name: 'Caneta',
+    }
+  )
+  router.get('/clientes/id',(req,res) =>{
+    req.json({
+      nome: 'Angelina',
+    })
+  })
+})
+
+~~~
+
+    8 - Para finalizar o arquivo de rotas, precisamos exportar a constante [ROUTER] que criamos para poder usa-la em outro arquivo/modulo do node.
+    -> Para isso usamos o [module.exports] recebendo a constante.
+~~~javascript
+[/express/ex05_routes.js - ESTRUTURA FINAL]
+
+const express = require('express')
+const router = express.Router()
+
+router.use(
+  (req,res,next) => {
+    const init = Date.now()
+    next()
+    console.log(`Tempo: ${Data.now() - init} ms.`)
+  }
+)
+router.get('/produtos/:id',(req,res) => {
+  res.json(
+    {
+      id: req.params.id,
+      name: 'Caneta',
+    }
+  )
+  router.get('/clientes/:id',(req,res) =>{
+    req.json({
+        id: req.params.id
+        nome: 'Angelina',
+    })
+  })
+})
+
+module.exports = router
+
+~~~
+
+    9 - Vamos agora criar o [/express/ex05.js], nesse arquivo vamos fazer o require do express e criar uma instancia do mesmo. Vamos importar o router partir do require onde irá receber o RELATIVE PATH ('./ex05_routes") pois estamos chamando diretamente um modulo interno.
+~~~javascript
+[/express/ex05.js]
+const express = require('express')
+const server = express()
+const router = require('./ex05_router')
+
+server.listen(3000, () => console.log('BACKEND is running..'))
+
+~~~
+
+    10 - Apos importarmos as rotas, vamos dizer para o express utiliza-las a partir do [server.use()] pasasndo a url (/api), apontando para router.
+    -> O [router] que importarmos que esta no arquivo [/express/ex05_routes.js] é a função [express.Router()]. E dentro [router](constante), colocamos varios mapeamentos onde criamos algumas rotas e um middleware para ser executado sempre que o router for chamado (verifiacção do tempo).
+    -> Agora, o router que importamos em [/express/ex05.js] é um middleware que dentro dele terá varias rotas mapeadas. Estamos informando com o [/api], que para chamar esse (router), antes temos que chamar o [/api].
+    -> Então se mapeamos dentro de [/express/ex05_routes.js], /produtos e /clientes, para chama-los tem que chamar [/api/produtos/id || /api/clientes/id].
+    ->
+~~~javascript
+[/express/ex05.js]
+const express = require('express')
+const server = express()
+const router = require('./ex05_router')
+
+server.use('/api', router)
+
+server.listen(3000, () => console.log('BACKEND is running..'))
+~~~
+
+Salvando o arquivo e reiniciando o servidor backend, vamos colocar na url **localhost:3000/api/clientes/1**, vamos receber um arquivo no formato JSON, com nome e id.
+
+Outro teste é colocando o ID 1000, se no lugar de clientes colocarmos produtos com id 1000. 
+
+Nessa aula vimos tanto o conceito de router() que seria uma mini aplicação, um subconjutno de rotas que colocamos dentro de uma INSTANCIA DE ROUTER e vamos MAPEANDO com regras, e no final dizemos que o router aponta para a API.
+
+No exemplo do backend vamos usar um router() que irá mapear todos os metodos da nossa API, poderiamos separar a API em varios routers() diferentes, mas como é uma APi pequena, não possui muitos metodos, vamos criar um ROUTER e em cima dele vamos mapear as APIS.
+
+Vimos tambem nesse exemplo a possibilidade de passar um parametro para nossas rotas usando o (:id). Poderiamos tambem passar outros parametros como o [/clientes/:id/:name], passando o nome e o id na url.
+
+~~~~javascript
+[/express/ex05_routes.js]
+router.get('/clientes/:id/:name', (req, res) => {
+    res.json({
+        id: req.params.id,
+        name: req.params.name,
+    }) 
+})
+~~~
+
+É muito simples passar esse parametros pela URL, da mesma maneira que é simples o conceito de **ROUTER()** como se fosse um subgrupo, mini aplicação, onde iremos colocar as rotas usando exatamente os mesmos metodos.
+
+A unica cosia q foi feita diferente foi chamar as **ARROW FUNCTION** dentro do arquivo, em vez de passar a função.
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 308] - EXERCICIO 06: EXPRESS E ROUTER SÃO SINGLETONS?
+
+&nbsp;
