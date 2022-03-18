@@ -415,6 +415,24 @@ Quando reiniciar, conseguimos ver que ele irá mostrar nosso [h1] da **api**, n�
 ~~~javascript
 [/express/ex03.js - ESTRUTURA FINAL]
 
+const express = require('express')
+const server = express()
+
+// midlware 1 - mapeamento raiz
+server.get('/api', function(req,res,next){
+  console.log('Inicio...')
+  next()
+  console.log('Fim...')
+})
+// midlware 2 - mapeamento raiz
+server.get('/api', function(req,res){
+  console.log('Resposta...')
+  res.send('<h1>API!</h1>')
+})
+
+server.listen(3000, () => console.log('BACKEND is running...'))
+
+
 ~~~
 
 &nbsp;
@@ -423,7 +441,125 @@ Quando reiniciar, conseguimos ver que ele irá mostrar nosso [h1] da **api**, n�
 
 ---
 
-## [Aula 306] - EXERCICIO 04:MÉTODO ROUTE
+## [Aula 306] - EXERCICIO 04: MÉTODO ROUTE
 
-&nbsp;
+&nbsp; 
+
+Vamos agora falar um pouco sobre o metodo **route()** que existe dentro da API do **express**. Vamos duplicar o exercicio 3, e vamos apagar os dois metodos so deixando o require do express e o intanciamento do mesmo em server.
+~~~javascript
+[/express/ex04.js - ESTRUTURA INICIAL]
+
+const express = require('express')
+const server = express()
+
+server.listen(3000, () => console.log('BACKEND is running...'))
+~~~
+
+    1 - Vamos chamar a função [server.route] e passar para ele uma URL, a partir desta mesma url , usando o metodo [route()], podemos ENCADIAR varias chamadas, podemos chamar os metodos [GET, POST, DELETE,PUT], sem precisar informar a URL para esses metodos.
+    -> Chamo o GET, passa o middleware por exemplo. Sem precisar ficar repetindo a mesma URL mais de uma vez.
+    -> Vamos usar o .get() chamando uma arrow function para que o codigo fique mais conciso, colocando tudo em uma linha.
+    -> Chamamos o get que ira receber uma requisição e uma resposta e quando isso acontecener será mostrado no console.log
+~~~javascript
+[/exepress/ex04.js] 
+const express = require('express')
+const server = express()
+
+server.route('/clientes')
+  .get(
+    (req,res) => res.send('Lista de Clientes')
+  )
+
+server.listen(3000, () => console.log('BACKEND is running...'))
+
+~~~
+
+    2 - Vamos tambem criar o metedo POST, que tambem irá receber uma requisição e uma resposta, e como resposta dele, vamos mandar a frase [novo cliente].
+    -> Vamos charmar o PUT, tbm recebendo uma requisição e uma resposta, usando a arrow function, vai responder a frase [alterar clientes].
+    -> GET() vc usa para receber a lista de clientes.
+    -> POST() num web service com uma determinada URL, voce esta criando um novo objeto daquele tipo, no caso o cliente.
+    -> PUT() estamos alterando um cliente que ja existe
+    -> DELETE() voce esta recebendo uma requisição para excluir um determinado cliente da base.
+~~~javascript
+[/express/ex04.js - ESTRUTURA FINAL]
+
+const express = require('express')
+const server = express()
+
+server.route('/clientes')
+  .get(
+    (req,res) => res.send('Lista de Clientes')
+  )
+  .post(
+    (req,res) => res.send('Novo Cliente')
+  )
+  .put(
+    (req,res) => res.send('Altera Cliente')
+  )
+  .delete(
+    (req,res) => res.send('Remove Cliente')
+  )
+
+server.listen(3000, () => console.log('BACKEND is running...'))
+~~~~ 
+
+Para testarmos, usamos o **POSTMAN**, usando a url **localhost:3000/clientes** e vamos testando a resposta para cada metodo [get, put, post, delete]. Para cada metodo precisa sair a saida do [res.send()] progamada.
+
+~~~javascript
+[/express/ex04.js - TESTANDO OS METODOS]
+const express = require('express')
+const server = express()
+
+server.route('/clientes')
+  .get(
+    (req,res) => res.send('Lista de Clientes')
+  )
+  .post(
+    (req,res) => res.send('Novo Cliente')
+  )
+  .put(
+    (req,res) => res.send('Altera Cliente')
+  )
+  .delete(
+    (req,res) => res.send('Remove Cliente')
+  )
+  .patch(
+    (req,res) => res.send('Patch cliente')
+  )
+  .copy(
+    (req,res) => res.send('Copiando Cliente')
+  )
+  // nao aparece +status=200 ok
+  .head(
+    (req, res) => res.send('Head Cliente')
+  )
+  .options(
+    (req,res) => res.send('Option Cliente')
+  )
+  .link(
+    (req,res) => res.send('Link Cliente')
+  )
+  .unlink(
+    (req,res) => res.send('Unlink CLiente')
+  )
+  .purge(
+    (req,res) => res.send('Purge Cliente')
+  )
+  .lock(
+    (req,res) => res.send('Lock Cliente')
+  )
+  .unlock(
+    (req,res) => res.send('Unlock Cliente')
+  )
+  .propfind(
+    (req, res) => res.send('Propfind Cliente')
+  )
+
+// METODO VIEW CAUSA ERRO NO BACKEND. USANDO ESSE MESMO PADRÃO.
+
+server.listen(3000, () => console.log('BACKEND is running...'))
+
+~~~
+
+O **route()** é uma forma interessante que temos de mapiar varios metodos para uma mesma URL, não precisando repetir ela sempre que chamamos uma metodo novo. Achamaos o **route()** e a partir dela encadeamos uma chamada apos a outra, n caso, passamos uma função bem simples para retornar um texto, mas poderiamos fazer um tratamento mais adequado para esse tipo de mapeamento.
+
 
