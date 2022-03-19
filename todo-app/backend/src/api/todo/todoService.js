@@ -1,9 +1,10 @@
 const Todo = require('./todo')
 
-Todo.method([
-    'get','post','put','delete'
+Todo.methods([
+    'get','post','put','delete',
 ])
 
+// tras a resposta atualizada
 Todo.updateOptions({
     new: true,
     runValidators: true,

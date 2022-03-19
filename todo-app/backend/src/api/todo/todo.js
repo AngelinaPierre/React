@@ -4,11 +4,11 @@ const mongoose = restful.mongoose
 const todoSchema = new mongoose.Schema({
     description: {
         type: String,
-        requeired: true,
+        required: true,
     },
     done: {
         type: Boolean,
-        requeired: true,
+        required: true,
         default: false,
     },
     createdAt: {

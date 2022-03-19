@@ -787,8 +787,117 @@ Em resumo a linha **require('./config/routes.js)(server)**, irá chamar a funç�
 
 ---
 
-## [Aula 127] - 
+## [Aula 127] - TESTANDO A API COM POSTMAN
 &nbsp;
+
+
+Vamos agora fazer um *teste* em nossa **API REST** que acabamos de implementar, vamos usar o *postman* para isso, existe tanto a versão para o desktop, quanto um puglin do google chrome para isso, onde ele roda como uma aplicação separada. É uma ferramenta super legal para fazermos **teste de api**.
+
+É importante que tanto seu **BACKEND(express - node)** quando seu **BANcO DE DADOS** estejam rodando, para fazermos algumas consultas usando o POSTMAN com nosso API.
+
+A primeira coisa que iremos fazer é usar a url **http://localhost/api/todos/**, em um metodo **GET**. Na aula, irá aparecer dois registros que ficaram salvamos quando estavamos construindo a aplicação. Para deleta-los vamos pegar a o ID, colocar na url com (:), e vamos colocar nos parametros a id do mesmo, depois enviar o DELETE. Fazer o mesmo para o outro registro.
+
+Outro teste, será o de inclusão, POST. No [body - postaman], vamos selecionar o **x-www-form-urlencoded**. [urlencoded] foi utilizado na nossa aplicação com o **bodyParser**, o ele irá interpretar a *URLENCODED*, então, quando fizermos a submissão de uma formulario para inserir uma nova tarefa, um novo todo, ele irá no padrão *urlencoded* e quem irá interpretar é o **bodyParser**.
+
+Vamos clicar no *bulk edit* para podermos digitar os comando manualmente.
+~~~
+description: Pagar conta do cartão.
+~~~
+
+Usamos o **description** pq nosso **/src/api/todo/todo.js**, possui um atributo chamado **description**. O atributo **done** é obrigatorio mas ja vem com um valor *default*, ja a data não é obrigatoria e de qualquer forma ele irá colocar a data atual como sendo a *default*.
+- Feita essa configuração para inserção, podemos mandar um SEND(POST), e será retornando um objeto.
+- Vamos criar tambem outro POST chamado [ Concluir curso do React]
+~~~javascript
+{
+    "__v": 0,
+    "_id": "623606504202911e509b536f",
+    "createdAt": "2022-03-19T16:35:28.867Z",
+    "done": false
+}
+~~~
+
+
+Apos a criação desses 3 registros, podemos fazer testes com o PUT, que são alterações do mesmo.
+~~~javascript
+[
+    {
+        "_id": "623609cbde85992dfc0c0d8b",
+        "description": " Pagar conta do cartão",
+        "__v": 0,
+        "createdAt": "2022-03-19T16:50:19.267Z",
+        "done": false
+    },
+    {
+        "_id": "623609e6de85992dfc0c0d8c",
+        "description": " Concluir curso de React.",
+        "__v": 0,
+        "createdAt": "2022-03-19T16:50:46.173Z",
+        "done": false
+    },
+    {
+        "_id": "623609f4de85992dfc0c0d8d",
+        "description": " Deixar review do curso.",
+        "__v": 0,
+        "createdAt": "2022-03-19T16:51:00.009Z",
+        "done": false
+    }
+]
+~~~
+
+Vamos pegar o ID do ultimo registro que criamos e vamos passar para ele o atributo **done:true**, para mostrar que a tarefa esta concluida. O padrão do **urlended** é **atributo: valor**, se for string, não é delimitado por aspas (''). Se for ARRAY seria **nome_array[indice].nome_atributo**.
+
+Como o **PUT** recebe como parametro o *ID* na URL, temos que colocar **localhost:3003/api/todos/:id**. Pois ele precisa identificar quem ele irá atualizar, observe que o registro que estamos manipulando ainda esta com o done falso, vamos fazer o put agora para alterar isso.
+
+> Para outro teste, vamos em [todoService.js] e comentar a linha de codigo que faz com que ele traga o registro atualizado e nao o antigo como resposta.
+
+Vamos descomentar a linha e adicionar mais o description, quando enviarmos veremos a resposta atualizada em vez da antiga.
+
+~~~javascript
+Todo.updateOptions({
+    new: true,
+    runValidators: true,
+})
+~~~
+
+A validação ocorre quando, se colocarmos o **description:**, vazio, ele irá trazer um erro, se comentar o codigo **todo.updateOptions()**. Logo essa linha de codigo é importante para que ele aplique a validação em varios cenários.
+
+Outra coisa interessante é que o *node restful* possui uma serie de **filtros** que pode te ajudar, para por exemplo, fazer a ordenação descrescente a partir da data de criação. Então para isso colocamos **localhost:3003/api/todos?sort=-createdAt**, usando o **GET** obviamente.
+
+~~~javascript
+[
+    {
+        "_id": "62360d65d84e163748dc92e1",
+        "description": " teste do done3",
+        "__v": 0,
+        "createdAt": "2022-03-19T17:05:41.145Z",
+        "done": false
+    },
+    {
+        "_id": "623609e6de85992dfc0c0d8c",
+        "description": " Concluir curso de React.",
+        "__v": 0,
+        "createdAt": "2022-03-19T16:50:46.173Z",
+        "done": false
+    },
+    {
+        "_id": "623609cbde85992dfc0c0d8b",
+        "description": " Pagar conta do cartão",
+        "__v": 0,
+        "createdAt": "2022-03-19T16:50:19.267Z",
+        "done": false
+    }
+]
+~~~
+
+Outra aplicação que podemos fazer seria a utlização de **EXPRESSÕES REGULARES**, **localhost:3003/api/todos?sort=-createdAt&description_regex=/curso/**. Mandando o *SEND* ele irá filtrar e mandar apenas o registro que possui a palavra curso. **nao funcionaou**
+
+
+Na documentação do **node restful** podemos ver os filtros que estão embutidos na propria ferramenta.
+
+Estamos com nossa **API** quase pronta, so falta habilitarmos o **CORS**, ja que vamos trabalhar com duas aplicações, que é uma garantia de segurança onde, se não habilitarmos o **cors** a sua aplicação so irá conseguir atender requisições da propria *aplicação*.
+
+Como vamos rodar o **backend** em uma porta e o *8front-end** em outra, é considerado **duas aplicações diferentes** e precisamos habilitar o **cors** para que possa haver requisições de origem diferentes. Fazendo isso nossa aplicação fica 100% ok para começarmos a mexer com react e consumir a API.
+
 
 &nbsp;
 
@@ -796,8 +905,112 @@ Em resumo a linha **require('./config/routes.js)(server)**, irá chamar a funç�
 
 ---
 
-## [Aula 128] - 
+## [Aula 128] - HABILITANDO O CORS
+
 &nbsp;
+
+Agora iremos na pasta **/src/config** para criarmos um arquivo chamado **cors.js**. Onde nessa classe iremos **criar uma middleware**, atéa ggora, somente usamos *middlewares pre-existentes* mas não criamos nenhum.
+
+    1 - Vamos exportar uma função que recebe 3 parametros basicos para um middlerare [requisição (req), resposta(res), next].
+    -> O NEXT, é justamente conhecido com CHAIN, que fará com que se execute os outros middlewares da cadeia, para depois voltar a execução do middleware onde o next foi chamado.
+    -> vamos ter um middleware usado no PADRÃO EXPRESS.
+~~~javascript
+[/src/config/cors.js - ESTRUTURA INICIAL]
+module.exports = function(req,res,next){
+
+}
+~~~
+
+    2 - Vamos colocar uma serie de CABEÇALHOS na nossa requisição, para que ele permita que venha de ORIGENS DIFERENTES.(beck-end e front-end em duas portas diferentes).
+    -> [Acess-Control-Allow-Origin], o controle para o acesso permite origens, [*] qualquer uma.
+~~~javascript
+[/src/config/cors.js - ESTRUTURA INICIAL]
+module.exports = function(req,res,next){
+    res.header('Acess-Control-Allow-Origin','*')
+}
+~~~
+
+    2.1 - Os metodos/verbos_http que iremos permitir o acesso serão os [GET,POST,OPTIONS,PUT,PATCH,DELETE].
+~~~javascript
+[/src/config/cors.js - ESTRUTURA INICIAL]
+module.exports = function(req,res,next){
+    res.header('Acess-Control-Allow-Origin','*')
+    res.header('Acess-Control-Allow-Methods','GET, POST, OPTIONS, PUT, PATCH, DELETE')
+}
+~~~
+
+    2.2 - E tem mais alguns cabeçalhos que precisamos permitir para que a nossa requisição seja feita de forma bem sucedida a partir de uma outra aplicação.
+> Os cabeçalhos podem ser procurados na INTERNET, pois ficaria dificil decorar sempre os cabeçalhos do **CORS**. Não se decora isso na pratica, basta procurarmos, ver como faz e executar.
+~~~javascript
+[/src/config/cors.js - ESTRUTURA INICIAL]
+module.exports = function(req,res,next){
+    res.header('Access-Control-Allow-Origin','*')
+    res.header('Access-Control-Allow-Methods','GET, POST, OPTIONS, PUT, PATCH, DELETE')
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+}
+~~~
+> OBS: Estamos fazendo um *middleware**, e ate agora, estamos trabalhando com a **resposta[res()]**.
+> Estamos Acicionando *CABEÇALHOS*[**headers**] na resposta(**res**) que será enviada para o *browser* para dizer que é permitido acessar o serviço que o "cara" esta acessando.
+> Quando temos um *middleware* como esse, no caso, uma função, ou nessa função atendemos a requisição, ouse seja, damos uma resposta para quem fez a requisição[requisição-> resposta], por exemplo, entregar uma pagina, responder com uma lista de objetos JSON por exemplo.
+> Ou damos essa resposta *req->res*, ou chamamos o **next()**.
+> Se colocarmos esse *middleware** do jeito que esta na nossa aplicação, ela não irá funcionar, travando a aplicação. 
+> Então é importante que para concluir o **middleware** a gente chame o **next()** para que ele continue o fluxo da aplicação indo para o proximo **midleware** até que alguem irá atender a requisição e mandar uma resposta.
+
+~~~javascript
+[/src/config/cors.js - ESTRUTURA INICIAL]
+module.exports = function(req,res,next){
+    res.header('Access-Control-Allow-Origin','*')
+    res.header('Access-Control-Allow-Methods','GET, POST, OPTIONS, PUT, PATCH, DELETE')
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+    next()
+}
+~~~
+
+    3 - Apos a criação do CORS, vamos em [/config/server.js], para habilitarmos dentro dele esse MIDDLEWARE.
+    -> Vamos criar uma referencia [const] para o arquivo do [cors.js], ou seja, importa-lo, usando o caminho relativo.
+~~~javascript
+[/config/server.js]
+const allowCors = require('./cors')
+~~~
+    4 - Junto dos outros middlewares de SERVER vamos colocar o AllowCors usando o middleware [use()].
+    -> Assim ele irá permitir que a requisição para um determinado web-service da minha aplicação possa vir de uma origem diferente.
+> Se quisermos ser um pouco mais restritivo, poderiamos colocar alguns endereços em:
+> ~~~javascript
+>module.exports = function(req,res,next){
+>   res.header('Access-Control-Allow-Origin','endereços')
+> }
+> Digamos que temos determiandos clientes que podem consumir minha API mas que não são da minha propria aplicação. Podemos listar em **endereços** os clientes. Para simplificar colocamos que nossa **API** esta aberta para ser consumida por qualquer **origem**.
+~~~javascript
+[/config/server.js - ESTRUTURA FINAL]
+const port = 3003
+const bodyParser = require('body-parser')
+const express = require('express')
+const AllowCors = require('./cors')
+// criando uma instancia do express e atribuindo a variavel server
+const server = express()
+
+// criando middlewares para as requisições.
+server.use(bodyParser.urlencoded({
+    extended: true,
+}))
+server.use(bodyParser.json())
+// usando função, tbm podemos usar a arrow function (port, () => console.log(``))
+server.use(AllowCors)
+server.listen(port, function() {
+    console.log(`BACKEND is running on | PORT:${port} |`)
+})
+
+module.exports = server
+
+~~~
+
+Para testar nossa configuração do CORS, basta rodar no **postman** alguns testes e ver se a aplicação esta quebrando.
+
+
+Agora temos o nosso backend funcionando, nas proximas aulas iremos começar a construir o front-end da nossa aplicação que irá consumir o os serviços que acabamos de construir no nosso backend de todos.
+
+
+
 
 &nbsp;
 
@@ -805,5 +1018,125 @@ Em resumo a linha **require('./config/routes.js)(server)**, irá chamar a funç�
 
 ---
 
-## [Aula 129] - 
+## [Aula 129] - INICIANDO O BACKEND EM PM2
+&nbsp;
+
+Acabamos de terminar o **backend**, e agora iremos para a nossa aplicação com o **nodemon** e vamos *starta-la* utilizando o **PM2**.
+
+~~~
+npm run production
+~~~
+
+Onde ele irá executar o *pm2* e *startar* nossa aplicação. Podemos tambem rodar o comando:
+~~~
+pm2 monit
+~~~
+
+Para startar o **pm2*8 de maneira global, basta usa o comando:
+
+~~~
+npm i pm2 -g
+~~~
+
+Ou podemos acessar o **pm2** a partir de **./node_modules/.bin/pm2** que é justamente a instancia que instalamos na nossa aplicação. Quando usamos o *package.json* ele ja acessa o que esta dentro desta pasta, mas se formos no console/terminal, temos que declarar o caminho direto para o arquivo
+~~~
+./node_modules/.bin/pm2 monit
+~~~
+~~~
+./node_modules/.bin/pm2 status
+~~~
+
+Para monitorar a parte de memoria basta usar o **monit**. Se entrarmos no site do PM2 podemos ver varias coisas interessantes para o monitoramento da nossa aplicação no ambiente produtivo.
+
+
+
+# ==== [Seção 8 - TODO APP (FRONTEND) ] ====
+
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 130] - CONFIGURAÇÃO E INSTALAÇÃO
+&nbsp;
+
+Com o *backend* startado e o **mongodb** instalado tamben, vamos criar uma outra aba no terminal para podermos iniciar a configuração e instalação dos nossos arquivos de **front-end**.
+
+Vamos criar uma pasta **/todo-app/front-end**. logo na pasta **/todo-app**, vamos ter duas pastas, uma para o *backend* e outra para o *frontend*.
+
+Como são muitas dependencias, vamos instala-las por grupos.
+
+    1 - Primeiro iremos criar o [package.json], respondendo todas as perguntas automaticamente [-y]
+~~~
+npm init -y
+~~~
+
+> Para não criarmos todos as dependencias em um comando so e assim gerar erro, vamos cria-las por partes.
+> 
+> Todas serão dependencias de DESENVOLVIMENTO então vamos clocar a flag **--save-dev**.
+
+    2 - Primeiro iremos adicionar as dependecias do WEBPACK V1.14.0 e do WEBPACK-DEV-SERVER V1.16.2
+~~~
+npm i --save-dev webpack@1.14.0 webpack-dev-server@1.16.2
+~~~
+
+Agora iremos instalar o **BABEL**, sabemos que o *browser* não consegue interpretar a sintaxe que o *react* adiciona, que seria o **JSX**, o browser não consegue interpretar de forma nativa, logo, temos que fazer uma **conversão** do *codigo escrito em react* para aquilo que de fato será executado no browser. Quem faz esse papel é justamente o BABEL. 
+- Vamos instalar o *babel-core* V6.22.1
+- *babel-loader* V 6.2.10 -> Conexão entre o babel e o webpack.
+- Vamos instalar alguns **pre-sets** tambe:
+  - *babel-plugin-react-html-attrs* V2.0.0 -> plugin em relação aos atributos
+  - *babel-plugin-transform-object-rest-spread* V6.22.0 -> 
+  - *babel-preset-es2015* V6.22.0 -> Ecman sprit novo
+  - *babel-preset-react* V6.22.0
+
+~~~
+npm i --save-dev babel-core@6.22.1 babel-loader@6.2.10 babel-plugin-react-html-attrs@2.0.0 babel-plugin-transform-object-rest-spread@6.22.0 babel-preset-es2015@6.22.0 babel-preset-react@6.22.0
+~~~
+
+Apos a instalação do *babel*, vamos colocar as dependencias relativas ao **processamento de css** e a parte de *carregamento de imagens e fonts*
+- *extract-text-webpack-plugin V 1.0.1* -> Justamente um plugin que irá extrair os textos dos arquivos **.css**, para depois passar por um processo que será outra dependencia que iremos instalar [css loader e o style loader].
+- *css-loarder V 0.26.1*
+- *style-loader V0.13.1*
+- *file-loader V0.9.0* -> vamos utilizar tanto para carregar as imagens quanto as fontes dentro da configuração do nosso **webpack**
+
+~~~
+npm i --save-dev extract-text-webpack-plugin@1.0.1 css-loader@0.26.1 style-loader@0.13.1 file-loader@0.9.0
+~~~
+
+Vamos agora instalar as dependencias da parte do **template** que iremos usar, **bootstrap V3.3.7 && font-awesome V4.7.0**. 
+> Na aplicação final do curso iremos utilizar uma outro template chamado **admin LTE**, gratuito e bem mais avançado que o BOOTSTRAP nativo. Embora ele rode em cima do bootstrap.
+
+~~~
+npm i --save-dev bootstrap@3.3.7 font-awesome@4.7.0
+~~~
+
+Por fim iremos instalar as dependencias relativas ao **react**
+- *react V15.4.2*
+- *react-dom V15.4.2*
+- *react-router V3.0.2*
+- *axios V0.15.3* -> cliente HTTP (promise bases), baseado em promessas, ele que iremos usar para fazer as chamadas **http** para o nossos serviços do **backend**, vamos consumir a nossa **API WEB SERCVICES** do backend a partir do **AXIOS**.
+
+~~~
+npm i --save-dev react@15.4.2 react-dom@15.4.2 react-router@3.0.2 axios@0.15.3
+~~~
+
+Apos termos todas as nossas dependencias intaladas, iremos abrir a pasta o frontend que criamos na nossa **IDE** para criarmos nossa arquivo **.gitignore**, para que ele não mande todas essas dependencias baixadas para o nosso repositorio.
+- Dentro do **.gitignore** vamos colocar a pasta **/node_modules** e tambem iremos colocar o **[*.log]**.
+
+~~~.gitignore
+node_modules
+*.log
+~~~
+
+Na proxima aula iremos configurar o arquivo de **configuração do webpack**, para que possamos ter o **build** funcionando, para que de fato possamos escrever a nossa aplicação.
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 131] - CONFIGURAÇÃO O BUILD COM WEBPACK
 &nbsp;
