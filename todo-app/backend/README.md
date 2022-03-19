@@ -1139,4 +1139,297 @@ Na proxima aula iremos configurar o arquivo de **configuração do webpack**, pa
 ---
 
 ## [Aula 131] - CONFIGURAÇÃO O BUILD COM WEBPACK
+
+&nbsp;
+
+Vamos criar uma arquivo chamado **/frontend/webpack.config.js**, onde no futuro iremos ver mais a configuração desse arquivo em exercicios futuros.
+
+    1 - Primeiro vamos declarar uma dependencia do WEBPACK, uma constante, ou seja, vamos fazer o require do webpack
+    -> E depois iremos tambem criar uma referencia, declarar uma dependedncia para o EXTRACT-TEXT-PLUGIN
+    -> por mais que tenhamos importado essas dependencias, a boa parte desse arquivo de WEBPACK se da pelo que iremos exportar no MODULE EXPORTS.
+~~~javascript
+[/frontend/webpack.config.js]
+
+const webpack = require('webpack')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+module.exports = {
+
+
+}
+~~~
+
+    2 - Vamos no MODULE EXPORTS exportar o objeto que terá toda a configuração que iremos precisar para o nosso projeto.
+    -> O ponto de entrada [entry:] será na pasta [/src], no arquivo [index.jsx]. Vamos colocar extensões .jsx para a IDE reconhecer que possui codigo do REACT dentro desses arqivos.
+    -> A saida [output:], será no [__dirname], que é uma variavel de ambiente do node, com a pasta /PUBLIC, que ainda iremos criar.
+    -> O nome do arquivo será [app.js]
+~~~javascript
+[/frontend/webpack.config.js]
+
+const webpack = require('webpack')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+module.exports = {
+    entry: './src/index.jsx',
+    output: {
+        path:__dirname + '/public'
+        filename: './app.js'
+    },
+
+}
+~~~
+
+    3 - Vamos tambem colocar a configuração do WEB SERVER, rodando na PORTA 80, e a pasta será a [/public], que é justamente tambem a pasta onde iremos jogar o arquivo [/app.js] e vamos configurar daqui a pouco o [index.html]
+~~~javascript
+[/frontend/webpack.config.js]
+
+const webpack = require('webpack')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+module.exports = {
+    entry: './src/index.jsx',
+    output: {
+        path:__dirname + '/public'
+        filename: './app.js'
+    },
+    devServer: {
+        port: 8080,
+        contentBase: './public',
+    }
+}
+~~~
+
+    4 - Vamos querer que ele "resolva" para a gente alguns tipos de extensão, por padrão o WEBPACK na hora que ele vai fazer o import dos modulos, ele não reconhece a extensão [.JSX], e ai temos que declarar para ele as extensões que ele irá precisar reconhecer.
+~~~javascript
+[/frontend/webpack.config.js]
+
+const webpack = require('webpack')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+module.exports = {
+    entry: './src/index.jsx',
+    output: {
+        path:__dirname + '/public'
+        filename: './app.js'
+    },
+    devServer: {
+        port: 8080,
+        contentBase: './public',
+    },
+    resolve: {
+        extensions: ['','.js','.jsx'],
+    }
+}
+~~~
+
+    5 - Alem disso, vamos criar uma apelido para a pasta NODE_MODULES, para nao termos que ficar acessando direto e tals.
+    -> Falamos que modules irá apontar para a pasta ___dirname + '/node_modules.
+~~~javascript
+[/frontend/webpack.config.js]
+
+const webpack = require('webpack')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+module.exports = {
+    entry: './src/index.jsx',
+    output: {
+        path:__dirname + '/public'
+        filename: './app.js'
+    },
+    devServer: {
+        port: 8080,
+        contentBase: './public',
+    },
+    resolve: {
+        extensions: ['','.js','.jsx'],
+        alias:{
+            modules: __dirname + '/node_modules'
+        }
+    }
+}
+~~~
+Então dentro da aplicação, se quisermos referenciar qualquer biblioteca, como por exemplo, **bootstrap**, basta colocar **modules/boostrap/../..**
+
+    6 - Agora iremos colocar a configuração relativa ao EXTRACT-TEXT-PLUGIN, que é justamente o nosso CSS.
+    -> E iremos criar uma instancia dele dizendo qual o nome do arquivo que ele irá gerar a partir do PARSE que ele fará em cima dos nossos CSS's.
+~~~javascript
+[/frontend/webpack.config.js]
+
+const webpack = require('webpack')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+module.exports = {
+    entry: './src/index.jsx',
+    output: {
+        path:__dirname + '/public'
+        filename: './app.js'
+    },
+    devServer: {
+        port: 8080,
+        contentBase: './public',
+    },
+    resolve: {
+        extensions: ['','.js','.jsx'],
+        alias:{
+            modules: __dirname + '/node_modules'
+        }
+    },
+    plugins: [
+        new ExtractTextPlugin('app.css')
+    ]
+}
+~~~
+
+    7 - Agora iremos para a parte de configuração de MODULOS, que seriam justamente a configuração dos nossos LOADER's.
+    -> O primeiro que iremos configurar será justamente o de javascript.
+    -> Vamos colocar uma sintaxe onde ele irá tanto fazer PARSE em cima de [.js], como em [.jsx]. Os dois serão interpretados por esse LOADER.
+    -> Vamos usar o [babel-loader] e colocar que ele irá ignorar , ou seja, nao vai fazer PARSER de nenhum arquivo do node_modules. E para concluir, o loader, vamos colocar quais os pre-sets que ele irá aplicar em cima desses arquivos que serão lidos ['es2015','react'].
+    -> Vamos tambem usar o plugin TRANSFORM-OBJECT-REST-SPREAD, 
+~~~javascript
+[/frontend/webpack.config.js]
+
+const webpack = require('webpack')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+module.exports = {
+    entry: './src/index.jsx',
+    output: {
+        path:__dirname + '/public'
+        filename: './app.js'
+    },
+    devServer: {
+        port: 8080,
+        contentBase: './public',
+    },
+    resolve: {
+        extensions: ['','.js','.jsx'],
+        alias:{
+            modules: __dirname + '/node_modules'
+        }
+    },
+    plugins: [
+        new ExtractTextPlugin('app.css')
+    ],
+    modules: {
+        loaders: [{
+            test: /.js[x]?$/,
+            loader: 'babel-loader',
+            exclude: /node_modules/,
+            query: {
+                presets: ['es2015','react'],
+                plugin: ['transform-object-rest-spread']
+            }
+        }]
+    }
+}
+~~~
+
+    8 - Alem desse loader iremos criar outro que serve para o CSS.
+    -> O loader será o EXTRACT-TEXT-PLUGIN, onde ele irá passar por dois outros plugins chamados ['style-loader' & 'css-loader'].
+~~~javascript
+[/frontend/webpack.config.js]
+
+const webpack = require('webpack')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+module.exports = {
+    entry: './src/index.jsx',
+    output: {
+        path:__dirname + '/public'
+        filename: './app.js'
+    },
+    devServer: {
+        port: 8080,
+        contentBase: './public',
+    },
+    resolve: {
+        extensions: ['','.js','.jsx'],
+        alias:{
+            modules: __dirname + '/node_modules'
+        }
+    },
+    plugins: [
+        new ExtractTextPlugin('app.css')
+    ],
+    modules: {
+        loaders: [{
+            test: /.js[x]?$/,
+            loader: 'babel-loader',
+            exclude: /node_modules/,
+            query: {
+                presets: ['es2015','react'],
+                plugin: ['transform-object-rest-spread']
+            }
+        },{
+            test:/\.css$/,
+            loader: ExtractTextPlugin.extrac('style-loader','css-loader')
+        }]
+    }
+}
+~~~
+
+    9 - O terceiro loader será para a questão das fontes. Quando importarmos o bootstrap e o font-awesome, junta dessa importação tem referencias para algumas fontes, e para o WEBPACK conseguir interpretar e conseguir processar esses arquivos, precisamos fazer um LOADER, em cima de alguns tipos de extensões diferentes [.woff|.woff2|.ttf|.eot|.svg], fazendo esse loader em cima de 'file'.
+~~~javascript
+[/frontend/webpack.config.js]
+
+const webpack = require('webpack')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+module.exports = {
+    entry: './src/index.jsx',
+    output: {
+        path:__dirname + '/public',
+        filename: './app.js'
+    },
+    devServer: {
+        port: 8080,
+        contentBase: './public',
+    },
+    resolve: {
+        extensions: ['','.js','.jsx'],
+        alias:{
+            modules: __dirname + '/node_modules',
+        }
+    },
+    plugins: [
+        new ExtractTextPlugin('app.css')
+    ],
+    modules: {
+        loaders: [{
+            test: /.js[x]?$/,
+            loader: 'babel-loader',
+            exclude: /node_modules/,
+            query: {
+                presets: ['es2015','react'],
+                plugin: ['transform-object-rest-spread'],
+            }
+        },{
+            test:/\.css$/,
+            loader: ExtractTextPlugin.extrac('style-loader','css-loader'),
+        },{
+            test: /\.woff|.woff2|.ttf|.eot|.svg*.*$/,
+            loader: 'file',
+        }]
+    }
+}
+~~~
+
+Com isso nos terminamos a configuração do arquivo **webpack.config.js**, vamos fazer uma alteração em **package.json**, que será para termos os scripts de inicialização.
+- Script de **dev** -> chamando o webpack-dev-server mostrando o progesso colorido e usando o [inline hot] para que ele fique atualizando o browser sempre que houver uma mudança.
+- O **production** -> sempre irá chamar o webpack, mostrando o progresso e gerando o *bandon?* unificado e pronto para ser colocado no ambiente produtivo.
+
+~~~json
+[/src/package.json - ESTRUTURA INICIAL]
+"scripts":{
+    "test": "echo \"Error: no test specified\" && exit 1"
+}
+[/src/package.json - ESTRUTURA ALTERADA]
+
+"scripts":{
+    "dev": "webpack-dev-server --progress --colors --inline --hot",
+    "production": "webpack --progress -p"
+}
+~~~
+
+Concluimos nosso arquivo de configuração, na proxima aula iremos configurar nossa unica pagina, ja que temos uma *SPA - single page application*, criando assim o nosso **index.html** na proxima aula.
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 132] - CRIANDO O INDEX.HTML
+
 &nbsp;
