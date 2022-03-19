@@ -14,3 +14,4 @@ server.listen(port, function() {
     console.log(`BACKEND is running on | PORT:${port} |`)
 })
 
+module.exports = server

@@ -462,3 +462,348 @@ Bons estudos!
 
 ## [Aula 125] - ODM E CRIAÇÃO DA API REST
 &nbsp;
+
+
+Vamos agora criar dentro de **/src** , uma nova pasta chamada **/api**, dentro desta pasta vamos criar outro diretorio chamado **/todo**, e dentro deste diretorio vamos criar uma arquivo chamada **todo.js**, que será onde iremos **mapear o nosso objeto**, para o documento do **mongo**.
+
+    1 - Dentro deste arquivo vamos usar a API do MONGOOSE tambem, juntamente com a API do NODE RESTFUL que irá trazer algumas funcionalidades para a gente.
+    -> Vamos fazer o require do node restful.
+    -> Vamos declarar o mongoose, usando o restful. O restful, cria como se fosse uma "casca" em cima do mongoose, dando para gente uma API REST praticamente pronta.
+~~~javascript
+[/src/api/todo/todo.js]
+
+const restful = require('node-restful')
+const mongoose = restful.mongoose
+~~~
+
+Esse mapeamento temos que fazer independente de estar trabalhando com o **node-restful* ou diretamente com o *mongoose*, o que vamos fazer é praticamente a mesma coisa.
+
+    2 - Vamos criar um **SCHEMA** do mongoose.
+~~~javascript
+[/src/api/todo/todo.js]
+
+const restful = require('node-restful')
+const mongoose = restful.mongoose
+const todoSchema = new mongoose.Schema({
+
+})
+~~~
+
+    3 - Vamos colocar uma descrição, que será a descrição da tarefa do todo, onded será do tipo STRING, e obrigtorio.
+~~~javascript
+[/src/api/todo/todo.js]
+
+const restful = require('node-restful')
+const mongoose = restful.mongoose
+const todoSchema = new mongoose.Schema({
+    description: {
+        type: String,
+        required: true,
+    },
+})
+~~~
+
+    4 - Vamos criar um BOOLEANO [DONE] que irá definir se a tarefa foi terminada ou nao, concluida ou nao. Leu tao livro, se concluio o done passa a ser TRUE, se a tarefa esta pendente o done fica FALSE (padrão).
+~~~javascript
+[/src/api/todo/todo.js]
+
+const restful = require('node-restful')
+const mongoose = restful.mongoose
+const todoSchema = new mongoose.Schema({
+    description: {
+        type: String,
+        required: true,
+    },
+    done: {
+        type: Boolean,
+        required: true,
+        default: false,
+    },
+})
+~~~
+
+    5 - Por ultimo vaos querer registrar a data que foi criado o lembrete do TODO, para que na consulta possamos ordernar das mais novas para as mais antigas. 
+    -> Por padrão colocamos para cadastrar a data atual. Até pq será a data que foi criada o registro no banco.
+~~~javascript
+[/src/api/todo/todo.js]
+const restful = require('node-restful')
+const mongoose = restful.mongoose
+
+const todoSchema = new mongoose.Schema({
+    description: {
+        type: String,
+        required: true,
+    },
+    done: {
+        type: Boolean,
+        required: true,
+        default: false,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+})
+~~~
+ 
+    6 - Agora que nosso SCHEMA foi criado, vamos exporta-lo, informando o nome do modelo ['Todo'], e exportando tambem o SCHEMA que criamos [todoSchema].
+~~~javascript
+[/src/api/todo/todo.js - ESTRUTURA INICIAL]
+const restful = require('node-restful')
+const mongoose = restful.mongoose
+
+const todoSchema = new mongoose.Schema({
+    description: {
+        type: String,
+        required: true,
+    },
+    done: {
+        type: Boolean,
+        required: true,
+        default: false,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+})
+
+module.exports = restful.model('Todo', todoSchema)
+~~~
+
+Agora iremos criar um outro arquivo dentro da pasta */todo* chamado **todoService.js**. O padrão do node é, se quisermos importar alguma coisa usamos o **require()**, se estamos importando alguma coisa que esta dentro de */node_module*, que baixamos como dependecia, simplesmente dizemos o nome da biblioteca **('node-restful')**. 
+
+Se quisermos importar alguma coisa que pertence a nossa aplicação, usamos o padrão relativo **require('.config/server') - /src/loader.js**, por exemplo. Quando queremos **expor** algo para fora do arquivo, ja que dentro do node um arquivo representa um **modulo**, por padrão tudo o que voce escreve em um arquivo fica dentro daquele modulo/arquivo, que so irá ficar visivel se usarmos o **module.exports**. Tudo que colocamos no *module.exports* será exposto para fora do arquivo e pode ser usado por outra pessoa.
+
+    7 - Logo, em [/api/todo/todoService.js], quando fizermos um REQUIRE  do arquivo [/todo.js], iremos receber na variavel/constante que fizermos o require, será o resultado da chamada do MODULE EXPORTS [restful.model('Todo'. todoSchema)]. ou seja, o resultado desse metodo que foi armazenado no module.exports e quando fazemos o REQUIRE, conseguimos acesso a esse [todo] definido no outro arquivo.
+~~~javascript
+[/src/api/todo/todoService.js - ESTRUTURA INICIAL]
+
+const Todo = require('./todo')
+~~~
+
+    8 - Vamos usar o middleware de metodos para criar uma API REST padrão, que no caso, se usarmos um GET em cima da URL BASE irá pegar todos os elementos, se fizermos o GET e passar uma ID, irá pegar aquele elemento por ID, se fizermos um POST, é uma inserção, se fizermos um PUT é uma alteração, e o DELETE, estamos removendo um registro do banco.
+    -> Com essa unica linha de codigo estamos colocando o que queremos que seja habilitado em nossa API REST, que est sendo criada pelo NODE RESTFUL.
+~~~javascript
+[/src/api/todo/todoService.js - ESTRUTURA INICIAL]
+
+const Todo = require('./todo')
+
+Todo.method([
+    'get','post','put',delete'
+])
+~~~
+
+    9 - Temos mais um detalhe em relação as validações onde, por padrão o UPDATE, não valida algumas coisas, então temos que fazer duas mudanças em [updateOptions].
+    -> Por padrão o NODE-RESTFUL te dedvolve, não o cliente atualizado e sim o antigo, o que não faz sentido.
+    -> A primeira é quando atualizarmos um determiando registro no mongo, queremos que retorne ja o registro atualizado -> [new:]
+    -> A outra é que por padrão, o NODE-RESTFUL não valida as ATUALIZAÇÕES, por exemplo, quando criamos um registro, ele irá aplicar certas validações, que criamos no arquivo [todo.js - descriptop (required) | done(required)]. Mas por padrão, quando temos um UPDATE, ele não valida, e para isso usamos o [runValidators:]
+    -> Se não colocarmos essas duas linhas, teriamos o retorno de um registro antigo e caso fizessemos um UPDATE não seria validado.
+~~~javascript
+[/src/api/todo/todoService.js - ESTRUTURA INICIAL]
+
+const Todo = require('./todo')
+
+Todo.method([
+    'get','post','put','delete'
+])
+Todo.updateOption({
+    new: true,
+    runValidators:true,
+})
+~~~
+
+    10 - Para concluir exportamos nodo TODO, ja com toda parte da API REST, funcitonando.
+~~~javascript
+[/src/api/todo/todoService.js - ESTRUTURA INICIAL]
+
+const Todo = require('./todo')
+
+Todo.method([
+    'get','post','put','delete'
+])
+Todo.updateOption({
+    new: true,
+    runValidators:true,
+})
+
+module.exports = Todo
+~~~
+
+O **NODE RESTFUL** não so *Encapsula* a parte relativa ao **Express - Criação de web-services**, como tambem *Encapsula* as chamadas para a **API do MONGO**. Com isso ele ja vai inserir de forma correta, atualizar, consultar, fazer a *API COMPLETA*, tanto do ponto de vista do **Express**, que é a parte *WEB*, de expor seu serviço na web. Como tambem relativo ao *Acesso Aos Dados*, como **inserir | alterar | exluir | consultar*.
+
+Na proxima aula iremos justamente **MAPEAR** as nossas **rotas**, que nesse momento não estão prontas para serem utilizadas.
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 126] - MAPEAMENTO DAS ROTAS
+&nbsp;
+
+Agora iremos configurar as rotas para o **serviço** que  acabamos de criar com o **NODE RESTFUL**. Em **/src/config/** vamos criar um arquivo chamado **routes.js**.
+
+    1 - Dentro deste arquivo vamos pegar uma referencia do EXPRESS, onde iremos usar os MIDDLEWARES para fazer o MAPEAMENTO DAS ROTAS.
+    -> Sempre que fazemos um REQUIRE em cima de uma biblioteca, ele sempre retornar a mesma instancia (SINGLETON), apesar de que o express ser SINGLETON, não se torna mais verdade essa igualdade de require, quando criamos um instancia do express [const server = express()], todas as vezes que criamos uma ou mais instancias, elas sempre serão diferentes entre si.
+> OBS a criação da *instancia* que chamamos de **server**, alguns desenvolvedores chama de **app**.
+~~~javascript
+[FAZENDO REQUIRE DO EXPRESS()]
+const express = require('express')  // importando uma biblioteca
+
+[FAZENDO UMA INSTANCIA DO EXPRESS]
+const server1 = express()    // criando uma instancia
+const server2 = express()   // criando uma instancia ->>> server 1 <> server 2
+~~~
+
+    2 - Logo, quando chamamos o server para o comando [express()], para cada vez que chamarmos, ele será diferente um do outro. O que faz com que tenhamos que passar esse [const server = express()], SERVER, para nosso arquivo de ROTAS[/config/routes.js], para que possamos a partir daquele SERVIDOR (server), mapear as rotas dentro dele.
+    -> Poderiamos fazer o mapeamento das rotas dentro do arquivo [/config/server.js], mas por uma questão de organização, vamos separar essas funcionalidades.
+    -> A forma como temos no NODE para receber um parametro, é usando a tecnica de exportar uma FUNÇÃO, que recebe um parametro.
+    -> Então exportarmos [module.exports] uma função [function()], que recebe um parametro (server), logo quando colocarmos o arquivo [routes.js] dentro de [loader.js], vamos ter que passar uma instancia de [server] para que ele possa trabalhar.
+~~~javascript
+[/src/config/routes.js]
+const express = require('express')
+module.exports = function(server){
+
+}
+~~~
+
+    3 - A configuração das nossas rotas será a seguinte:
+    -> Primeiro vamos criar um ROUTER (constante) do express.
+~~~javascript
+[/src/config/routes.js]
+const express = require('express')
+module.exports = function(server){
+    //API ROUTES
+    const router = express.Router()
+}
+~~~
+    4 - Depois iremos usar um MIDDLEWARE [use()], que será especifico para as URL's que começam a partir de ['/api'].
+    -> Sempre que começar com ['/api'], automaticamente nosso [router], que é onde vamos configurar nossas rotas, será chamado. Podemos assim tirar a conclusão que todas as nossas API's que serão disponibilizadas para serem consumidas pelo FRONT-END, irão iniciar com o ['/api'].
+~~~javascript
+[/src/config/routes.js]
+const express = require('express')
+module.exports = function(server){
+    //API ROUTES
+    const router = express.Router()
+    server.use('/api'. router)
+}
+~~~
+
+    5 - Vamos agora fazer o mapeamento das rotas de [todo].
+    -> Vamos exportar o todoService que criamos usando o require com o caminho relativo.
+~~~javascript
+[/src/config/routes.js]
+const express = require('express')
+module.exports = function(server){
+    //API ROUTES
+    const router = express.Router()
+    server.use('/api'. router)
+}   const todoService = require('../api/todo/todoService')
+~~~
+
+    6 - Vamos tambem configurar, usando o [todoService], o metodo [register()], irá usar todos os metodos que declaramos no [/todo/todoService.js - ARRAY DE method()]. Vamos usar os metodos, get, post, put, delete.
+    -> Quando chamamos o [register() - metodo do node restful], para registrar e estamos dizendo que ele irá utilizar a URL ['/todos'] como base. Significa que ele irá criar dentro do nosso [router], que so será chamado quando começarmos com ['/api'], que vamos criar o nosso web-service com essa URL BASE ['/todos']. Ai, dependo do metodo/verbo_http  que charmos [get,post,put,delete] ele irá executar.
+    -> Bastou somente uma linha para fazermos o registro de todas as URL's relativas ao nosso webservice para a entidade todo.
+~~~javascript
+[/src/config/routes.js]
+const express = require('express')
+module.exports = function(server){
+    //API ROUTES
+    const router = express.Router()
+    server.use('/api'. router)
+    // TODO routes
+}   const todoService = require('../api/todo/todoService')
+    todoService.register(router,'/todos')
+
+~~~
+
+    7 - Agora teremos que fazer algumas alterações em [/src/loader.js].
+    -> Vamos fazer com que quando o required do [server], for executado ele retorne um [const server] SERVER.
+    -> E iremos passar esse [const server] para a configuração do ROUTER. Passando o server como parametro.
+> OBS: O server que estamos passando para o ROUTER, é o obtido a partir do primeiro require()
+~~~javascript
+[/src/loader.js]
+const server = require('./config/server')
+require('./config/database')
+require('./config/routes')(server)
+~~~
+
+    8 - Mas se entrarmos na classe de server que criamos [/config/server.js], iremos observar que ele não esta exportando nada.
+~~~javascript
+[/src/config/server.js - ESTRUTURA INICIAL]
+
+const port = 3003
+const bodyParser = require('body-parser')
+const express = require('express')
+// criando uma instancia do express e atribuindo a variavel server
+const server = express()
+
+// criando middlewares para as requisições.
+server.use(bodyParser.urlencoded({
+    extended: true,
+}))
+server.use(bodyParser.json())
+// usando função, tbm podemos usar a arrow function (port, () => console.log(``))
+server.listen(port, function() {
+    console.log(`BACKEND is running on | PORT:${port} |`)
+})
+
+~~~
+
+    9 - Precisamos exportar o server, pois a partir do momento que o exportamos, e quando executamos no LOADER o require dele, ele irá retornar o SERVER[/server.js] que será armazenado na variavel SERVER[/loarder.js]
+~~~javascript
+[/src/config/server.js - ESTRUTURA INICIAL]
+
+const port = 3003
+const bodyParser = require('body-parser')
+const express = require('express')
+// criando uma instancia do express e atribuindo a variavel server
+const server = express()
+
+// criando middlewares para as requisições.
+server.use(bodyParser.urlencoded({
+    extended: true,
+}))
+server.use(bodyParser.json())
+// usando função, tbm podemos usar a arrow function (port, () => console.log(``))
+server.listen(port, function() {
+    console.log(`BACKEND is running on | PORT:${port} |`)
+})
+module.exports = server
+~~~
+
+Agora quando fizermos o REQUIRED do **ROUTER**, note que o resultado da chamada [require() = methodo] é um metodo, e depois colocamos um parenteses pois estamos passando o server como parametro e invocando o methodo.
+
+Em resumo a linha **require('./config/routes.js)(server)**, irá chamar a função que criamos em [/config/routes.js], que foi exportada pelo MODULE.EXPORTS
+
+
+
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 127] - 
+&nbsp;
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 128] - 
+&nbsp;
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 129] - 
+&nbsp;
