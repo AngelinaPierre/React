@@ -1226,6 +1226,77 @@ Quando formos migrar nosso sistema para o **redux** veremos a diferença entre a
 
 &nbsp;
 
+Agora iremos fazer a estruutura o formulario, vamos excluir a estrutura inical e vamos usar uma class css na nosa tag **div** principal.
+
+    1 - Vamos criar um CLASSNAME para aplicarmos depois algumas propriedades especificas no nosso projeto.
+~~~javascript
+[/src/todo/todoForm.jsx]
+import React from "react";
+
+export default props => (
+    <div role='form' className="todoForm">
+        
+    </div>
+)
+~~~
+
+    2 - Vamos usar em uma <div> as famosas CLASSES 12 COLUNAS DO BOOTSTRAP.
+    -> [col-xs-12] = mobile 12 field
+    -> [col-sm-9] = small 9 field
+    -> [col-md-9] = medium 10 field
+~~~javascript
+[/src/todo/todoForm.jsx]
+import React from "react";
+
+export default props => (
+    <div role='form' className="todoForm">
+        <div className="col-xs-12 col-sm-9 col md-10">
+
+        </div>
+    </div>
+)
+~~~
+
+    3 - Vamos colocar nosso <input> com o atributo [id='description'], e com um CLASSNAME[form-control] e um PLACEHOLDER.
+~~~javascript
+[/src/todo/todoForm.jsx]
+import React from "react";
+
+export default props => (
+    <div role='form' className="todoForm">
+        <div className="col-xs-12 col-sm-9 col md-10">
+            <input id="description" className="form-control" placeholder="Adicione uma tarefa"></input>
+        </div>
+    </div>
+)
+~~~
+
+    4 - Alem de termos o <input> , vamos ter alguns botões, inicialmente vamos colocar somente o botão de adicionar e depois iremos acrescentando outros botões.
+    -> Vamos colocar dentro de uma <div> para podermos colocar as mesmas configurações de CLASSNAME para as telas [col-xs-12 col-sm-3 col-md-2]
+    -> Vamos criar a nossa tag <button> com um CLASSNAME de [botão primario].
+    -> E dentro desse botão, iremos colocar o icone do FONT-AWESOME.
+~~~javascript
+[/src/todo/todoForm.jsx]
+import React from "react";
+
+export default props => (
+    <div role='form' className="todoForm">
+        <div className="col-xs-12 col-sm-9 col md-10">
+            <input id="description" className="form-control" placeholder="Adicione uma tarefa" />
+        </div>
+        <div className="col-xs-12 col-sm-3 col-md-2">
+            <button className="btn btn-primary">
+                <i className="fa fa-plus" />
+            </button>
+        </div>
+    </div>
+)
+~~~
+
+Agora criamos a estrutura basica inicial de **adicionar tarefas** em nosso formulario. No *browser* ja podemos perceber que ele esta com um campo para adicionar e o botão do [+].
+
+Na proxima aula, iremos criar uma *Componente* chamado **GRID**, onde ele irá **ENCAPSULAR** as classes do bootstrap, ou seja, nao iremos precisar no **className=''** ficar escrevendo todas as classes, vamos querer passar um numero, e automaticamente vamos querer q seja convertido os numeros passados para esse tipo de padrão do *bootstrap* **col-xs-12 col-sm-9 col-md-10** como exemplo. Vamos querer passar **12 9 10** e ele irá saber que 12 é para celular, 9 para small(**dispositivos pequenos**), e 10 para medium(**dispositivos medios**).
+
 
 &nbsp;
 
