@@ -1018,7 +1018,7 @@ Agora temos o nosso backend funcionando, nas proximas aulas iremos começar a co
 
 ---
 
-## [Aula 129] - INICIANDO O BACKEND EM PM2
+## [Aula 129] - INICIANDO O BACKEND EM PM2 
 &nbsp;
 
 Acabamos de terminar o **backend**, e agora iremos para a nossa aplicação com o **nodemon** e vamos *starta-la* utilizando o **PM2**.
@@ -1502,9 +1502,278 @@ Nossa estrutura inicial html agora esta configurada, proxima aula iremos iniciar
 
 ---
 
-## [Aula 133] - 
+## [Aula 133] - COMPONENTE APP
 
 &nbsp;
+
+Agora iremos criar nosso primeiro **Componente**, mas antes, iremos criar a pasta **/src**, onde todo o resto da nossa aplicação irá ficar dentro dela, tirando a pasta */public* e nossos arquivos de configuração **.gitignore|package.json|webpack.config.js|**.
+
+Dentro da pasta **/src -> codigo fonte**, vamos criar outra pasta chamada **/main**. Dentro esta pasta, iremos criar o nosso arquivo **/main/app.jsx**.
+
+ > Sempre que tivermos arquivos com codigo do *React* vamos utilizar **.jsx**, sempre que for arquivo do javascript, utilizaremos **.js**
+
+
+Preste atenção que esse arquivo **app.jsx** não é o arquivo que será inicialmente carregado, no **/frontend/webpack.config.js** dizemos que o **PONTO DE ENTRADADA (entry:)**, será o **./src/index.jsx**, que iremos criar daqui a pouco.
+
+    1 - Em [/src/app.jsx], vamos declarar as dependencias para o BOOTSTRAP E FONT-AWESOME.
+    -> Fazemos o import usando o [modules = node_modules], que colocamos como ALIAS no nosso webpack. Um "apelido" que aponta para a pasta /node_modules.
+    -> Ninguem sabe esse caminho decorado, precisa pesquisar antes para ser utilizado...
+~~~jsx
+[/src/app.jsx - ESTRUTURA INICIAL]
+import 'modules/bootstrap/dist/css/bootstrap.min.css'
+import 'modules/font-awesome/css/font-awesome.min.css'
+~~~
+
+Se entrarmos na [**Documentação**](https://webpack.js.org/concepts/) do **webpack** podemos ver que ele possui um conceito bastante interessante. 
+- Temos nossos modulos, com suas dependencias, um arquivo chamando o outro .
+- Isso é passado para **webpack** atraves dos *loaders*, cada *loader* será responsavel por parte dessas informações que foram carregadas entre os modulos.
+- No final, é gerado nossos **ARQUIVOS ESTÁTICOS**. 
+
+![Module Bundler](https://webpack.github.io/assets/what-is-webpack.png)
+
+Quando fazemos o import acima, estamos usando o *sistema de modulos* do **Ecman Script 2015**, que é o **import** e o **export**, similar ao **NodeJS** que possui o *module.exports* e o *require()*. Dois padrões diferentes. O **webpack** roda nos dois padrões, poderiamos fazer uma *require()* sem nenhum problema. Para deixar padronizado, vamos trabalhar sempre com **import & export**.
+
+    2 - Vamos fazer agora o import do **React** e vamos colocar a estrutura inicial do nosso componente baseado em função.
+~~~jsx
+[/src/app.jsx - ESTRUTURA INICIAL]
+import 'modules/bootstrap/dist/css/bootstrap.min.css'
+import 'modules/font-awesome/css/font-awesome.min.css'
+
+import 'modules/bootstrap/dist/css/bootstrap.min.css'
+import 'modules/font-awesome/css/font-awesome.min.css'
+
+import React from 'react'
+
+export default props => (
+    
+)
+~~~
+
+    3 - Nosso componente irá simplesmente ter uma <div> com a propriedade CONTAINER do bootstrap, juntamente com um <h1> com um titulo de "teste".
+> Obs1: O react usa muitas vezes para construir um *componente* uma **classe(class)**, *class* é uma palavra reservada no **javascript** para representar uma classe. Até ja comentamos, que de fatop não existe a classe, ela irá virar uma **função**, mas é uma palavra reservada. Por isso, os seus atributos que anteriormente eram chamados de classe no browser, agora será chamado de [className=""]. Se colocarmos [class] ele irá reclamar na hora de fazer o PARSER para o JSX.
+> 
+> Obs2: Temos uma função que será exportada por padrão, ou seja, quando fizermos um import, iremos simplesmente receber essa função por padrão, onde vamos receber propriedades, construimos essa função usando a **função arrow =>**, que tem apenas uma unica sentença (). Poderiamos criar como uma função normal tambe, mas tenha em mente que esses parenteses nao representam o **corpo** do **metodo** e sim uma **expressão** retornada a partir da função **arrow()**.
+> ~~~javascript
+>   export default props => 1 + 1 ----> função de unica linha de codigo
+>   export default props => (1 + 1) -----> expressão
+>   export default props => {1 + 1} -----> erroo , com chaves precisa do return()
+>   export default props => {return 1 + 1} ->> funciona
+>   export default props => {return (1 + 1)} ->> funciona
+>   export default props => return 1 + 1 ->> erro, impicitamente o return() ja esta sendo colocado.
+> ~~~
+> No caso do JSX como vamos ter um codigo HTML de multiplas linhas, para que ele funcione corretamente temos que colocar ele envolvido em parenteses(), mostrando que é uma expressão que esta sendo retornada a partir da chamada do metodo.
+~~~jsx
+[/src/app.jsx - ESTRUTURA INICIAL]
+import 'modules/bootstrap/dist/css/bootstrap.min.css'
+import 'modules/font-awesome/css/font-awesome.min.css'
+
+import React from 'react'
+
+export default props => (
+    <div className='container'>
+        <h1>Teste</h1>
+    </div>
+)
+~~~
+
+Apos a criação da nossa função iremos criar um novo arquivo chamado [/src/index.jsx], que será o **PONTO DE ENTRADA** que definimos no nosso */frontend/webpack.config.js*.
+
+Nele vamos fazer o import de algumas dependencias:
+- **REACT**
+- **REACTDOM** -> Esse arquivo é o unico que irá interagir diretamente com o **DOM** da pagina.
+- **APP.jss** -> vamos importar nosso compoennte app, usando o **caminho relativo**.
+
+~~~jsx
+[/src/index.jsx - ESTRUTURA INICIAL]
+import React from "react";
+import ReactDOM from 'react-dom'
+import App from './main/app'
+
+~~~
+
+
+    4 - Para finalizar vamos chamar a função [reactDOM.render()], onde vamos passar nosso componente que possui nossa aplicação [<App />], e vamos dizer que ela será RENDERIZADA, no ELEMENTO cujo ID é APP.
+~~~jsx
+[/src/index.jsx - ESTRUTURA INICIAL]
+import React from "react";
+import ReactDOM from 'react-dom'
+import App from './main/app'
+
+ReactDOM.render(<App/>, document.getElementById('app'))
+~~~
+
+Ou seja, se vermos o codigo da nossa pagina do **/frontend/public/index.html**, vemos que ele será renderizado na **div** cujo **ID** é **app**.
+
+~~~html
+<DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Todo App</title>
+        <link rel="stylesheet" href="app.css">
+    </head>
+    <body>
+        <div id="app" class="container"></div>
+    </body>
+    <script src="app.js"></script>
+</html>
+~~~
+
+Agora iremos rodar o **FRONTEND** usando o comando abaixo, ele automaticamente irá rodar um **servidor web** na **Porta 8080**, onde ficará atualizando nossos arquivos sempre que houver uma mudança. Apos o webpack empacotar nossos arquivos vamos no browser e colocar **localhost:8080** para vermos nossa aplicação front-end rodando.
+
+~~~
+npm run dev
+~~~
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
