@@ -1433,3 +1433,160 @@ Concluimos nosso arquivo de configuração, na proxima aula iremos configurar no
 ## [Aula 132] - CRIANDO O INDEX.HTML
 
 &nbsp;
+
+Vamos agora criar uma pasta chamada **/frontend/public** e dentro desta pasta iremos criar o arquivo **/public/index.html**. 
+
+    1 - É bem simples a criação, uma estrutura muito basica.
+    -> DOCTYPE
+    -> HTML
+    -> HEAD ->| META |-> E VIEWPORT (DISPOSITIVOS MOVEIS) 
+            ->| TITLE | -> TODO APP
+    -> LINK PARA A FOLHA DE ESTILO QUE SERÁ GERADO A PARTIR DO WEBPACK.
+
+~~~HTML
+[/frontend/public/index.html - ESTRUTURA INCIAL]
+
+<DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Todo App</title>
+        <link rel="stylesheet" href="app.css">
+    </head>
+</html>
+~~~
+
+    2 - Apos a criação da <head> vamos criar um <body> que terá uma TAG, <div> que será juntamente o lugar onde toda a nossa APLICAÇÃO será injetada.
+    -> Vamos colocar uma CLASS  chamda [CONTAINER], que seria justamente a classe container do BOOTSTRAP, para que a aplicação fique dentro de umas MARGENS que o bootstrap estabelece.
+~~~HTML
+[/frontend/public/index.html - ESTRUTURA INCIAL]
+
+<DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Todo App</title>
+        <link rel="stylesheet" href="app.css">
+    </head>
+    <body>
+        <div id="app" class="container"></div>
+    </body>
+</html>
+~~~
+    3 - Finalmente, vamos fazer a referencia do nosso <script> que seria o [app.js], tanto o [app.js e o app.css], foram todos definidos no [webpack.config.js].
+~~~HTML
+[/frontend/public/index.html - ESTRUTURA INCIAL]
+
+<DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Todo App</title>
+        <link rel="stylesheet" href="app.css">
+    </head>
+    <body>
+        <div id="app" class="container"></div>
+    </body>
+    <script src="app.js"></script>
+</html>
+~~~
+
+Nossa estrutura inicial html agora esta configurada, proxima aula iremos iniciar o processo de criação dos nossos primeiros **COMPONENTES**.
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 133] - 
+
+&nbsp;
+
+
+
+
+
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 134] - 
+
+&nbsp;
+
+
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 135] - 
+
+&nbsp;
+
+
+
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 136] - 
+
+&nbsp;
+
+
+
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 137] - 
+
+&nbsp;
+
+
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 138] - 
+
+&nbsp;
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 139] - 
+
+&nbsp;
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 140] - 
+
+&nbsp;
