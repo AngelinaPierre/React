@@ -1198,6 +1198,24 @@ Em **todoForm.jsx** vamos ter os campos de **texto da tarefa**, **botão de pesq
 &nbsp;
 
 
+Vamos agora pensar um pouco como nossa aplicação esta organizar.
+~~~
+[Comp.app] ->  [Comp.Menu]
+           ->  [Comp.Rotas] -> [Comp.Todo] -> [Comp.TodoForm]
+           ->                              -> [Comp.TodoList]
+           ->               -> [Comp.About]
+~~~
+
+Focando um poucos nos componentes **Todo | TodoForm | TodoList** o que acontece é o seguinte. Quando trabalhamos com o *react* puro, sem o uso do **redux**, os **estados** são criados dentro dos *componentes*, um componente tem uma parte do estado e outro componente tem outra.
+
+O que acontence no caso do **TodoList**, desta lista de tarefas, por uma questão de estrategia, é que vamos concentrar boa parte do estado e boa parte do controle do cadastro em cima do componente mais abrangente que possui os dois menores, no caso [Comp.Todo].
+
+Vamos criar todas as funções no **componente principal** e passa-las via props para os outros *componentes*. Os dados, ações e estados irão ficar no componente **todo.jsx**. E vamos passar esses **dados,ações e estados** via propriedades.
+
+Quando formos migrar nosso sistema para o **redux** veremos a diferença entre as duas estrategias.
+
+
+
 &nbsp;
 
 ---
