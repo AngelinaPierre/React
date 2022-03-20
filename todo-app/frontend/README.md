@@ -1549,6 +1549,58 @@ Na proxima aula iremos voltar ao componente de botão para tentarmos criar uma e
 &nbsp;
 
 
+Agora, dentro do nosso */src/templates* vamos criar um novo componente que tratará da *Renderização Condicional* do nosso **iconButton.jsx**. O nome desse componentes será **if.jsx** e ele terá inicialmente a estrutura de um componente *funcional*.
+
+~~~javascript
+[/src/templates/if.jsx]
+
+import React from 'react'
+
+export default props => {
+
+}
+~~~
+
+    1 - Dentro deste componente vamos colocar um teste, se [props.test] for verdadeiro, iremos retornar o objeto que esta dentro da TAG desse componente que estamos criando agora <if>.
+    -> Se não for verdadeiro, ele irá retornar false
+~~~javascript
+[/src/templates/if.jsx]
+
+import React from 'react'
+
+export default props => {
+    if(props.teste){
+        return props.children
+    }else{
+        return false
+    }
+}
+~~~
+
+Esse será o componente que irá nos ajudar a nos outros componentes criarmos uma condicional sem a necessidade de fazer o **IF** do proprio *javascript*.
+
+    2 - Agora no nosso [/src/template/iconeButton.jsx] temos que importar a referencia para o componente <If>.
+    -> Agora  
+~~~javascript
+[/src/template/iconButton.jsx]
+
+import React from "react";
+import If from './if'
+
+export default props => (
+    <If test={!props.hide}>
+        <button 
+            className={'btn btn-'+ props.style}
+            onClick={props.onClick}
+        >
+            <i className={'fa fa-'+ props.icon} />
+        </button>
+    </If>
+)  
+~~~
+
+
+
 &nbsp;
 
 ---
