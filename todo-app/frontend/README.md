@@ -584,9 +584,596 @@ Em [/src/index.jsx], ele usou o **ReacDOM**, o *reactDOm* será utilizado soment
 
 ---
 
-## [Aula 133] - COMPONENTES TODO E ABOUT
+## [Aula 134] - COMPONENTES TODO E ABOUT
+
+&nbsp;
+
+Vamos criar uma nova pasta dentro de **/src/todo** e dentro desta pasta iremos criar um arquivo chamado **todo.jsx**. Ele será um componente baseado em **classe**.
+
+    1 - Para isso vamos fazer o import do REACT e do {COMPONENT}, da biblioteca do react.
+    -> Ele será o COMPONENTE mais complicado da nossa aplicação, ele irá centralizar boa parte das REGRAS, relativas ao CADASTRO DE TAREFAS DO NOSSO SISTEMA. 
+> Vamos perceber uma diferença muito grande fazer uma aplicação apenas com **React**, no qual temos um *Gerenciamento de Estado* muito mais limitado, pois quem tem estado é o componente, e as vezes queremos comunicar um determinado estado de um componente para outro, e as vezes não temos uma relação direta de pai pra filho. Logo, essa classe que iremos criar irá acabar centralizando mais as coisas.
+~~~javascript
+[/src/todo/todo.jsx - ESTRUTURA INICIAL]
+
+import React, {Component} from 'react'
+~~~
+
+    2 - Apos a criação do import do react, vamos criar a classe exportando-a por padrão, chamando ela de [Todo].
+    -> Para a utlização da classe, precisamos colocar um metodo obrigatorio que seria o metodo [render()], e dentro do metodo reder() colocamos o nosso return().
+~~~javascript
+[/src/todo/todo.jsx - ESTRUTURA INICIAL]
+import React, {Component} from 'react'
+
+export default class Todo extends Component {
+    render() {
+        return (
+
+        )
+    }
+}
+~~~
+
+    3 - Dentro do retorno do metodo render, vamos retornar uma expressão jsx, onde vamos criar uma <div> e dentro dela colocar um <h1> de teste.
+~~~javascript
+[/src/todo/todo.jsx - ESTRUTURA INICIAL]
+import React, {Component} from 'react'
+
+export default class Todo extends Component {
+    render() {
+        return (
+            <div>
+                <h1>Teste</h1>
+            </div>
+        )
+    }
+}
+~~~
+
+    4 - Para nossa aplicação usar esse componente, vamos em [/src/main/app.jsx], importamos o componente, usando um RELATIVE PATH*, e substituimos o contudo do arquivo [/src/main/app.jsx], pelo componente <Todo>, dentro de uma <div container> principal.
+~~~javascript
+[/src/todo/todo.jsx - ESTRUTURA FINAL]
+import React, {Component} from 'react'
+
+export default class Todo extends Component {
+    render() {
+        return (
+            <div>
+                <h1>Teste</h1>
+            </div>
+        )
+    }
+}
+
+[/src/MAIN/APP.jsx - ESTRUTURA FINAL]
+
+import 'modules/bootstrap/dist/css/bootstrap.min.css'
+import 'modules/font-awesome/css/font-awesome.min.css'
+
+import React from 'react'
+import Todo from '../todo/todo'
+
+export default props => (
+    <div className='container'>
+        <Todo />
+    </div>
+)
+
+~~~ 
+
+Vamos agora criar um novo componente, para isso dentro de **/src** vamos criar uma outra pasta e dentro desta pasta iremos criar o componente **/src/about/about.jsx**. Ele será um componente mais simples, logo iremos basea-lo em **função**.
+
+> Vamos sempre utilizar o mesmo padrão para a função, a não ser que ela requeira alguma complexidade a mais.
+> Vamos utilizar a **função arrow** com a propriedades *props*, onde não colocamos os (parenteses), pois é somente um atributo, e depois os parenteses() para representar a expressão/sentença que será retornada, que é justamente o codigo **JSX** que iremos criar.
+
+~~~javascript
+[/src/about/about.jsx - ESTRUTURA INICIAL]
+
+import React from "react";
+
+export default props => (
+    
+)
+~~~
+
+    1 - Vamos criar uma estrutura JSX basica, com uma <div> e um <h1> para definirmos o titulo de SOBRE, na pagina.
+~~~javascript
+[/src/about/about.jsx - ESTRUTURA INICIAL]
+
+import React from "react";
+
+export default props => (
+    <div>
+        <h1>Sobre</h1>
+    </div>    
+)
+~~~
+
+    2 - Agora iremos no [src/main/app.jsx], fazer o import do About e instancia-lo abaixo de <Todo />
+    -> Lembrando que esse é um codigo temporario para somente testarmos nossa aplicação.
+~~~javascript
+[/src/main/app.jsx - ESTRUTURA FINAL]
+
+import 'modules/bootstrap/dist/css/bootstrap.min.css'
+import 'modules/font-awesome/css/font-awesome.min.css'
+
+import React from 'react'
+import Todo from '../todo/todo'
+import About from '../about/about'
+
+export default props => (
+    <div className='container'>
+        <Todo />
+        <About />
+    </div>
+)  
+~~~
+
+
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 135] - COMPONENTES MENU
+
+&nbsp;
+
+Vamos agora fazer a criação do nosso *COMPONENTE MENU**, dentro de **/src** vamos criar uma nova pasta, entro desta nova pasta vamos criar o primeiro arquivo que será chamado de **/template/menu.jsx**. Ele tambem será um *Componente Funcional* igual o nosso **about.jsx**.
+
+    1 - Vamos fazer o import e criar a estrutura basica da função.
+~~~javascript
+[/src/template/menu.jsx - ESTRUTURA INICIAL]
+
+import React from "react";
+
+export default props => {
+    
+}
+~~~
+Agora iremos colocar uma serie de **classes** relativas ao *bootstrap*, olhar no **template** do [**react-bootstrap**](https://react-bootstrap.github.io/components/navbar/) como ele faz o **MENU** e copiar para dentro da nossa função. Poderiamos por exemplo, se tivessemos uma aplicação mais complexa, que tivesse varios menus diferentes, poderiamos quebrar cada item do **MENU** como sendo um **Componente Separado**. Poderiamos criar uma componente chamado **navbar.jsx**, **menuHeader.jsx**, **menuLogo.jsx**,**itensMenu.jsx**, **subMenu.jsx**...
+
+Para a gente não faz muito sentido nessa aplicação, mas voce precisa ter esse conhecimento de *trade-off*, criar multiplos componentes para facilitar a construção, ou criar um componente mais estruturado (vem pronto), para não precisarmos quebrar isso em multiplos arquivos/funções.
+
+    1 - Vamos colocar uma tag de <nav> com o [classname] apontando para algumas classes do BOOTSTRAP.
+~~~javascript
+[/src/template/menu.jsx - ESTRUTURA INICIAL]
+
+import React from "react";
+
+export default props => {
+    <nav className="navbar navbar-inverse bg-inverse"></nav>    
+}
+~~~
+    2 - Dentro da tag <nav>, vamos começar colocando uma <div> que representa o "container" dentro do nosso menu.
+~~~javascript
+[/src/template/menu.jsx - ESTRUTURA INICIAL]
+
+import React from "react";
+
+export default props => {
+    <nav className="navbar navbar-inverse bg-inverse">
+        <div className="container">
+            
+        </div>
+    </nav>
+}
+~~~
+> Estamos seguindo o modelo do bootstrap para a [template](https://react-bootstrap.github.io/components/navbar/).
+
+    3 - Vamos colocar a classe [navbar-header] e dentro dele vamos colocar, como se fosse a logo da nossa aplicação, usando a tag <a> e a classe [navbaar-brand].
+    -> Como logo vamos utilizar a tag  <i> e usar uma logo do FONT-AWESOME que instalamos mais cedo e colocaremos o nome da aplicação apra ser [TodoApp].
+~~~javascript
+[/src/template/menu.jsx - ESTRUTURA INICIAL]
+
+import React from "react";
+
+export default props => {
+    <nav className="navbar navbar-inverse bg-inverse">
+        <div className="container">
+            <div className="navbar-header">
+                <a href="#" className="navbar-brand">
+                    <i className="fa fa-calendar-check-o" /> TodoApp
+                </a>
+            </div>
+        </div>
+    </nav>
+}
+~~~
+ 
+    4 - Para o nosso MENU mesmo, vamos ter apenas 2 itens de MENU.
+    -> Um para adicionarmos uma tarefa e outro para mostrar o sobre.
+    -> Logo chamaremos uma <ul>  com classes do bootstrap para a NAVBAR, e usaremos as tags de <li> para separar entre [TAREFAS | SOBRE].
+> Usando o [#/todos], estamos usando o tipo de navegação de **hash(#)**.
+> >
+> Quando formos construir o arquivos de rotas **routes**, iremos usar o **hash(#)** como forma de *Historiar*, tudo o que formos passando de uma *URL* para outra.
+~~~javascript
+[/src/template/menu.jsx - ESTRUTURA INICIAL]
+
+import React from "react";
+
+export default props => {
+    <nav className="navbar navbar-inverse bg-inverse">
+        <div className="container">
+            <div className="navbar-header">
+                <a href="#" className="navbar-brand">
+                    <i className="fa fa-calendar-check-o" /> TodoApp
+                </a>
+            </div>
+            <div id="navbar" className="navbar-collapse collapse">
+                <ul className="nav navbar-nav">
+                    <li><a href="#/todos">Tarefas</a></li>
+                    <li><a href="#/about">Sobre</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+}
+
+~~~
+
+> Uma coisa que acontence quando estamos trabalhando com aplicação **SPA - Single Page Application**, é que por padrão acabamos perdendo o *Historio de navegação* no browser. Pois, como é uma aplicação de unica pagina e todas as requisições são **Requisições AJAX -  Asynchronous Javascript and XML**, em teoria não teriamos como ficar voltando na navegação.
+> 
+> É muito utilizado em varios frameworks a questão do **hash(#)**, o *hash* é algo que não vai para o servidor, é algo que esta apenas no **browser**. Muito utilizado para fazer **ancoras** clicamos no *link* e ele desce na pagina para ir para determinado ponto.
+> Ele é um articifio construindo do lado do *client/browser* para ficar avançando e voltando as **URL's** para que voce tenha historico, mas por exemplo, não conseguimos pegar o valor do *hash* no **servidor.
+
+    5 - Apos a criação do menu, vamos precisar importa-lo no nosso [/src/main/app.jsx].
+    -> Por enquanto iremos colocar a INSTANCIA do menu que importamos em cima dos outros componentes.
+~~~javascript
+[/src/main/app.jsx - ESTRUTURA INICIAL]
+
+import 'modules/bootstrap/dist/css/bootstrap.min.css'
+import 'modules/font-awesome/css/font-awesome.min.css'
+
+import React from 'react'
+import Todo from '../todo/todo'
+import About from '../about/about'
+import Menu from '../template/menu'
+
+export default props => (
+    <div className='container'>
+        <Menu />
+        <Todo />
+        <About />
+    </div>
+)  
+~~~
+
+Agora no browser, ja temos o**MENU** aparecendo, a navegação ainda não esta funcional, iremos faze-la na proxima aula.
+
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 136] - CONFIGURANDO AS ROTAS (REACT-ROUTER)
+
+&nbsp;
+
+Vamos agora fazer a configuração das **Rotas** para a *navegação* começar a funcionar. No nosso **/src/main/app.jsx** temos duas instancias de componentes funcinais que criamos *Todo & About*, elesserão substituidos pelo **router** que será nosso navegador.
+
+Para isso vamos criar uma arquivo chamado **/src/main/router.jsx**. Dentro deste arquivo iremos fazer alguns *imports* de dependencias.
+- *React* - 'react'
+- Vamos importar da dependencia **react-router**, algumas *tags* que iremos usar para implementar o nosso componente de rotas. Vamos usar 3 tags e uma *estrategia de historico*
+    - **{Router, Route, Redirect, hashHistory}**
+
+~~~javascript
+[/src/main/router.jsx - ESTRUTURA INICIAL]
+
+import React from 'react'
+import {Router, Route, Redirect, hashHistory} from 'react-router'
+~~~
+
+Alem das dependencias do *react-router*, vamos colocar as *dependencias* dos nossos componentes **Todo** e **About**, pois iremos precisar deles para **mapearmos as rotas**.
+
+~~~javascript
+[/src/main/router.jsx - ESTRUTURA INICIAL]
+
+import React from 'react'
+import {Router, Route, Redirect, hashHistory} from 'react-router'
+
+import Todo from '../todo/todo'
+import About from '../about/about'
+~~~
+
+    1 - Vamos agora fazer a parte da criação do componente funcional exportando ele por default e usando a estrutura inicial do componenete que discutimos mais cedo.
+~~~javascript
+[/src/main/router.jsx - ESTRUTURA INICIAL]
+
+import React from 'react'
+import {Router, Route, Redirect, hashHistory} from 'react-router'
+
+import Todo from '../todo/todo'
+import About from '../about/about'
+
+export default props => (
+
+)
+~~~
+
+    2 - O Componente terá um <ROUTER> que irá ENGLOGAR/ENCAPSULAR as rotas.
+    -> Vamos colocar como ESTRATEGIA DE HISTORICO o [hashHistory].
+> *Estratégia de Histórico - Existem outras como o **browserHistory***
+
+~~~javascript
+[/src/main/router.jsx - ESTRUTURA INICIAL]
+
+import React from 'react'
+import {Router, Route, Redirect, hashHistory} from 'react-router'
+
+import Todo from '../todo/todo'
+import About from '../about/about'
+
+export default props => (
+    <Router history={hashHistory}>
+
+    </Router>
+)
+~~~
+
+    3 - Dentro do nosso <Router> vamos criar a nossa primeira ROTA<Route> que será a rota para as nossas tarefas [/todos], e o COMPONENTE que ele irá carregar sempre que o PATH for [/todos], será o {Todo}, importando acima.
+~~~javascript
+[/src/main/router.jsx - ESTRUTURA INICIAL]
+
+import React from 'react'
+import {Router, Route, Redirect, hashHistory} from 'react-router'
+
+import Todo from '../todo/todo'
+import About from '../about/about'
+
+export default props => (
+    <Router history={hashHistory}>
+        <Route path='/todos' component={Todo}>
+    </Router>
+)
+~~~
+
+    4 - Vamos criar uma rota semelhante para nosso componente [/about].
+~~~javascript
+[/src/main/router.jsx - ESTRUTURA INICIAL]
+
+import React from 'react'
+import {Router, Route, Redirect, hashHistory} from 'react-router'
+
+import Todo from '../todo/todo'
+import About from '../about/about'
+
+export default props => (
+    <Router history={hashHistory}>
+        <Route path='/todos' component={Todo}>
+        <Route path='/about' component={About}>
+    </Router>
+)
+~~~
+
+    5 - Para finalizar, sempre que alguem colocar uma URL invalida, nosso ROUTER irá fazer um <REDIRECT>, para o nosso [/todos]
+~~~javascript
+[/src/main/router.jsx - ESTRUTURA INICIAL]
+
+import React from 'react'
+import {Router, Route, Redirect, hashHistory} from 'react-router'
+
+import Todo from '../todo/todo'
+import About from '../about/about'
+
+export default props => (
+    <Router history={hashHistory}>
+        <Route path='/todos' component={Todo} />
+        <Route path='/about' component={About}/>
+        <Redirect from='*' to='/todos' />
+    </Router>
+)
+
+~~~
+
+Agora para ver se nossa aplicação esta funcionando temos que ir no arquivo **/src/main/app.jsx**, onde vamos *importar* nossas rotas **Routes**, colocando a referencia do nosso componente de rotas abaixo do MENU e salvando.
+
+~~~javascript
+[/src/main/app.jsx]
+
+import 'modules/bootstrap/dist/css/bootstrap.min.css'
+import 'modules/font-awesome/css/font-awesome.min.css'
+
+import React from 'react'
+
+import Menu from '../template/menu'
+import Routes from './routes'
+
+export default props => (
+    <div className='container'>
+        <Menu />
+        <Routes />
+    </div>
+)  
+~~~
+
+Na proxima aula iremos criar uma **Componente** que será o componente de **PageHeader** que iremos substituir pelo *h1*, baseado em um **template do bootstrap**.
+
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 137] - COMPONENTE PAGE-HEADER
+
+&nbsp;
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 138] - COMPONENETES TODO-FORM E TODO-LIST
+
+&nbsp;
+
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 139] - ESTRATÉGIA DE IMPLEMENTAÇÃO
+
+&nbsp;
+
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 140] - ESTRUTURA DO FORMULÁRIO
+
+&nbsp;
+
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 141] - COMPONENTES GRID E ICON-BUTTON
+
+&nbsp;
+
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 142] - RENDERIZAÇÃO CONDICIONAL (IF)
+
+&nbsp;
+
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 143] - EVENDO ADICIONAR
 
 &nbsp;
 
 
 
+&nbsp;
+
+---
+
+---
+
+## [Aula 144] - EVENTO ONCHANGE
+
+&nbsp;
+
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 145] - EVENTO ADICIONAR (INTEGRAÇÃO BACKEND)
+
+&nbsp;
+
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 146] - CONSULTA E EXCLUSÃO DE TODOS
+
+&nbsp;
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 147] - MARCAR COMO CONCLUÍDO/PENDENTE
+
+&nbsp;
+
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 148] - PESQUISA DE TODOS
+
+&nbsp;
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 149] - MELHORIAS DE CSS E LIMPAR FORMULÁRIO
+
+&nbsp;
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 150] - ADICIONAR TECLAS DE ATALHO
+
+&nbsp;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+~~~javascript
+[/src/main/router.jsx - ESTRUTURA INICIAL]
+
+~~~
