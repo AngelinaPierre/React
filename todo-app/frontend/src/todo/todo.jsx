@@ -5,6 +5,9 @@ import TodoForm from './todoForm'
 import TodoList from './todoList'
 
 export default class Todo extends Component {
+    handleAdd() {
+        console.log('Add')
+    }
     render() {
         return (
             <div>

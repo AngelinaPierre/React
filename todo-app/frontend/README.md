@@ -1599,6 +1599,9 @@ export default props => (
 )  
 ~~~
 
+Agora ficou muito mais simples, se o [test] não estiver escondido, ele irá mostrar, se estiver escondido ele irá pular a renderização do **Botão**.
+
+
 
 
 &nbsp;
@@ -1610,6 +1613,149 @@ export default props => (
 ## [Aula 143] - EVENDO ADICIONAR
 
 &nbsp;
+
+Vamos agora fazer nossa primeira ação para vermos funcionando o *CLICK de um Botão* no nosso componente.
+
+No **/src/todo/todoForm.jsx** no botão do **IconeButton**, vamos adicionar o **onClick** nesse botão. Onde esse *onClick* por meio das propriedades irá receber uma função chamada **handleAdd**.
+
+Vamos passar umaa *função* que irá manipular o evento de adicionar uma nova tarefa e essa função virá a partir das propriedades *(props)* que será passada para essa classe de formulario de nossas tarefas.
+
+~~~javascript
+[/src/todo/todoForm.jsx]
+
+import React from "react";
+import Grid from '../template/grid'
+import IconButton from "../template/iconButton";
+
+export default props => (
+    <div role='form' className="todoForm">
+        <Grid cols='12-9-10'>
+            <input id="description" className="form-control" placeholder="Adicione uma tarefa" />
+        </Grid>
+       <Grid cols='12 3 2'>
+           <IconButton style='primary' icon='plus' onclick={props.handleAdd} />
+       </Grid>
+    </div>
+)
+~~~
+
+Vimos que no nosso **src/template/iconButton.jsx**, ele recebe uma propriedade chamada *onClick*, justamente essa propriedade que estamos usando no **/srx/todo/todoForm.jsx**.
+
+~~~javascript
+[/src/template/iconButton.jsx]
+import React from "react";
+import If from './if'
+
+export default props => (
+    <If test={!props.hide}>
+        <button 
+            className={'btn btn-'+ props.style}
+            onClick={props.onClick}
+        >
+            <i className={'fa fa-'+ props.icon} />
+        </button>
+    </If>
+)
+~~~
+
+Como na nossa classe **todo.jsx** é onde estará concentrada toda nossa logica dos **eventos**, dos **estados** que serão armazenados e outras coisas mais, vamos dentro desse arquivo começar a criar a logica para adicionar.
+
+    1 - Primeiro vamos criar uma função chamada handleAdd() que irá manipular o evento de adição de uma nova tarefa.
+    -> Dentro desta função vamos colocar um console.log para vermos se esta funcionando.
+~~~javascript
+[/srx/todo/todo.jsx]
+
+import React, {Component} from 'react'
+
+import PageHeader from '../template/pageHeader'
+import TodoForm from './todoForm'
+import TodoList from './todoList'
+
+export default class Todo extends Component {
+    handleAdd() {
+        console.log('Add')
+    }
+    render() {
+        return (
+            <div>
+                <PageHeader name='Tarefas' small='Cadastro' />
+                <TodoForm />
+                <TodoList />
+            </div>
+        )
+    }
+}
+~~~
+
+    2 - A funçao [handleAdd()] está na classe [Todo], mas o BOTÃO, esta no componente [todoForm.jsx], como passamos a funçao [handleAdd()] para o [todoForm.jsx] para a partir do click do botão ser chamada a função?
+    -> Vamos passar pela TAG <TodoForm> que irá receber como propriedade um cara chamado [handleADD] que criamos em [todoForm.jsx].
+~~~javascript
+[/srx/todo/todo.jsx]
+
+import React, {Component} from 'react'
+
+import PageHeader from '../template/pageHeader'
+import TodoForm from './todoForm'
+import TodoList from './todoList'
+
+export default class Todo extends Component {
+    handleAdd() {
+        console.log('Add')
+    }
+    render() {
+        return (
+            <div>
+                <PageHeader name='Tarefas' small='Cadastro' />
+                <TodoForm handleAdd={this.handleAdd/>
+                <TodoList />
+            </div>
+        )
+    }
+}
+~~~
+
+    3 - Agora iremos testar essa função, para isso basta ir no browser e ver se no console aparece a mensagem quando clicamos no botão de adicionar.
+
+Temos um detalhe muito importante no uso dessa função que é o seguinte: 
+- Por varias vezes vamos precisar usar coisas que estão dentro do objeto **THIS**. Queremos saber, no caso da chamada do **console.log()** na função *handleAdd()* quem está armazenado na variavel **this**.
+- Quando vemos a saida do console.log(this) recebemos o *null*, isso irá gerar um problema na hora que formos tentar acessar alguma coisa a partir do *this*. 
+
+> O *this* em funções normais, muda o valor de acordo com quem *8chama** a função. Na maioria das linguagens o *this* esta associado ao lugar onde ele foi escrito.
+
+- Como não é interessante o nosso *this* estar **nulo**, vamos criar uma **Construtor** que recebe props, chamando o super() para as propriedades, para nao dar problema, e dentro do *constructor* vamos fazer uma "AMARRAÇÃO", dizendo que o **this.handleAdd** é igual a *this.handleAdd* mais um bind do *this*.
+  - Dentro do Constructor o **this** com certeza aponta para a propria classe, e fazendo essa amarração com o **bind()**, estamos dizendo que independente de quem chama, ja que essa função esta sendo chamada a partir de um evento que veio da DOM, click do botão, e quem chamou não foi a class, por isso não foi o this da classe. 
+  - Quando fazemos esse **bind()** estamos garantindo que o **this()** será o da classe *TODO*.
+
+
+~~~javascript
+[/srx/todo/todo.jsx]
+
+import React, {Component} from 'react'
+
+import PageHeader from '../template/pageHeader'
+import TodoForm from './todoForm'
+import TodoList from './todoList'
+
+export default class Todo extends Component {
+    constructo(props){
+        super(props)
+        this.handleAdd = this.handleAdd.bind(this)
+    }
+    handleAdd() {
+        console.log('Add')
+    }
+    render() {
+        return (
+            <div>
+                <PageHeader name='Tarefas' small='Cadastro' />
+                <TodoForm handleAdd={this.handleAdd/>
+                <TodoList />
+            </div>
+        )
+    }
+}
+~~~
+
 
 
 
