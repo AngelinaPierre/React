@@ -993,6 +993,10 @@ export default props => (
 
 Na proxima aula iremos criar uma **Componente** que será o componente de **PageHeader** que iremos substituir pelo *h1*, baseado em um **template do bootstrap**.
 
+> Para que o erro do **bootstrap map** pare de ocorrer, basta deletar essa linha que esta comentada no arquivo
+> ~~~
+>/*# sourceMappingURL=bootstrap.min.css.map */ 
+> ~~~
 
 &nbsp;
 
@@ -1003,6 +1007,90 @@ Na proxima aula iremos criar uma **Componente** que será o componente de **Page
 ## [Aula 137] - COMPONENTE PAGE-HEADER
 
 &nbsp;
+
+Vamos agora criar o componente funcional **PageHeader** dedntro da nossa pasta **/template**
+
+~~~javascript
+[/template/pageHeader.jsx - ESTRUTURA INICIAL]
+
+import React from 'react'
+
+export default props => (
+
+)
+
+~~~
+
+    1 - O nosso componente será bem simples, ele terá uma tag <header>, onde iremos usar uma CLASSE do BOOTSTRAP no className chamada [page-header].
+~~~javascript
+[/template/pageHeader.jsx - ESTRUTURA INICIAL]
+
+import React from 'react'
+
+export default props => (
+    <header className='page-header'>
+
+    </header>
+)
+~~~
+
+    2 - Dentro do <header> vamos colocar um <h2> que irá receber via propriedades um NOME, e dentro dela vamos colocar uma tag <small> onde, tambem via props, iremos receber um SMALL.
+~~~javascript
+[/template/pageHeader.jsx - ESTRUTURA INICIAL]
+
+import React from 'react'
+
+export default props => (
+    <header className='page-header'>
+        <h2>{props.name}<small>{props.small}</smal></h2>
+    </header>
+)
+~~~
+
+Apos terminar a estrutura do nosso componente, vamos na classe(*class*) que criamos **Todo**, em [/src/todo/todo.jsx], e vamos colocar esse **componente pageHeader** no lugar do **h1**.
+~~~javascript
+[/src/todo/todo.jsx - ESTRUTURA FINAL]
+
+import React, {Component} from 'react'
+import PageHeader from '../template/pageHeader'
+
+export default class Todo extends Component {
+    render() {
+        return (
+            <div>
+                <PageHeader name='Tarefas' small='Cadastro' />
+            </div>
+        )
+    }
+}
+~~~
+
+Agora quando salvarmos e formos no *browser* irá aparecer o **Menu** seguindo o padrão do *bootstrap* que estabelecemos.
+
+Vamos fazer a mesma coisa para a pagina **/src/about/about.jsx**. Aproveitando que essa pagina será uma pagina *Estática*, não terá nenhum componente ou ação acontecendo nela, vamos colocar algumas tags de informação. Pois essa pagina so foi criada para vermos como se constroi a estrutura de navegação.
+
+~~~javascript
+[/src/about/about.jsx]
+
+import React from "react";
+import PageHeader from "../template/pageHeader";
+
+export default props => (
+    <div>
+        <PageHeader name='Sobre' small='Nós' />
+
+        <h2>Nossa História</h2>
+        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus consectetur eveniet tenetur, similique accusamus qui officia alias modi est non dolorem facilis. Quod ratione a magnam dicta omnis unde molestiae?</p>
+        <h2>Missão e Visão</h2>
+        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam, voluptatibus eum nesciunt, facilis iusto porro doloremque commodi est, minus odit quia laboriosam modi aliquid expedita dolorem id a numquam! Inventore.</p>
+        <h2>Imprensa</h2>
+        <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Architecto doloribus et laboriosam aliquam provident ipsum cupiditate tempore rem quos, aut maxime ipsam molestias nisi? Perspiciatis fugiat accusamus animi optio enim.</p>
+    </div>    
+)
+~~~
+
+Na proxima aula iremos começar a criar os *Componentes* do nosso *todo**,*todoForm* e *todoList*.
+
 
 &nbsp;
 
@@ -1124,10 +1212,19 @@ Na proxima aula iremos criar uma **Componente** que será o componente de **Page
 
 &nbsp;
 
+
+
+
+
+
+
+
+
+
+
 &nbsp;
 
 ---
-
 ---
 
 ## [Aula 149] - MELHORIAS DE CSS E LIMPAR FORMULÁRIO
@@ -1143,34 +1240,6 @@ Na proxima aula iremos criar uma **Componente** que será o componente de **Page
 ## [Aula 150] - ADICIONAR TECLAS DE ATALHO
 
 &nbsp;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ~~~javascript
