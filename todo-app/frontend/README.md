@@ -1102,6 +1102,90 @@ Na proxima aula iremos começar a criar os *Componentes* do nosso *todo**,*todoF
 
 &nbsp;
 
+Vamos agora criar os dois componentes do nosso **todoForm.jsx & todoList.jsx**. Os dois serão componentes funcionais que irão seguir o padrão estabelecido inicialmente nas outras aulas.
+
+~~~javascript
+[/src/todo/todoForm.jsx - ESTRUTURA INICIAL]
+
+import React from "react";
+
+export default props => (
+    
+)
+~~~
+
+    1 - Vamos criar uma <div> com <h1> so para vermos se o formulario esta tudo certo.
+~~~javascript
+[/src/todo/todoForm.jsx - ESTRUTURA INICIAL]
+
+import React from "react";
+
+export default props => (
+    <div>
+        <h1>Form</h1>
+    </div>
+)
+~~~
+
+    2 - Apos a criação vamos no componente de [/src/todo/todo.jsx], para fazer a importação do formulario e colocar nossa referencia 
+~~~javascript
+[/src/todo/todo.jsx]
+
+import React, {Component} from 'react'
+
+import PageHeader from '../template/pageHeader'
+import TodoForm from './todoForm'
+
+export default class Todo extends Component {
+    render() {
+        return (
+            <div>
+                <PageHeader name='Tarefas' small='Cadastro' />
+                <TodoForm />
+            </div>
+        )
+    }
+}
+~~~
+
+    3 - Agora iremos fazer a mesma coisa mas para nossa lista de todos.
+~~~javascript
+[/src/todo/todoList.jsx - ESTRUTURA INICIAL]
+import React from 'react'
+
+export default props => (
+    <div>
+        <h1>List</h1>
+    </div>
+)
+~~~
+
+~~~javascript
+[/src/todo/todo.jsx]
+
+import React, {Component} from 'react'
+
+import PageHeader from '../template/pageHeader'
+import TodoForm from './todoForm'
+import TodoList from './todoList'
+
+export default class Todo extends Component {
+    render() {
+        return (
+            <div>
+                <PageHeader name='Tarefas' small='Cadastro' />
+                <TodoForm />
+                <TodoList />
+            </div>
+        )
+    }
+}
+~~~
+
+Em **todoForm.jsx** vamos ter os campos de **texto da tarefa**, **botão de pesquisar, adicionar e limpar o campo**, e embaixo teremos a lista das tarefas com a opção de **marcar tarefa como concluida**, **desmarcar** e **excluir**.
+
+
+
 
 &nbsp;
 
