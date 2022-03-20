@@ -1308,6 +1308,235 @@ Na proxima aula, iremos criar uma *Componente* chamado **GRID**, onde ele irá *
 
 &nbsp;
 
+Dentro da pasta **/src/template** nos vamos criar o componente de **grid.jsx**. Nele iremos importar o **React** e o **{ Component}**, pois ele será um *componente baseado em classe*.
+
+~~~javascript
+[/src/templates/grid.jsx]
+import React , {Component} from 'react'
+
+export default class Grid extends Component {
+
+}
+~~~
+
+    1 - Dentro dessa classe vamos ter uma metodo chamado [toCssClasses()] que recebe uma propriedades chamada [numbers].
+~~~javascript
+[/src/templates/grid.jsx]
+import React , {Component} from 'react'
+
+export default class Grid extends Component {
+    toCssClasses(numbers){
+
+    }
+}
+~~~
+
+    2 - Nesse metodos, queremos passar uma lista de numeros, até 4 numeros, e ele irá converter esses 4 numeros, no padrão de 12 colunas do BOOTSTRAP.
+        - N1 = celular
+        - N2 = dispositivos menores, exemplo tablets.
+        - N1 = dispositivos medios
+        - N1 = telas maiores.
+    -> A primeira coisa que iremos fazer será separar esses numeros (dando um split(' ')), a partir do espaço (' ') e vamos armazenar esse array [], que possui 4 elementos,(css bootstrap so considera 4 tamanhos), em [cols].
+~~~javascript
+[/src/templates/grid.jsx]
+import React , {Component} from 'react'
+
+export default class Grid extends Component {
+    toCssClasses(numbers)
+        const cols = numbers ? numbers.spli(' ') : []
+    }
+}
+~~~
+
+    3 - Uma vez que tenhamos as colunas, vamos criar classes a partir dessa string classes. [let classes = ''].
+~~~javascript
+[/src/templates/grid.jsx]
+import React , {Component} from 'react'
+
+export default class Grid extends Component {
+    toCssClasses(numbers)
+        const cols = numbers ? numbers.spli(' ') : []
+        let classes = ''
+    }
+}
+~~~
+
+    4 - Para fazer uma teste vamos usar uma condicional para, se a coluna[0] zero, existir/tiver setada, vamos pegar a coluna[0] e adicionar no parametro [col-xs-coluna[0]], fazendo a concatenação com o padrão. Vamos repetir para todos os numeros que criamos.
+    -> Copiamos essa funçao abaixo e no console do browser usamos ela para ver se irá funcionar. Apos armazenar a função no console, chamaos ela passando valores:
+        - [toCssClasses('12')]
+        - [toCssClasses('12 6')]
+        - [toCssClasses('12 6 3 1')]
+        - [toCssClasses('12 6 3 1')]
+> A ideia desse **Componentes de Classe** que estamos criando é que é muito mais facil passar numeros do que todos essas palavras.
+~~~javascript
+[/src/templates/grid.jsx]
+import React , {Component} from 'react'
+
+export default class Grid extends Component {
+    toCssClasses(numbers)
+        const cols = numbers ? numbers.spli(' ') : []
+        let classes = ''
+
+        if(cols[0]) classes += `col-xs-${cols[0]}`
+        if(cols[1]) classes += `col-sm-${cols[1]}`
+        if(cols[2]) classes += `col-md-${cols[2]}`
+        if(cols[3]) classes += `col-lg-${cols[3]}`
+        
+        return classes
+    }
+}
+~~~
+
+    5 - Apos vermos que a função [toCssClasses(numbers)] do componente esta funcionando, vamos criar o metodo de renderição, obrigatorio em componentes baseados em CLASSES.
+    ->Dentro do metodo render(), vamos criar uma constante chamada [gridClasses] onde iremos chamar a função [toCssClasses], passando o parametro que queremos receber a partir das propriedades, no caso, as colunas (cols), se o (cols) não for setado, automaticamente o elemento terá 12 colunas, ou seja, ocupa a tela inteira.
+~~~javascript
+[/src/templates/grid.jsx]
+import React , {Component} from 'react'
+
+export default class Grid extends Component {
+    toCssClasses(numbers)
+        const cols = numbers ? numbers.spli(' ') : []
+        let classes = ''
+
+        if(cols[0]) classes += `col-xs-${cols[0]}`
+        if(cols[1]) classes += `col-sm-${cols[1]}`
+        if(cols[2]) classes += `col-md-${cols[2]}`
+        if(cols[3]) classes += `col-lg-${cols[3]}`
+        
+        return classes
+    }
+    render(){
+        const gridClasses = this.toCssClasses(this.props.cols || 12)
+    }
+}
+~~~
+
+    6 - No retorno do RENDER(), vamos ter uma div, que terá como CLASSNAME as classes convertidas para o padrão do bootstrap [gridClasses].
+    -> Dentro desta <div> iremos colocar os componentes filhos usando {this.props.children}.
+~~~javascript
+[/src/templates/grid.jsx]
+import React , {Component} from 'react'
+
+export default class Grid extends Component {
+    toCssClasses(numbers)
+        const cols = numbers ? numbers.spli(' ') : []
+        let classes = ''
+
+        if(cols[0]) classes += `col-xs-${cols[0]}`
+        if(cols[1]) classes += `col-sm-${cols[1]}`
+        if(cols[2]) classes += `col-md-${cols[2]}`
+        if(cols[3]) classes += `col-lg-${cols[3]}`
+        
+        return classes
+    }
+    render(){
+        const gridClasses = this.toCssClasses(this.props.cols || 12)
+        return (
+            <div className={gridClasses}}>
+                {this.props.children}
+            </div>
+        )
+    }
+}
+~~~
+
+    7 - Apos a criação da nossa CLASSE de grid, vamos no nosso componente de [todoForm.jsx], onde usamos as classes nas <divs> e vamos substituilas pelo [grid.jsx] que fizemos.
+~~~javascript
+[/src/todo/todoForm.jsx]
+
+import React from "react";
+import Grid from '../template/grid'
+
+export default props => (
+    <div role='form' className="todoForm">
+        <Grid cols='12-9-10'>
+            <input id="description" className="form-control" placeholder="Adicione uma tarefa" />
+        </Grid>
+       <Grid cols='12 3 2'>
+           <button className="btn btn-primary">
+                <i className="fa fa-plus" />
+            </button>
+       </Grid>
+    </div>
+)
+~~~
+
+    8 - Falta ainda fazermos o o componente dos BOTÕES. Então na pasta [ /templates ], vamos criar uma novo arquivo chamado [iconButton.jsx]. Ele será um componente basedo em função.
+> Vamos colocar nesse componente de *BOTÃO* uma **Renderização Condicional**, onde se ele estiver escondico coloca o valor *null*, se não estiver, mostra o template normal. Pois haverá situções onde queremos que esse botão fique escondido e outras, que queremos que ele apareça.
+~~~javascript
+[/src/templates/iconButton.jsx]
+import React from 'react'
+
+export default props => {
+
+}
+~~~
+    9 - Para isso, vamos colocar da seguinte maneira:
+        - Se a propriedade (hide) for verdadeira, vamos retornar nulo.
+        - Se não, irá retornar o componente <button>.
+    -> Dentro do CLASSNAME do <button> vamos fazer uma concatenação de parte de classes css, com uma propriedade que iremos receber como parametro, e colocamos tudo isso dentro de uma expressão {}
+~~~javascript
+[/src/templates/iconButton.jsx]
+import React from 'react'
+
+export default props => {
+    if(props.hide){
+        return null
+    }else{
+        return (
+            <button className={'btn btn-'+ props.style}>
+        )
+    }
+}
+~~~
+
+    10 - No atributo do ONCLICK, vamos receber essa função a partir das propriedades.
+    -> Para o conteudo do icone vamos deixar ele preenchar parcialmente, deixando o resto para o parametro.
+~~~javascript
+[/src/templates/iconButton.jsx]
+import React from "react";
+
+export default props => {
+    if(props.hiden){
+        return null
+    }else{
+        return (
+            <button 
+                className={'btn btn-'+ props.style}
+                onClick={props.onClick}
+            >
+                <i className={'fa fa-'+ props.icon} />
+            </button>
+        )
+    }
+}
+~~~
+
+    11 - Apos criado o botão, substituimos ele no [/src/todo/todoForm.jsx].
+        -> <IconButton style='primary' icon='plus' />
+~~~javascript
+[/src/todo/todoForm.jsx]
+import React from "react";
+import Grid from '../template/grid'
+import IconButton from "../template/iconButton";
+
+export default props => (
+    <div role='form' className="todoForm">
+        <Grid cols='12-9-10'>
+            <input id="description" className="form-control" placeholder="Adicione uma tarefa" />
+        </Grid>
+       <Grid cols='12 3 2'>
+           <IconButton style='primary' icon='plus'></IconButton>
+       </Grid>
+    </div>
+)
+~~~
+
+Na proxima aula iremos voltar ao componente de botão para tentarmos criar uma estrategia mais interessante do que essa de fazer o teste usando javascript puro. Vamos criar uma *tag* para que ela nos sirva de condição, **tag if**.
+
+
+
+
 
 &nbsp;
 
@@ -1354,6 +1583,7 @@ Na proxima aula, iremos criar uma *Componente* chamado **GRID**, onde ele irá *
 &nbsp;
 
 
+
 &nbsp;
 
 ---
@@ -1374,7 +1604,6 @@ Na proxima aula, iremos criar uma *Componente* chamado **GRID**, onde ele irá *
 
 &nbsp;
 
-
 &nbsp;
 
 ---
@@ -1384,15 +1613,6 @@ Na proxima aula, iremos criar uma *Componente* chamado **GRID**, onde ele irá *
 ## [Aula 148] - PESQUISA DE TODOS
 
 &nbsp;
-
-
-
-
-
-
-
-
-
 
 
 &nbsp;
@@ -1414,8 +1634,3 @@ Na proxima aula, iremos criar uma *Componente* chamado **GRID**, onde ele irá *
 
 &nbsp;
 
-
-~~~javascript
-[/src/main/router.jsx - ESTRUTURA INICIAL]
-
-~~~
