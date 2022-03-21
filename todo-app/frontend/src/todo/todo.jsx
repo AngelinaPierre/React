@@ -17,6 +17,18 @@ export default class Todo extends Component {
         }
         this.handleOnChange = this.handleOnChange.bind(this)
         this.handleAdd = this.handleAdd.bind(this)
+        this.handleRemove = this.handleRemove.bind(this)
+        this.refresh()
+    }
+    refresh(){
+        axios.get(`${URL}?sort=-createdAt`)
+            .then(
+                resp => this.setState({
+                    ...this.state,
+                    description: '',
+                    list: resp.data,
+                })
+            )
     }
     handleOnChange(eChange){
         this.setState({
@@ -29,7 +41,13 @@ export default class Todo extends Component {
         const description = this.state.description
         axios.post(URL,{description})
             .then(
-                resp => console.log('|DATABASE UPDATED|')
+                resp => this.refresh()
+            )
+    }
+    handleRemove(todo){
+        axios.delete(`${URL}/${todo._id}`)
+            .then(
+                resp => this.refresh()
             )
     }
     render() {
@@ -41,7 +59,10 @@ export default class Todo extends Component {
                     description={this.state.description}
                     handleChange={this.handleOnChange}
                 />
-                <TodoList />
+                <TodoList 
+                    list={this.state.list} 
+                    handleRemove = {this.handleRemove}
+                />
             </div>
         )
     }
