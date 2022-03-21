@@ -1771,6 +1771,284 @@ Esse é um processo que teremos que fazer para basicamente todos os metodos que 
 
 &nbsp;
 
+Nosso evento para *adicionar* ja esta sendo chamado/invocado, inclusive utilizando o **this** correto. Iremos agora trabalhar com o campo de descrição da tarefa, para que a gente possa colocar ele como sendo um **Componente Controlado** pelo *React*, no momento ele esta recebendo qualquer coisa, sem a gerencia do *React*.
+
+Vamos transforma-lo em um **Componente Controlado** e vamos usar uma propriedade (**onChange**) que irá chamar uma função para ficar manipulando, notificado das mudanças, e podermos atualizar o *Estado do Objeto*.
+
+    1 - Vamos entrar nosso [todoForm.jsx], onde esta nosso componenete de <input> (descrição). 
+    -> Nele, vamos adicionar uma propriedade chamada [value=], onde ele irá receber esse valor via propriedades[props.description]. Essa propriedade será passada a partir da CLASSE [todo.jsx], pois ela que terá o ESTADO da aplicação.
+~~~javascript
+[/src/todo/todoForm.jsx]
+
+import React from "react";
+import Grid from '../template/grid'
+import IconButton from "../template/iconButton";
+
+export default props => (
+    <div role='form' className="todoForm">
+        <Grid cols='12-9-10'>
+            <input 
+                id="description" 
+                className="form-control" 
+                placeholder="Adicione uma tarefa"
+                value={props.description} />
+        </Grid>
+       <Grid cols='12 3 2'>
+           <IconButton 
+                style='primary' 
+                icon='plus' 
+                onClick={props.handleAdd} 
+            />
+       </Grid>
+    </div>
+)
+~~~
+
+    2 - Voltando para a CLASSE TODO [/src/todo/todo.jsx], vamos, dentro do CONSTRUTOR mesmo, criar o ESTADO, onde ele irá receber um OBJETO com a propriedade [DESCRIPTION] vazia.
+    -> Esse OBJETO tambem terá uma propriedade [LISTA], que por enquanto será um ARRAY VAZIO [], estado inicial do OBJETO.
+~~~javascript
+[/src/todo/todo.jsx]
+import React, {Component} from 'react'
+
+import PageHeader from '../template/pageHeader'
+import TodoForm from './todoForm'
+import TodoList from './todoList'
+
+export default class Todo extends Component {
+    constructor(props){
+        super(props)
+        // create state
+        this.state = {
+            description: '',
+            list: [],
+        }
+        this.handleAdd = this.handleAdd.bind(this)
+    }
+    handleAdd() {
+        console.log('Add')
+    }
+    render() {
+        return (
+            <div>
+                <PageHeader name='Tarefas' small='Cadastro' />
+                <TodoForm handleAdd={this.handleAdd}/>
+                <TodoList />
+            </div>
+        )
+    }
+}
+~~~
+
+Ao longo das aulas, vimos que **props** é para somente *leitura*. E sempre que queremos trabalhar com **Estado do objeto** usamos o **this.state**, setando diretamente o *Estado* no **Construtor**, a partir dai, nos começamos a alterar o **Estado** a partir de um metodo chamado **setState()**, para **LER** o estado, podemos fazer direto o **this.state** e pegar o valor que queremos, mas para alterar temos que usar o **setState()**.
+
+Para passarmos esse estado que criamos para o formulário **todoForm.jsx*, que é justamente onde vamos ter a descrição da tarefa, terá a propriedade *description*, que irá enviar o Estado da propriedade desse objeto.
+
+~~~javascript
+[/src/todo/todo.jsx - Adicionando ao componente <todoForm>]
+
+import React, {Component} from 'react'
+
+import PageHeader from '../template/pageHeader'
+import TodoForm from './todoForm'
+import TodoList from './todoList'
+
+export default class Todo extends Component {
+    constructor(props){
+        super(props)
+        // create state
+        this.state = {
+            description: '',
+            list: [],
+        }
+        this.handleAdd = this.handleAdd.bind(this)
+    }
+    handleAdd() {
+        console.log('Add')
+    }
+    render() {
+        return (
+            <div>
+                <PageHeader name='Tarefas' small='Cadastro' />
+                <TodoForm 
+                    handleAdd={this.handleAdd}
+                    description={this.state.description}
+                />
+                <TodoList />
+            </div>
+        )
+    }
+}
+
+~~~ 
+Agora, sempre que o **state** ESTADO *atualizar* ele automaticamente irá renderizar o formulario para que ele reflita o valor novo. o **description={}** é justamente o que estamos tentando no **todoForm.jsx** receber a partir das propriedades.
+~~~
+<input 
+    ...
+    value = {props.description}
+>
+~~~
+
+Como tudo que passarmos para a tag do componente **TodoForm** é considerado como *propriedade* pegamos dentro do componente como *props*, e no **this.state.description** ligamos,digamos assim essa *propriedade* com o **Estado Interno** da TAG **Todo.jsx**.
+
+Os **Estados e Ações** ficaram dentro do componente **todo.jsx**, enquanto os outros componente **todoForm.jsx & todoList.jsx** serão o "template", estrutura do componente. E todo o que ele vai receber, todos os botões vão acabar gerando chamadas na CLASSE PAI **todo.jsx**, ja que o *gerenciamento de estado* é mais complicado fazer com multiplos componentes, centralizamos na classe **todo.jsx**.
+
+    3 - Agora em [todoForm.jsx], vamos adicionar um evento de ONCHANGE, onde ele irá receber via propriedades uma função chamada HANDLECHANGE, que será escrita em [Todo.jsx - classe pai].
+~~~javascript
+[/src/todo/todoForm.jsx]
+
+import React from "react";
+import Grid from '../template/grid'
+import IconButton from "../template/iconButton";
+
+export default props => (
+    <div role='form' className="todoForm">
+        <Grid cols='12-9-10'>
+            <input 
+                id="description" 
+                className="form-control" 
+                placeholder="Adicione uma tarefa"
+                value={props.description}
+                onChange={props.handleChange}
+             />
+        </Grid>
+       <Grid cols='12 3 2'>
+           <IconButton 
+                style='primary' 
+                icon='plus' 
+                onClick={props.handleAdd} 
+            />
+       </Grid>
+    </div>
+)
+~~~
+
+    4 - Vamos agora criar esse metodo de HANDLECHANGE, que irá justamente receber um evento(e | evento | qualquer_nome) sempre que o usuário digitar no <input>.
+~~~javascript
+[/src/todo/todo.jsx]
+handleChange(eChange){
+        
+    }
+~~~
+
+    5 - Esse evento, sempre que o usuario digitar, vamos ter que alterar o ESTADO ATUAL, a parte do estado referente a DESCRIPTION, descrição, tem a lista tambem.
+    -> Vamos assim chamar o THIS.SETSTATE, passando como propriedade({}) um objeto novo que irá pegar a partir do operador SPREDDING[...], todos os dados do ESTADO (state), que no caso sao dois (description & list), e vamos pegar a descrição e associar ao [event.target.value - lembrar que evento pode ter outro nome].
+~~~javascript
+[/src/todo/todo.jsx]
+handleChange(eChange){
+        this.setState({
+            ...this.state,
+            description: eChange.target.value,
+        })
+    }
+~~~
+
+O **e** é o *evento* do **onChange=** do *input<>*, dentro deste evento, temos um **target** que é justamente o input/box_inserção, e dentro do input tem um valor **value** que o usuario digitou. Este **valor**, vai estar dentro da **description**, do objeto que esse valor esta sendo atualizado a partir do estado criado usando o **setState()**.
+
+Agora, para chamarmos essa função, temos que ir na nossa TAG de **TodoForm<>**, e passar a função que criamos como uma propriedade que chama a função que criamos. O nome dessas propriedade tem q ser igual ao que usamos no [todoForms.jsx] para receber via **props.handleChange**, o nome da função passada para essa propriedade pode ser outro.
+
+~~~javascript
+[/src/todo/todo.jsx]
+
+import React, {Component} from 'react'
+
+import PageHeader from '../template/pageHeader'
+import TodoForm from './todoForm'
+import TodoList from './todoList'
+
+export default class Todo extends Component {
+    constructor(props){
+        super(props)
+        // create state
+        this.state = {
+            description: '',
+            list: [],
+        }
+        this.handleAdd = this.handleAdd.bind(this)
+    }
+    handleOnChange(eChange){
+        this.setState({
+            ...this.state,
+            description: eChange.target.value,
+        })
+    }
+    handleAdd() {
+        console.log('Add')
+    }
+    render() {
+        return (
+            <div>
+                <PageHeader name='Tarefas' small='Cadastro' />
+                <TodoForm 
+                    handleAdd={this.handleAdd}
+                    description={this.state.description}
+                    handleChange={this.handleOnChange}
+                />
+                <TodoList />
+            </div>
+        )
+    }
+}
+~~~
+
+Feito isso podemos ate testar o codigo mas receberemos um erro devido ao **this.setState()**, esse *this* que estamos utilizando não é o **this** que estamos esperando que seja, do proprio componente. Qualquer coisa que digitarmos irá informar que o **setState()** não pode ser lido pois esta vindo de um atributo **undefine**, justamente o **this**.
+
+Para consertar isso, temos que no **Construtor** criar uma **Bind** para o **this**. Amarrando assim o **this** no componente atual.
+
+~~~javascript
+[/src/todo/todo.jsx]
+import React, {Component} from 'react'
+
+import PageHeader from '../template/pageHeader'
+import TodoForm from './todoForm'
+import TodoList from './todoList'
+
+export default class Todo extends Component {
+    constructor(props){
+        super(props)
+        // create state
+        this.state = {
+            description: '',
+            list: [],
+        }
+        this.handleOnChange = this.handleOnChange.bind(this)
+        this.handleAdd = this.handleAdd.bind(this)
+    }
+    handleOnChange(eChange){
+        this.setState({
+            ...this.state,
+            description: eChange.target.value,
+        })
+    }
+    handleAdd() {
+        console.log('Add')
+    }
+    render() {
+        return (
+            <div>
+                <PageHeader name='Tarefas' small='Cadastro' />
+                <TodoForm 
+                    handleAdd={this.handleAdd}
+                    description={this.state.description}
+                    handleChange={this.handleOnChange}
+                />
+                <TodoList />
+            </div>
+        )
+    }
+}
+~~~
+
+Outra coisa que ja foi comentada, vamos comentar a linha onde colocamos a função **setSate()**, o que irá acontecer com o campo de input no browser? Não poderemos mas digitar nele. Esse campo, é dito como um **Campo Controlado** pelo *React*, que manda no valor que esta dentro do campo não é mais a DOM, e sim o **estado** deste componente, como o estado não esta mais alterando (comentamos), não iremos conseguir alterar.
+
+Se colocarmos como **Estado Inicial** a palavra *opa!*, ele irá reiniciar, e no campo iremos ver a palavra, masnão iremos conseguir excluir, nem adicionar nada a ela pois a linha de alteração do estado esta comentada.
+
+Por isso que quando o usuario escreve algo nesse *campo*, um **evento** é disparado, quando esse *evento* é disparado ele chama a **função** que irá manipular esse evento, *handleOnChange()*, o estado do componente evolui com o **setState()**, quando o estado muda, automaticamente o *React* irá chamar a função **render()**, para poder atualizar a visualização.
+
+Para termos certeza que esta funcionando, dentro da função **handleAdd()**, vamos colocar um console.log() para vermos a descrição.
+~~~javascript
+[/src/todo/todo.jsx]
+
+
 
 &nbsp;
 
