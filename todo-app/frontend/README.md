@@ -2931,6 +2931,504 @@ Agora na execução, vamos ver a lista mais o botão que criamos, e se clicarmos
 
 &nbsp;
 
+Apos fazer o sistema de adicionar e excluir, vamos agora em **todoList.jsx**, adicionar mais dois botões na lista de botões danossa tabela.
+
+    1 - Em cima do nosso icone de exclusão, vamos colocar um botão que irá ter cmo [style] o [success], e como [icon] será o [check], e o [ONCLICK] irá apontar para um evento quevamos criar como metodo em [todo.jsx], chamado handleMarkasDone().
+    -> Para esse evento, vamos passar o [todo] como propriedade, pois ele representa um item da lista.
+~~~javascript
+[/src/todo/todoList.jsx]
+
+import React from "react";
+
+import IconButton from "../template/iconButton";
+
+export default props => {
+
+    const renderRows = () => {
+        const list = props.list || []
+        return list.map(todo => (
+            <tr key={todo._id}>
+                <td>{todo.description}</td>
+                <td>
+                    <IconButton
+                        style='success'
+                        icon='check'
+                        onClick={
+                            () => props.handleMarkAsDone(todo)
+                        }
+                    />
+                    <IconButton 
+                        style='danger' 
+                        icon='trash-o'
+                        onClick={
+                            () => props.handleRemove(todo)
+                        }
+                    />
+                </td>
+            </tr>
+        ))
+    }
+
+    return (
+        <table className="table">
+            <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {renderRows()}
+            </tbody>
+        </table>
+    )
+}
+
+~~~
+
+> Sempre que queremos passar um **EVENTO** como parametro, não precisamos fazer uma chamada indireata **() =>** usando a *arrow function*. Mas sempre que quisermos passar algo diferente do que o evento, que seria, por exemplo o **todo** atual que estamos percorrendo usando o **map()**, temos que chamar a função **{handleMarkAsDone(todos)}** a partir de outra função, pois se chamarmos direto, sem a **arrow function**, o que estamos retornando no *onClick()*, é o resultado de {props.handleMarkAsDOne()} e nao a função que é o que queremos.
+
+    2 - O Segundo icone que iremos criar terá como atributos:
+        [style=warning & icon=undo]
+    -> O [ONCLCICK] tambem irá apontar para uma função(todo)que será passada como parametro.
+~~~javascript
+[/src/todo/todoList.jsx]
+
+import React from "react";
+
+import IconButton from "../template/iconButton";
+
+export default props => {
+
+    const renderRows = () => {
+        const list = props.list || []
+        return list.map(todo => (
+            <tr key={todo._id}>
+                <td>{todo.description}</td>
+                <td>
+                    <IconButton
+                        style='success'
+                        icon='check'
+                        onClick={
+                            () => props.handleMarkAsDone(todo)
+                        }
+                    />
+                    <IconButton
+                        style='warning'
+                        icon='undo'
+                        onClick={
+                            () => props.handleMarkAsPending(todo)
+                        }
+                    >
+                    <IconButton 
+                        style='danger' 
+                        icon='trash-o'
+                        onClick={
+                            () => props.handleRemove(todo)
+                        }
+                    />
+                </td>
+            </tr>
+        ))
+    }
+
+    return (
+        <table className="table">
+            <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {renderRows()}
+            </tbody>
+        </table>
+    )
+}
+~~~
+
+Logo, todas essas funções que estamos recebendo, o estado que estamos manipulando vem a partir de propriedades que estamos enviando do **componente todo.jsx**. Ja que essa é a estrategia mais simples de se trabalhar pois não temos um *gerenciamento de estado por componente*.
+
+Vamos agora na nossa classe **todo.jsx** criar os *metodos* que irão marcar e desmarcar as tarefas, eles que serão as funções passadas como propriedades para os componentes filhos, no cado **todoList.jsx**.
+
+
+    3 - Vamos fazer primeiro o [MarkAsDone], ele irá receber a tarefa(todo), e vamos usar o [axios.put()], para fazer uma ALTERAÇÃO, na propriedade [DONE] do nosso objeto.
+    -> Como so queremos alterar a variavel booleana DONE para true. Chamamos a [URL+ID - chamada de atualização, passa o id] como primeiro parametro, e o segundo parametro será o objeto com o dado [done: true].
+    -> Usamos o operador SPREDDING[...todo] para pegar todos os dados desse objeto "copiando", e mudamos o dado que representa o status [done] para TRUE.
+~~~javascript
+[/src/todo/todo.jsx]
+import React, {Component} from 'react'
+import axios from 'axios'
+
+import PageHeader from '../template/pageHeader'
+import TodoForm from './todoForm'
+import TodoList from './todoList'
+
+const URL = 'http://localhost:3003/api/todos'
+
+export default class Todo extends Component {
+    constructor(props){
+        super(props)
+        // create state
+        this.state = {
+            description: '',
+            list: [],
+        }
+        this.handleOnChange = this.handleOnChange.bind(this)
+        this.handleAdd = this.handleAdd.bind(this)
+        this.handleRemove = this.handleRemove.bind(this)
+        this.refresh()
+    }
+    refresh(){
+        axios.get(`${URL}?sort=-createdAt`)
+            .then(
+                resp => this.setState({
+                    ...this.state,
+                    description: '',
+                    list: resp.data,
+                })
+            )
+    }
+    handleOnChange(eChange){
+        this.setState({
+            ...this.state,
+            description: eChange.target.value,
+        })
+    }
+    handleAdd() {
+        // console.log(this.state.description)
+        const description = this.state.description
+        axios.post(URL,{description})
+            .then(
+                resp => this.refresh()
+            )
+    }
+    handleRemove(todo){
+        axios.delete(`${URL}/${todo._id}`)
+            .then(
+                resp => this.refresh()
+            )
+    }
+    handleDone(todo){
+        axios.put(`${URL}/${todo._id}`,{
+            ...todo,
+            done:true,
+        })
+            .then(
+                resp => this.refresh()
+            )
+    }
+    handlePending(todo){
+        axios.put(`${URL}/${todo._id}`,{
+            ...todo,
+            done:false,
+        })
+            .then(
+                resp => this.refresh()
+            )
+    }
+    render() {
+        return (
+            <div>
+                <PageHeader name='Tarefas' small='Cadastro' />
+                <TodoForm 
+                    handleAdd={this.handleAdd}
+                    description={this.state.description}
+                    handleChange={this.handleOnChange}
+                />
+                <TodoList 
+                    list={this.state.list} 
+                    handleRemove = {this.handleRemove}
+                />
+            </div>
+        )
+    }
+}
+
+~~~
+
+    4 - Agora para passarmos esses metodos para nosso componente de LISTA, temos que chamar a propropriedade esperada no [todoList.jsx], passando os metodos como propriedadades, lembrar de fazer o bind no constructor.
+~~~javascript
+[/src/todo/todo.jsx]
+import React, {Component} from 'react'
+import axios from 'axios'
+
+import PageHeader from '../template/pageHeader'
+import TodoForm from './todoForm'
+import TodoList from './todoList'
+
+const URL = 'http://localhost:3003/api/todos'
+
+export default class Todo extends Component {
+    constructor(props){
+        super(props)
+        // create state
+        this.state = {
+            description: '',
+            list: [],
+        }
+        this.handleOnChange = this.handleOnChange.bind(this)
+        this.handleAdd = this.handleAdd.bind(this)
+        this.handleRemove = this.handleRemove.bind(this)
+        this.handleDone = this.handleDone.bind(this)
+        this.handlePending = this.handlePending.bind(this)
+        this.refresh()
+    }
+    refresh(){
+        axios.get(`${URL}?sort=-createdAt`)
+            .then(
+                resp => this.setState({
+                    ...this.state,
+                    description: '',
+                    list: resp.data,
+                })
+            )
+    }
+    handleOnChange(eChange){
+        this.setState({
+            ...this.state,
+            description: eChange.target.value,
+        })
+    }
+    handleAdd() {
+        // console.log(this.state.description)
+        const description = this.state.description
+        axios.post(URL,{description})
+            .then(
+                resp => this.refresh()
+            )
+    }
+    handleRemove(todo){
+        axios.delete(`${URL}/${todo._id}`)
+            .then(
+                resp => this.refresh()
+            )
+    }
+    handleDone(todo){
+        axios.put(`${URL}/${todo._id}`,{
+            ...todo,
+            done:true,
+        })
+            .then(
+                resp => this.refresh()
+            )
+    }
+    handlePending(todo){
+        axios.put(`${URL}/${todo._id}`,{
+            ...todo,
+            done:false,
+        })
+            .then(
+                resp => this.refresh()
+            )
+    }
+    render() {
+        return (
+            <div>
+                <PageHeader name='Tarefas' small='Cadastro' />
+                <TodoForm 
+                    handleAdd={this.handleAdd}
+                    description={this.state.description}
+                    handleChange={this.handleOnChange}
+                />
+                <TodoList 
+                    list={this.state.list} 
+                    handleRemove = {this.handleRemove}
+                    handleMarkAsDone={this.handleDone}
+                    handleMarkAsPending = {this.handlePending}
+                />
+            </div>
+        )
+    }
+}
+
+~~~
+
+Para podermos ver algum efeito visual, vamos fazer uma configuração rapida em nosso **todoList.jsx**.
+
+    5 - No <td> vamos colocar um CLASSNAME onde vamos usar uma renderização condicional.
+        -> Se todo.done, ou seja, se a terefa estiver concluida, ele irá mostrar a classe [markAsDone].
+        -> Se não tiver, ou seja, retorna falso, ele não irá mostrar nada.
+~~~javascript
+[/src/todo/todoList.jsx]
+
+import React from "react";
+
+import IconButton from "../template/iconButton";
+
+export default props => {
+
+    const renderRows = () => {
+        const list = props.list || []
+        return list.map(todo => (
+            <tr key={todo._id}>
+                <td className={todo.done? 'markAsDone' : ''}>{todo.description}</td>
+                <td>
+                    <IconButton
+                        style='success'
+                        icon='check'
+                        onClick={
+                            () => props.handleMarkAsDone(todo)
+                        }
+                    />
+                    <IconButton
+                        style='warning'
+                        icon='undo'
+                        onClick={
+                            () => props.handleMarkAsPending(todo)
+                        }
+                    />
+                    <IconButton 
+                        style='danger' 
+                        icon='trash-o'
+                        onClick={
+                            () => props.handleRemove(todo)
+                        }
+                    />
+                </td>
+            </tr>
+        ))
+    }
+
+    return (
+        <table className="table">
+            <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {renderRows()}
+            </tbody>
+        </table>
+    )
+}
+~~~
+
+    6 - Para vermos isso funcionar, temos que criar uma CSS especifico para gente que iremos chamar de /template/CUSTOM.CSS.
+    -> Vamos colocar algumas classes css dentro deste arquivo
+
+~~~css
+[/src/template/custom.css]
+.btn {
+    margin-right: 5px;
+}
+.markedAsDone{
+    text-decoration: line-through;
+    color: #777;
+}
+~~~
+
+    7 - Para podermos usar esse CSS, na esfera do WEBPACK, o webpack so consegue acessar uma arquivo se a partir do INDEX tiver alguma arquivo que importe dentro do que queremos. pode ser num componenete ou qualquer lugar, mas tem q estar importando em algum arquivo linkado ao nosso webpack.
+    -> Vamos em [/main/app.jsx], nos fizemos o import do CSS DO BOOTSTRAP, vamos fazer o do nosso la tambem.
+~~~javascript
+[/src/main/app.jsx]
+import 'modules/bootstrap/dist/css/bootstrap.min.css'
+import 'modules/font-awesome/css/font-awesome.min.css'
+import '../template/custom.css'
+
+import React from 'react'
+
+import Menu from '../template/menu'
+import Routes from './routes'
+
+export default props => (
+    <div className='container'>
+        <Menu />
+        <Routes />
+    </div>
+)  
+
+~~~
+
+
+    8 - Outra coisa que teremos que fazer, é que esses botões sejam escondidos, para fazer isso é muito simples, em [todoList.jsx] basta colocamos [hide={todo.done}].
+    -> No caso do success, se tiver feito, temos que esconder o botão success.
+    -> No caso do botão [undo] temos o caso ao contrario, ele irá esconder caso ele não esteja concluido, ou seja, podemos usar o operador de negação (!) .
+    -> No caso do botão de excluir, usamos a mesma regra do UNDO.
+~~~javascript
+[/src/todo/todoList.jsx]
+
+import React from "react";
+
+import IconButton from "../template/iconButton";
+
+export default props => {
+
+    const renderRows = () => {
+        const list = props.list || []
+        return list.map(todo => (
+            <tr key={todo._id}>
+                <td className={todo.done? 'markedAsDone' : ''}>{todo.description}</td>
+                <td>
+                    <IconButton
+                        style='success'
+                        icon='check'
+                        onClick={
+                            () => props.handleMarkAsDone(todo)
+                        }
+                        hide={todo.done}
+                    />
+                    <IconButton
+                        style='warning'
+                        icon='undo'
+                        onClick={
+                            () => props.handleMarkAsPending(todo)
+                        }
+                        hide={!todo.done}
+                    />
+                    <IconButton 
+                        style='danger' 
+                        icon='trash-o'
+                        onClick={
+                            () => props.handleRemove(todo)
+                        }
+                        hide={!todo.done}
+                    />
+                </td>
+            </tr>
+        ))
+    }
+
+    return (
+        <table className="table">
+            <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {renderRows()}
+            </tbody>
+        </table>
+    )
+}
+
+~~~
+
+Colocamos o hide, para que não fosse obrigado, como no caso do show, termos que ficar colocando todos os icones. Usando o **hide** colocamos somente no que queremos controlar. O que deixa uma logica meio estranha pois eh a negação da negação, mas de qualquer forma ele irá esconder.  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 &nbsp;
 
 ---
