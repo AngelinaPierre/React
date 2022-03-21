@@ -2044,9 +2044,53 @@ Se colocarmos como **Estado Inicial** a palavra *opa!*, ele irá reiniciar, e no
 
 Por isso que quando o usuario escreve algo nesse *campo*, um **evento** é disparado, quando esse *evento* é disparado ele chama a **função** que irá manipular esse evento, *handleOnChange()*, o estado do componente evolui com o **setState()**, quando o estado muda, automaticamente o *React* irá chamar a função **render()**, para poder atualizar a visualização.
 
-Para termos certeza que esta funcionando, dentro da função **handleAdd()**, vamos colocar um console.log() para vermos a descrição.
+Para termos certeza que esta funcionando, dentro da função **handleAdd()**, vamos colocar um console.log() para vermos a descrição. Queremos visualizar para ver se a descrição será atualizada quando chamarmos o metodo.
 ~~~javascript
 [/src/todo/todo.jsx]
+
+import React, {Component} from 'react'
+
+import PageHeader from '../template/pageHeader'
+import TodoForm from './todoForm'
+import TodoList from './todoList'
+
+export default class Todo extends Component {
+    constructor(props){
+        super(props)
+        // create state
+        this.state = {
+            description: '',
+            list: [],
+        }
+        this.handleOnChange = this.handleOnChange.bind(this)
+        this.handleAdd = this.handleAdd.bind(this)
+    }
+    handleOnChange(eChange){
+        this.setState({
+            ...this.state,
+            description: eChange.target.value,
+        })
+    }
+    handleAdd() {
+        console.log(this.state.description)
+    }
+    render() {
+        return (
+            <div>
+                <PageHeader name='Tarefas' small='Cadastro' />
+                <TodoForm 
+                    handleAdd={this.handleAdd}
+                    description={this.state.description}
+                    handleChange={this.handleOnChange}
+                />
+                <TodoList />
+            </div>
+        )
+    }
+}
+~~~
+
+Na proxima aula iremos **integrar**, fazer a primeira itnegração com o nosso **BACKEND** usando o **Axios**, que é o *Cliente HTTP* mais padrão no contexto do REACT.
 
 
 
@@ -2059,6 +2103,99 @@ Para termos certeza que esta funcionando, dentro da função **handleAdd()**, va
 ## [Aula 145] - EVENTO ADICIONAR (INTEGRAÇÃO BACKEND)
 
 &nbsp;
+
+Na propria *classe* **Todo**, ja que ela irá fazer as requisições do **backend**, vamos **importar** a biblioteca do **AXIOS**, como organização vamos deixar os imports de *terceiros* na parte de cima e os imports *locais/aplicação* abaixo.
+
+~~~javascript
+[/src/todo/todo.jsx]
+// dependencias externas
+import React from 'react'
+import axios from 'axios'
+// dependencias internas
+import PageHeader from '../template/pageHeader'
+import TodoForm from './todoForm'
+import TodoList from './todoList'
+~~~
+
+    1 - Fora da nossa CLASS, vamos criar uma constante chamada [URL] nela iremos passar a URL BASE da nossa API no backend [http://localhost:3003/api/todos].
+~~~javascript
+[/src/todo/todo.jsx]
+// dependencias externas
+import React from 'react'
+import axios from 'axios'
+// dependencias internas
+import PageHeader from '../template/pageHeader'
+import TodoForm from './todoForm'
+import TodoList from './todoList'
+
+const URL = 'http://localhost:3003/api/todos'
+~~~
+
+Estamos rodando na *Porta 8080* nossa **Aplicação Frontend** e na *Porta 3003* estamos rodando a nossa **Aplicação Backend**.
+
+    2 - Vamos agora no metodo HANDLEADD, que é de adicionar, e vamos criar uma variavel/constante, chamada [DESCRIPTION], que virá do [this.state.description], vem do estado atual do objeto, valor mais novo.
+    -> Em cima dessa descrição/valor, vamos rodar o axios.post(), passando como primeiro argumento a URL que definimos na constante acima.
+    -> Como segundo parametro vamos passar um objeto {}, que terá apenas o atributo description.
+    -> Depois disso, como o AXIOS é baseado no METODO PROMISE, chamamos o [then()], e quando vinher a resposta(res =>) desse [then()], conseguimos pegar o valor novo que veio.
+    -> Vamos adicionar um console.log() para ver se funcionou.
+~~~javascript
+[/src/todo/todo.jsx]
+
+import React, {Component} from 'react'
+import axios from 'axios'
+
+import PageHeader from '../template/pageHeader'
+import TodoForm from './todoForm'
+import TodoList from './todoList'
+
+const URL = 'http://localhost:3003/api/todos'
+
+export default class Todo extends Component {
+    constructor(props){
+        super(props)
+        // create state
+        this.state = {
+            description: '',
+            list: [],
+        }
+        this.handleOnChange = this.handleOnChange.bind(this)
+        this.handleAdd = this.handleAdd.bind(this)
+    }
+    handleOnChange(eChange){
+        this.setState({
+            ...this.state,
+            description: eChange.target.value,
+        })
+    }
+    handleAdd() {
+        // console.log(this.state.description)
+        const description = this.state.description
+        axios.post(URL,{description})
+            .then(
+                resp => console.log('|DATABASE UPDATED|')
+            )
+    }
+    render() {
+        return (
+            <div>
+                <PageHeader name='Tarefas' small='Cadastro' />
+                <TodoForm 
+                    handleAdd={this.handleAdd}
+                    description={this.state.description}
+                    handleChange={this.handleOnChange}
+                />
+                <TodoList />
+            </div>
+        )
+    }
+}
+~~~
+
+Vamos agora na nossa aplicação, e criar uma nova tarefa para vermos no console.log() se funcionou. Outro teste que podemos fazer é chamando o **POSTMAN**, para vermos se realmente essa tarefa foi consumida no **Banco de Dados**, chamando o metodo GET da API para trazer todas as tarefas cadastradas até o momento.
+
+Ja estamos com o serviço de adicionar funcionando a partir da chamada do metodo **axios.post()**, fizemos um **POST** em cima da **URL BASE** que está rodando nosso backend., passamos um objeto que possui apenas a descrição, que é obrigatoria. Temos tabem a flag done que é obrigatoria e ja começa com o valor inicial sendo *false* para assim quando terminarmos a tarefa colocarmos como *true*. Na *data* temos o valor atual sendo colocado automaticamente.
+
+Proxima aula iremos continuar nossa progama agora fazendo a parte da **Consulta**, vamos consultar nossa **API BK**, usando o metodo **GET** pela biblioteca do **AXIOS**. Vamos capturar esses dados e mostrar na tela no nosso componente de lista.
 
 
 
