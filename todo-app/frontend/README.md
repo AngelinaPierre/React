@@ -1748,7 +1748,7 @@ export default class Todo extends Component {
         return (
             <div>
                 <PageHeader name='Tarefas' small='Cadastro' />
-                <TodoForm handleAdd={this.handleAdd/>
+                <TodoForm handleAdd={this.handleAdd}/>
                 <TodoList />
             </div>
         )
@@ -1756,7 +1756,9 @@ export default class Todo extends Component {
 }
 ~~~
 
+Esse é um conceito bastante tranquilo no *javascript*, por conta dessas *variações* que o **this** sofre, temos a possibilidade de dizer que uma função sempre esteja associada com o *this*, usando o metodo **bind()**, dizendo assim que o **this** sempre será o componente atual, e nesse sentido, vamos poder chamar qualquer função ou acessar o estado do objeto sem problema nenhum.
 
+Esse é um processo que teremos que fazer para basicamente todos os metodos que adicionarmos ao longo do nosso projeto. Sempre que adicionarmos um metodo novo que precisa acessar um estado, ou mesmo, chamar um outro metodo dentro da classe, vamos precisar ir no constructor e fazer o **bind()** para evitar que p **this** seja nulo, ou possua qualquer outro valor durante o fluxo da nossa aplicação.
 
 
 &nbsp;
