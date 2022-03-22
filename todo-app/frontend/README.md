@@ -4041,3 +4041,30 @@ Mas como ja foi dito, não temos como fazer projetos maiores essa comunicação 
 ## [Aula 151] - INTRODUÇÃO AO MÓDULO
 
 &nbsp;
+
+Vamos começar outro capitulo do nosso curso, e nesse capitulo iremos começar a utilizar o **REDUX**. Ou seja, o **Gerenciamento de Estado** dos *Dados* da nossa aplicação será feita por esse **Framework** que é muito utilizado no mundo do *React*.
+
+Queremos apontar algumas questões importantes que seriam o seguinte, esse *Framework, Redux*, é um pouco dificil de ser entendido. Teremos uma aula **Teorica** para que a gente possa ter uma ideia inicial sobre como funciona esse **Framework**.
+
+Vamos fazer uma migração da *Aplicação Todo* que construimos na seção passada para a utiização do **GErenciamento de Estado** usando o *Redux*, como foi dito em aulas passadas, essa *Aplicação* não é grande o suficiente para justificar a utilização do *Redux* poderem, como didatica será uma boa aplicação.
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 152] - ENTENDENDO O REDUX
+
+&nbsp;
+
+
+Vamos agora entender a **Teorioa** do *REDUX** e o seu **Gerenciamento de Estado**. Uma vez que entendemos esse *gerenciamento de estado* iremos conseguir exptrapolar esse conhecimento não somnte para o *redux* como tambem para outros cenários.
+
+## PROBLEMA.
+
+Vamos Revisar qual o problema de se trabalhar com *Aplicações Componentizadas*. Primeiramente na nossa aplicação, temos uma *Arvore de Componentes*, o que irá cacontence é que em determinados momentos, teremos um *Estado* que irá precisar ser compartilhado com outro *Componente* que esta bem longe na **Arvore de Componentes**.
+
+[**Arvore de Componentes**]('../img/component_tree/Arvore_de_componentes.png')
+
+Nessa caso para estabelecer a comunicação entre o *Componente Vermelho* e o *Componente Azul* teriamos que a partir de *Componente Vermelho* passar o **ESTADO** para o *Componente Azul* fazendo uma *Comunicação Indireta*, ou seja, estarioamo passando dados do *Componente Filho* para o *Componente Pai*, provavelmente o *Componente Pai* passou uma função, e aconteceu alguma coisa quando essa função foi chamada que devolveu algum **Dado** para o *Componente Pai*
