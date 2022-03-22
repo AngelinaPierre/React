@@ -4080,3 +4080,4 @@ Estamos trocando *dois componentes*, um componente que **possui os dados**, para
 
 Uma das coisas que queremos trabalhar é o fato de que teremos um **ESTADO EXTERNALIZADO**. o *REDUX* é uma solução de **Gerenciamento de Estado** da sua aplicação. A ideia é, em vez de voce ter um *Estado* dentro de seu *Componente*, voce terá um **ESTADO EXTERNO** AO COMPONENTE.
 
+![Gerenciamento de Estado](https://github.com/AngelinaPierre/React/blob/master/todo-app/img/component_tree/Gerenciamento%20de%20Estado%20Redux.png?raw=true)
