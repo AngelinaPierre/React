@@ -3860,7 +3860,7 @@ export default class Todo extends Component {
 ~~~
 
 
-
+Como quisemos conscentrar tudo relacionado a **logica** e **gerenciamento de estado * na **classe** *Todo.jsx* para facilitar, acabou que esse arquivo ficou gigante, se separassemos em mais componentes, talvez a comunicação ficasse mais dificl de ser feita.
 
 
 &nbsp;
@@ -3873,3 +3873,171 @@ export default class Todo extends Component {
 
 &nbsp;
 
+Para fecharmos com chave de ouro nosso projeto, vamos querer configurar para que possamos adicionar uma tarefa a partir do botão **ENTER**, e vamos tambem querer fazer uma pesquisa a partir do botão **SHIFT-ENTER** e queremos tambem que o campo de *pesquisa/cadastro*, limpe quando apertarmos a tecla **ESC**.
+
+    1 - Vamos no nosso [todoForm.jsx] e nele iremos primeiro fazer uma pequena alteração que será a seguinte:
+    -> Como vamos ter um metodo dentro de [TodoForm.jsx], vamos ter que substituir os (parenteses) pelas {chaves}, colocando o que tinhamos escrito, dentro de um RETURN.
+~~~javascript
+[/src/todo/todo.jsx]
+
+import React from "react";
+import Grid from '../template/grid'
+import IconButton from "../template/iconButton";
+
+export default props => {
+    return (
+        <div role='form' className="todoForm">
+            <Grid cols='12-9-10'>
+                <input 
+                    id="description" 
+                    className="form-control" 
+                    placeholder="Adicione uma tarefa"
+                    value={props.description}
+                    onChange={props.handleChange}
+                />
+            </Grid>
+            <Grid cols='12 3 2'>
+                <IconButton 
+                    style='primary' 
+                    icon='plus' 
+                    onClick={props.handleAdd}
+                />
+                <IconButton
+                    style='infor'
+                    icon='search'
+                    onClick={props.handleSearch}
+                />
+                <IconButton
+                    style='default'
+                    icon='close'
+                    onClick={props.handleClear}
+                />
+            </Grid>
+        </div>
+    )
+}
+~~~
+
+    2 - Dentro do nosso componente, vamos criar uma função chamada [keyHandler].
+    -> Essa função irá receber um evento, onde iremos fazer uma teste.
+                        [keyHandler = (e) => {teste}]
+        - [ENTER] se a chave que foi apertadar for um ENTER, vamos perguntar se o SHIFT esta apertado se tiver, chamamos o metodo de BUSCA se não tiver vamos chamar o medoto de ADIÇÃO. 
+        - [ESC] se a chave que foi apertadar for um ESCAPE, vamos chamar o metodo PARA LIMPAR.
+~~~javascript
+[/src/todo/todo.jsx]
+
+import React from "react";
+import Grid from '../template/grid'
+import IconButton from "../template/iconButton";
+
+export default props => {
+    const keyHandler = (e) => {
+        if(e.key === 'Enter'){
+            e.shiftKey ? props.handleSearch() : props.handleAdd()
+        }else if(e.key === 'Escape'){
+            props.handleClear()
+        }
+    }
+
+    return (
+        <div role='form' className="todoForm">
+            <Grid cols='12-9-10'>
+                <input 
+                    id="description" 
+                    className="form-control" 
+                    placeholder="Adicione uma tarefa"
+                    value={props.description}
+                    onChange={props.handleChange}
+                />
+            </Grid>
+            <Grid cols='12 3 2'>
+                <IconButton 
+                    style='primary' 
+                    icon='plus' 
+                    onClick={props.handleAdd}
+                />
+                <IconButton
+                    style='infor'
+                    icon='search'
+                    onClick={props.handleSearch}
+                />
+                <IconButton
+                    style='default'
+                    icon='close'
+                    onClick={props.handleClear}
+                />
+            </Grid>
+        </div>
+    )
+}
+~~~
+
+    3 - Agora precisamos colocar no nosso <input> um evento chamado [onKeyUp] que irá apontar para o metodo que criamos [keyHandler].
+    -> Automaticamente agora estaremos com essa funcionalidade de teclados funcionando.
+~~~javascript
+[/src/todo/todo.jsx]
+
+import React from "react";
+import Grid from '../template/grid'
+import IconButton from "../template/iconButton";
+
+export default props => {
+    const keyHandler = (e) => {
+        if(e.key === 'Enter'){
+            e.shiftKey ? props.handleSearch() : props.handleAdd()
+        }else if(e.key === 'Escape'){
+            props.handleClear()
+        }
+    }
+
+    return (
+        <div role='form' className="todoForm">
+            <Grid cols='12-9-10'>
+                <input 
+                    id="description" 
+                    className="form-control" 
+                    placeholder="Adicione uma tarefa"
+                    value={props.description}
+                    onChange={props.handleChange}
+                    onKeyUp = {keyHandler}
+                />
+            </Grid>
+            <Grid cols='12 3 2'>
+                <IconButton 
+                    style='primary' 
+                    icon='plus' 
+                    onClick={props.handleAdd}
+                />
+                <IconButton
+                    style='infor'
+                    icon='search'
+                    onClick={props.handleSearch}
+                />
+                <IconButton
+                    style='default'
+                    icon='close'
+                    onClick={props.handleClear}
+                />
+            </Grid>
+        </div>
+    )
+}
+~~~
+Apos fazer alguns teste vemos que nossa aplicação esta funcionando juntamente com as TECLAS de atalho.
+
+Proxima seção iremos começar a entrar no mundo do **Redux**, vamos utilizar esse mesmo projeto que criamos, onde iremos migrar ele para o **gerenciamento de estado com redux**, onde irá aumentar a complexidade, pois é outra biblioteca.
+
+Mas como ja foi dito, não temos como fazer projetos maiores essa comunicação normal entre os componentes do react, os componentes ficam divididos em varios lugares e as vezes um componente precisa de um determinado dado que esta em outro e não possui ligação direta com ele.
+
+# ==== [Seção 9 - GERENCIAMENTO DE ESTADO COM REDUX ] ====
+
+
+&nbsp;
+
+---
+
+---
+
+## [Aula 151] - INTRODUÇÃO AO MÓDULO
+
+&nbsp;
