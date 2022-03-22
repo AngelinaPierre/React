@@ -4069,3 +4069,14 @@ Vamos Revisar qual o problema de se trabalhar com *Aplicações Componentizadas*
 
 Nessa caso para estabelecer a comunicação entre o *Componente Vermelho* e o *Componente Azul* teriamos que a partir de *Componente Vermelho* passar o **ESTADO** para o *Componente Azul* fazendo uma *Comunicação Indireta*, ou seja, estariamos passando dados do *Componente Filho* para o *Componente Pai*, onde provavelmente o *Componente Pai* passou uma função, e aconteceu alguma coisa quando essa função foi chamada que devolveu algum **Dado** para o *Componente Pai*.
 
+Ja do *Componente Azul* para o *Componente vermelho* teremos uma **Comunicaação Direta**, ou seja, de um pai par um filho, ja que o *Componente Pai* possui uma **Referencia** para o *Componente Filho*, e a mesma coisa acontecerá do *Componente Vermelho* para o *Ultimo Componente Azul*, *Comunicação Direta*, *Componente Vermelho* tem uam *Referencia * para o *Componente Azul*.
+
+![Comunicação Direta](https://github.com/AngelinaPierre/React/blob/master/todo-app/img/component_tree/Arvore_de_componentes(1).png?raw=true)
+
+
+Estamos trocando *dois componentes*, um componente que **possui os dados**, para uma que **quer os dados**, para varios componentes se envolverem nessa comunicação sem necessidade. Temos 4 componentes envolvidos na comunicação em vez de somente os dois de interesse. Origem do dado, cquem quer consumir os dado.
+
+## A SOLUÇÃO
+
+Uma das coisas que queremos trabalhar é o fato de que teremos um **ESTADO EXTERNALIZADO**. o *REDUX* é uma solução de **Gerenciamento de Estado** da sua aplicação. A ideia é, em vez de voce ter um *Estado* dentro de seu *Componente*, voce terá um **ESTADO EXTERNO** AO COMPONENTE.
+
