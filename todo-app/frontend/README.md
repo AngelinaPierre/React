@@ -4065,6 +4065,7 @@ Vamos agora entender a **Teorioa** do *REDUX** e o seu **Gerenciamento de Estado
 
 Vamos Revisar qual o problema de se trabalhar com *Aplicações Componentizadas*. Primeiramente na nossa aplicação, temos uma *Arvore de Componentes*, o que irá cacontence é que em determinados momentos, teremos um *Estado* que irá precisar ser compartilhado com outro *Componente* que esta bem longe na **Arvore de Componentes**.
 
-[**Arvore de Componentes**]('../img/component_tree/Arvore_de_componentes.png')
+![Arvore de Componentes](https://github.com/AngelinaPierre/React/blob/master/todo-app/img/component_tree/Arvore_de_componentes.png?raw=true)
 
-Nessa caso para estabelecer a comunicação entre o *Componente Vermelho* e o *Componente Azul* teriamos que a partir de *Componente Vermelho* passar o **ESTADO** para o *Componente Azul* fazendo uma *Comunicação Indireta*, ou seja, estarioamo passando dados do *Componente Filho* para o *Componente Pai*, provavelmente o *Componente Pai* passou uma função, e aconteceu alguma coisa quando essa função foi chamada que devolveu algum **Dado** para o *Componente Pai*
+Nessa caso para estabelecer a comunicação entre o *Componente Vermelho* e o *Componente Azul* teriamos que a partir de *Componente Vermelho* passar o **ESTADO** para o *Componente Azul* fazendo uma *Comunicação Indireta*, ou seja, estariamos passando dados do *Componente Filho* para o *Componente Pai*, onde provavelmente o *Componente Pai* passou uma função, e aconteceu alguma coisa quando essa função foi chamada que devolveu algum **Dado** para o *Componente Pai*.
+
