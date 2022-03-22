@@ -17,7 +17,17 @@ export default props => (
            <IconButton 
                 style='primary' 
                 icon='plus' 
-                onClick={props.handleAdd} 
+                onClick={props.handleAdd}
+            />
+            <IconButton
+                style='infor'
+                icon='search'
+                onClick={props.handleSearch}
+            />
+            <IconButton
+                style='default'
+                icon='close'
+                onClick={props.handleClear}
             />
        </Grid>
     </div>

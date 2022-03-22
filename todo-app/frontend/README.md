@@ -3411,23 +3411,7 @@ export default props => {
 
 Colocamos o hide, para que não fosse obrigado, como no caso do show, termos que ficar colocando todos os icones. Usando o **hide** colocamos somente no que queremos controlar. O que deixa uma logica meio estranha pois eh a negação da negação, mas de qualquer forma ele irá esconder.  
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Proxima aula irems mexer com a parte de pesquisa da nossa aplicação, e depois iremo aplicar alguns estilos a nossa aplicação.
 
 &nbsp;
 
@@ -3440,6 +3424,198 @@ Colocamos o hide, para que não fosse obrigado, como no caso do show, termos que
 &nbsp;
 
 
+Vamos agora adicionar o botão que seria para fazermos a pesquisa das nossas tarefas. Para isso, vamos no **/todo/todoForm.jsx**, que é justamente o componente que controle esse campo de texto e os botões. Em *todoForm.jsx* temos por enquanto o botão de *Adicionar*, vamos fazer o da pesquisa com o icone da lupa.
+
+    1 - Vamos adicionar outra TAG de componente de botão. Nela iremos passar o [style=info | icon=search] e o [onClick] será um metodo que iremos criar em [todo.jsx], chamado [handlesearch].
+~~~javascript
+[/src/todo/todoForm.jsx]
+
+import React from "react";
+import Grid from '../template/grid'
+import IconButton from "../template/iconButton";
+
+export default props => (
+    <div role='form' className="todoForm">
+        <Grid cols='12-9-10'>
+            <input 
+                id="description" 
+                className="form-control" 
+                placeholder="Adicione uma tarefa"
+                value={props.description}
+                onChange={props.handleChange}
+             />
+        </Grid>
+       <Grid cols='12 3 2'>
+           <IconButton 
+                style='primary' 
+                icon='plus' 
+                onClick={props.handleAdd} 
+            />
+            <IconButton
+                style='infor'
+                icon='search'
+                onClick={props.handleSearch}
+            />
+       </Grid>
+    </div>
+)
+
+~~~
+
+    2 - Antes de criamos o metodo que fizemos referencia no [todoForm.jsx], vamos fazer uma pequena alteração no metodo de refresh() que criamos.
+    -> Nesse momento ele esta servindo para consultar a lista atualizada, inclusive ele esta zerando a descrição em um certo momento.
+    -> Uma das alterações que iremos fazer, é que iremos passar como parametro para o metodo REFRESH() uma descrição, que pode ser usada para ele consultar, não apenas todos, mas tamem a partir de uma descrição especifica usando um filtro que iremos configurar nessa URL.
+    -> O proprio NODE RESTFUL, que é o API onde construimos nossos WEBSERVICES no backend ele possui alguns filtros embutidos, vimos isso quando estavamos construindo a API, como exemplo o [sort=-createdAt], esta fazendo uma ordenação descrecente.
+    -> Vamos criar uma constante chamada SEARCH, onde, se o DESCRIPTION estiver setado, for diferente de vazio | nulo | undefined, por exemplo, vamos adicionar uma novo parametro chamado [description_regex] e vamos adicionar o CONTENT, para afzer essa buscar.
+    -> Se ele possui a descrição, irá entrar na url
+        [&description__regex=/${description}]
+    -> Se não possui essa descrição de busca, vamos colocar simplesmente uma string vazia.
+~~~javascript
+[/todo/todo.jsx - att refresh()]
+
+refresh(description = ''){
+    const search = description ? `&description__regex=/${description}/` : ''
+    axios.get(`${URL}?sort=-createdAt`)
+        .then(
+            resp => this.setState({
+                ...this.state,
+                description: '',
+                list:resp.data,
+            })
+        )
+}
+
+~~~
+
+    3 - Apos a criação dessa variavel, podemos coloca-la na nossa tempalte string que esta fazendo o GET na URL().
+    -> Estamos fazendo aqui, concatenações para criarmos uma URL, por isso estamos usando o (&) na variavel search.
+~~~javascript
+[/todo/todo.jsx - att refresh()]
+
+refresh(description = ''){
+    const search = description ? `&description__regex=/${description}/` : ''
+    axios.get(`${URL}?sort=-createdAt${search}`)
+        .then(
+            resp => this.setState({
+                ...this.state,
+                description: '',
+                list:resp.data,
+            })
+        )
+}
+
+~~~
+
+    4 - Vamos agora construir nosso metodo chamado [HANDLESEARCH], onde vamos simplesmente dentro dele passar a função de refresh e como propriedade desta função refresh vamos passar a descrição atual que esta no estado. Pois queremos fazer uma pesquisa em cima de algo que digitamos.
+    -> Lembrando que para que esse metodo funcione precisamos fazer um BIND() no constructor, e passar a função pelo atriubuto na TAG do formulario.
+~~~javascript
+[/src/todo/todo.jsx]
+
+import React, {Component} from 'react'
+import axios from 'axios'
+
+import PageHeader from '../template/pageHeader'
+import TodoForm from './todoForm'
+import TodoList from './todoList'
+
+const URL = 'http://localhost:3003/api/todos'
+
+export default class Todo extends Component {
+    constructor(props){
+        super(props)
+        // create state
+        this.state = {
+            description: '',
+            list: [],
+        }
+        this.handleOnChange = this.handleOnChange.bind(this)
+        this.handleAdd = this.handleAdd.bind(this)
+        this.handleRemove = this.handleRemove.bind(this)
+        this.handleDone = this.handleDone.bind(this)
+        this.handlePending = this.handlePending.bind(this)
+        this.handleSearch = this.handleSearch.bind(this)
+        this.refresh()
+    }
+    refresh(description = ''){
+        const search = description ? `&description__regex=/${description}` : ''
+        axios.get(`${URL}?sort=-createdAt${search}`)
+            .then(
+                resp => this.setState({
+                    ...this.state,
+                    description: '',
+                    list: resp.data,
+                })
+            )
+    }
+    handleOnChange(eChange){
+        this.setState({
+            ...this.state,
+            description: eChange.target.value,
+        })
+    }
+    handleAdd() {
+        // console.log(this.state.description)
+        const description = this.state.description
+        axios.post(URL,{description})
+            .then(
+                resp => this.refresh()
+            )
+    }
+    handleRemove(todo){
+        axios.delete(`${URL}/${todo._id}`)
+            .then(
+                resp => this.refresh()
+            )
+    }
+    handleSearch(){
+        this.refresh(this.state.description)
+    }
+    handleDone(todo){
+        axios.put(`${URL}/${todo._id}`,{
+            ...todo,
+            done:true,
+        })
+            .then(
+                resp => this.refresh()
+            )
+    }
+    handlePending(todo){
+        axios.put(`${URL}/${todo._id}`,{
+            ...todo,
+            done:false,
+        })
+            .then(
+                resp => this.refresh()
+            )
+    }
+    render() {
+        return (
+            <div>
+                <PageHeader name='Tarefas' small='Cadastro' />
+                <TodoForm 
+                    handleAdd={this.handleAdd}
+                    description={this.state.description}
+                    handleChange={this.handleOnChange}
+                    handleSearch={this.handleSearch}
+                />
+                <TodoList 
+                    list={this.state.list} 
+                    handleRemove = {this.handleRemove}
+                    handleMarkAsDone = {this.handleDone}
+                    handleMarkAsPending = {this.handlePending}
+                />
+            </div>
+        )
+    }
+}
+~~~
+
+>Cadastre algumas tarefas com palavras iguais e faça uma pesquisa para testar. 
+
+Algo que esta acontecendo é, fizemos a pesquisa e marcamos uma tarefa, ele apos a marcação esta saindo automaticamente da pesquisa e não queremos que ele faça isso. Como não é esse o comportamento que esperamos por padrão, logo na nossa função de **refresh()**, em vez de apagarmos , adicionamos ao estado atual a descrição que foi passada no propri refresh. 
+
+Com isso vamos ter que adicionar o **description** ao **refresh()** de algumas ações, quando removemos, vamos passar como propriedade o **this.state.description** , vamos fazer a mesma cosia para os outros metodos menos o de adicionar.
+
 &nbsp;
 
 ---
@@ -3448,6 +3624,244 @@ Colocamos o hide, para que não fosse obrigado, como no caso do show, termos que
 ## [Aula 149] - MELHORIAS DE CSS E LIMPAR FORMULÁRIO
 
 &nbsp;
+
+
+
+Vamos fazer algumas pequenas melhorias de **layout** na nossa aplicação. Vamos entrar no nosso arquivo de CSS que fizemos algumas aulas passadas chamado **custom.css**.
+
+    1 - Nele vamos colocar por exemplo uma classe chamada [tableAction], com [width=105px - para caber dois botões, os botões devem ser 50px mais ou menos]
+    -> Vamos tambem criar uma classe chamada [todoForm] para darmos um espaçamento entre esse campo de texto e a tabela [padding-bottom=60px]
+~~~css
+[/src/template/custom.css]
+.btn {
+    margin-right: 5px;
+}
+.markedAsDone{
+    text-decoration: line-through;
+    color: #777;
+}
+.tableAction{
+    width: 105px;
+}
+.todoForm{
+    padding-bottom: 60px;
+}
+~~~
+    2 - Apos fazer essas configurações iniciais, temos que adicionar as novas classes que criamos em [todoList.jsx - botão], o espaçamento entre o FORMS e o LIST ja foi aplicado. 
+    -> Vamos colocar a classe que falta do botão no <TH> por exemplo.
+~~~javascript
+[/src/todo/todoList.jsx]
+import React from "react";
+
+import IconButton from "../template/iconButton";
+
+export default props => {
+
+    const renderRows = () => {
+        const list = props.list || []
+        return list.map(todo => (
+            <tr key={todo._id}>
+                <td className={todo.done? 'markedAsDone' : ''}>{todo.description}</td>
+                <td>
+                    <IconButton
+                        style='success'
+                        icon='check'
+                        onClick={
+                            () => props.handleMarkAsDone(todo)
+                        }
+                        hide={todo.done}
+                    />
+                    <IconButton
+                        style='warning'
+                        icon='undo'
+                        onClick={
+                            () => props.handleMarkAsPending(todo)
+                        }
+                        hide={!todo.done}
+                    />
+                    <IconButton 
+                        style='danger' 
+                        icon='trash-o'
+                        onClick={
+                            () => props.handleRemove(todo)
+                        }
+                        hide={!todo.done}
+                    />
+                </td>
+            </tr>
+        ))
+    }
+
+    return (
+        <table className="table">
+            <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th className="tableAction">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {renderRows()}
+            </tbody>
+        </table>
+    )
+}
+~~~
+
+    3 - Vamos agora criar a nossa assim de LIMPAR O FORMULARIO.
+    -> Para isso, em [todoForm.jsx] vamos adicionar um novo botão, que será o de limpar o formulario. [style = default | icon = close].
+    -> Ele terá no seu [ONCLICK] o metodo enviado via propriedades pela classe [Todo], chamado de [handleClear]
+    -> Ja fizemos essa criação dos botões varias vezes, o que a torna repetitiva e facil de gravar.
+~~~javascript
+[/src/todo/todoForm.jsx]
+import React from "react";
+import Grid from '../template/grid'
+import IconButton from "../template/iconButton";
+
+export default props => (
+    <div role='form' className="todoForm">
+        <Grid cols='12-9-10'>
+            <input 
+                id="description" 
+                className="form-control" 
+                placeholder="Adicione uma tarefa"
+                value={props.description}
+                onChange={props.handleChange}
+             />
+        </Grid>
+       <Grid cols='12 3 2'>
+           <IconButton 
+                style='primary' 
+                icon='plus' 
+                onClick={props.handleAdd}
+            />
+            <IconButton
+                style='infor'
+                icon='search'
+                onClick={props.handleSearch}
+            />
+            <IconButton
+                style='default'
+                icon='close'
+                onClick={props.handleClear}
+            />
+       </Grid>
+    </div>
+)
+~~~
+
+    4 - Agora iremso no nosso [todo.jsx] construir o metodo, fazer o bind() no cosntructor e passar a função para o componente via a propriedade.
+    -> Esse metodo de limpeza so precisa chamar a função refresh(), que faz esse trabalho ja de limpar o campo e trazer a tabela para sua versão mais nova.
+~~~javascript
+[/src/todo/todo.jsx]
+
+import React, {Component} from 'react'
+import axios from 'axios'
+
+import PageHeader from '../template/pageHeader'
+import TodoForm from './todoForm'
+import TodoList from './todoList'
+
+const URL = 'http://localhost:3003/api/todos'
+
+export default class Todo extends Component {
+    constructor(props){
+        super(props)
+        // create state
+        this.state = {
+            description: '',
+            list: [],
+        }
+        this.handleOnChange = this.handleOnChange.bind(this)
+        this.handleAdd = this.handleAdd.bind(this)
+        this.handleRemove = this.handleRemove.bind(this)
+        this.handleDone = this.handleDone.bind(this)
+        this.handlePending = this.handlePending.bind(this)
+        this.handleSearch = this.handleSearch.bind(this)
+        this.handleClear = this.handleClear.bind(this)
+        this.refresh()
+    }
+    refresh(description = ''){
+        const search = description ? `&description__regex=/${description}/` : ''
+        axios.get(`${URL}?sort=-createdAt${search}`)
+            .then(
+                resp => this.setState({
+                    ...this.state,
+                    description,
+                    list: resp.data,
+                })
+            )
+    }
+    handleOnChange(eChange){
+        this.setState({
+            ...this.state,
+            description: eChange.target.value,
+        })
+    }
+    handleAdd() {
+        // console.log(this.state.description)
+        const description = this.state.description
+        axios.post(URL,{description})
+            .then(
+                resp => this.refresh()
+            )
+    }
+    handleRemove(todo){
+        axios.delete(`${URL}/${todo._id}`)
+            .then(
+                resp => this.refresh(this.state.description)
+            )
+    }
+    handleSearch(){
+        this.refresh(this.state.description)
+    }
+    handleDone(todo){
+        axios.put(`${URL}/${todo._id}`,{
+            ...todo,
+            done:true,
+        })
+            .then(
+                resp => this.refresh(this.state.description)
+            )
+    }
+    handlePending(todo){
+        axios.put(`${URL}/${todo._id}`,{
+            ...todo,
+            done:false,
+        })
+            .then(
+                resp => this.refresh(this.state.description)
+            )
+    }
+    handleClear(){
+        this.refresh()
+    }
+    render() {
+        return (
+            <div>
+                <PageHeader name='Tarefas' small='Cadastro' />
+                <TodoForm 
+                    handleAdd={this.handleAdd}
+                    description={this.state.description}
+                    handleChange={this.handleOnChange}
+                    handleSearch={this.handleSearch}
+                    handleClear = {this.handleClear}
+                />
+                <TodoList 
+                    list={this.state.list} 
+                    handleRemove = {this.handleRemove}
+                    handleMarkAsDone = {this.handleDone}
+                    handleMarkAsPending = {this.handlePending}
+                />
+            </div>
+        )
+    }
+}
+~~~
+
+
+
+
 
 &nbsp;
 
